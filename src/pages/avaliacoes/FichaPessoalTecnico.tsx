@@ -118,11 +118,42 @@ export default function FichaPessoalTecnico() {
   const grauFinal = getGrauDesempenho(naf);
 
   const handleSubmit = () => {
-    toast.success("Avaliação submetida com sucesso!");
+    // Validate required fields
+    const nomeAvaliado = (document.getElementById('nome') as HTMLInputElement)?.value;
+    if (!nomeAvaliado?.trim()) {
+      toast.error("Por favor, preencha o nome do avaliado.");
+      return;
+    }
+    
+    if (objectivosIndividuais.some(obj => !obj.descricao.trim())) {
+      toast.error("Por favor, preencha todos os objectivos individuais.");
+      return;
+    }
+
+    toast.success("Avaliação submetida com sucesso!", {
+      description: `NAF: ${naf.toFixed(2)} - ${grauFinal}`,
+    });
   };
 
   const handleSave = () => {
-    toast.success("Rascunho guardado com sucesso!");
+    const formData = {
+      objectivosIndividuais,
+      objectivosEquipa,
+      competenciasTransversais,
+      competenciasTecnicas,
+      naf,
+      grauFinal,
+      savedAt: new Date().toISOString(),
+    };
+    
+    localStorage.setItem('fichaAvaliacaoRascunho', JSON.stringify(formData));
+    toast.success("Rascunho guardado com sucesso!", {
+      description: "Os dados foram guardados localmente.",
+    });
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
@@ -144,7 +175,7 @@ export default function FichaPessoalTecnico() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
             </Button>
