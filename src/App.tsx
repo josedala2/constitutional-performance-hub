@@ -18,6 +18,10 @@ import FichaEntrePares from "./pages/avaliacoes/FichaEntrePares";
 import FichaUtentesInternos from "./pages/avaliacoes/FichaUtentesInternos";
 import FichaUtentesExternos from "./pages/avaliacoes/FichaUtentesExternos";
 import FichaAcompanhamento from "./pages/avaliacoes/FichaAcompanhamento";
+import RelatorioDesempenhoSuperior from "./pages/relatorios/RelatorioDesempenhoSuperior";
+import RelatorioEntrePares from "./pages/relatorios/RelatorioEntrePares";
+import RelatorioUtentesInternos from "./pages/relatorios/RelatorioUtentesInternos";
+import RelatorioUtentesExternos from "./pages/relatorios/RelatorioUtentesExternos";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +44,10 @@ const App = () => (
           <Route path="/avaliacoes/utentes-externos" element={<FichaUtentesExternos />} />
           <Route path="/avaliacoes/acompanhamento" element={<FichaAcompanhamento />} />
           <Route path="/relatorios" element={<Relatorios />} />
+          <Route path="/relatorios/desempenho-superior" element={<RelatorioDesempenhoSuperior />} />
+          <Route path="/relatorios/entre-pares" element={<RelatorioEntrePares />} />
+          <Route path="/relatorios/utentes-internos" element={<RelatorioUtentesInternos />} />
+          <Route path="/relatorios/utentes-externos" element={<RelatorioUtentesExternos />} />
           <Route path="/documentos" element={<Documentos />} />
           <Route path="/configuracoes" element={<Configuracoes />} />
           <Route path="*" element={<NotFound />} />
