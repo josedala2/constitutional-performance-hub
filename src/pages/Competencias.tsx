@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Award, Star, Edit } from "lucide-react";
+import { Plus, Search, Award, Star, Edit, Eye, Trash2 } from "lucide-react";
 import { mockCompetencies } from "@/data/mockData";
+import { Competency } from "@/types/sgad";
+import { CompetenciaModal } from "@/components/modals/CompetenciaModal";
+import { ConfirmDialog } from "@/components/modals/ConfirmDialog";
+import { toast } from "sonner";
 
 const proficiencyLevels = [
   { level: 5, label: "Muito Bom", description: "Sempre demonstra a competência" },
@@ -23,8 +28,99 @@ const proficiencyLevels = [
 ];
 
 const Competencias = () => {
-  const transversais = mockCompetencies.filter((c) => c.tipo === "transversal");
-  const tecnicas = mockCompetencies.filter((c) => c.tipo === "tecnica");
+  const [competencies, setCompetencies] = useState(mockCompetencies);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedCompetency, setSelectedCompetency] = useState<Competency | null>(null);
+  const [modalMode, setModalMode] = useState<"view" | "edit" | "create">("view");
+
+  const transversais = competencies.filter((c) => c.tipo === "transversal");
+  const tecnicas = competencies.filter((c) => c.tipo === "tecnica");
+
+  const handleView = (comp: Competency) => {
+    setSelectedCompetency(comp);
+    setModalMode("view");
+    setModalOpen(true);
+  };
+
+  const handleEdit = (comp: Competency) => {
+    setSelectedCompetency(comp);
+    setModalMode("edit");
+    setModalOpen(true);
+  };
+
+  const handleCreate = () => {
+    setSelectedCompetency(null);
+    setModalMode("create");
+    setModalOpen(true);
+  };
+
+  const handleDelete = (comp: Competency) => {
+    setSelectedCompetency(comp);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedCompetency) {
+      setCompetencies(competencies.filter((c) => c.id !== selectedCompetency.id));
+      toast.success("Competência eliminada com sucesso");
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  const handleSave = (data: Partial<Competency>) => {
+    if (modalMode === "create") {
+      const newCompetency: Competency = {
+        id: `comp-${Date.now()}`,
+        nome: data.nome || "",
+        tipo: data.tipo || "transversal",
+        carreira: data.carreira,
+      };
+      setCompetencies([newCompetency, ...competencies]);
+      toast.success("Competência criada com sucesso");
+    } else if (modalMode === "edit" && selectedCompetency) {
+      setCompetencies(competencies.map((c) => (c.id === selectedCompetency.id ? { ...c, ...data } : c)));
+      toast.success("Competência actualizada com sucesso");
+    }
+  };
+
+  const renderCompetencyCard = (competency: Competency, index: number) => (
+    <Card
+      key={competency.id}
+      className="shadow-institutional hover:shadow-lg transition-shadow animate-fade-in-up group"
+      style={{ animationDelay: `${index * 0.05}s` }}
+    >
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between">
+          <div className={`rounded-lg p-2 ${competency.tipo === "transversal" ? "bg-accent/10" : "bg-primary/10"}`}>
+            <Award className={`h-5 w-5 ${competency.tipo === "transversal" ? "text-accent" : "text-primary"}`} />
+          </div>
+          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button variant="ghost" size="icon" className="h-8 w-8" title="Visualizar" onClick={() => handleView(competency)}>
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" title="Editar" onClick={() => handleEdit(competency)}>
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" title="Eliminar" onClick={() => handleDelete(competency)}>
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </div>
+        </div>
+        <CardTitle className="text-base mt-3">{competency.nome}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between">
+          <Badge variant={competency.tipo === "transversal" ? "secondary" : "default"}>
+            {competency.tipo === "transversal" ? "Transversal" : "Técnica"}
+          </Badge>
+          <span className="text-xs text-muted-foreground">
+            {competency.carreira || "Todas as carreiras"}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <AppLayout>
@@ -39,7 +135,7 @@ const Competencias = () => {
               Gestão das competências transversais e técnicas
             </p>
           </div>
-          <Button variant="institutional" size="lg">
+          <Button variant="institutional" size="lg" onClick={handleCreate}>
             <Plus className="h-5 w-5 mr-2" />
             Nova Competência
           </Button>
@@ -114,67 +210,37 @@ const Competencias = () => {
 
           <TabsContent value="transversais" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {transversais.map((competency, index) => (
-                <Card
-                  key={competency.id}
-                  className="shadow-institutional hover:shadow-lg transition-shadow animate-fade-in-up"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between">
-                      <div className="rounded-lg bg-accent/10 p-2">
-                        <Award className="h-5 w-5 text-accent" />
-                      </div>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <CardTitle className="text-base mt-3">{competency.nome}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <Badge variant="secondary">Transversal</Badge>
-                      <span className="text-xs text-muted-foreground">Todas as carreiras</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {transversais.map((competency, index) => renderCompetencyCard(competency, index))}
             </div>
           </TabsContent>
 
           <TabsContent value="tecnicas" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {tecnicas.map((competency, index) => (
-                <Card
-                  key={competency.id}
-                  className="shadow-institutional hover:shadow-lg transition-shadow animate-fade-in-up"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between">
-                      <div className="rounded-lg bg-primary/10 p-2">
-                        <Award className="h-5 w-5 text-primary" />
-                      </div>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <CardTitle className="text-base mt-3">{competency.nome}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <Badge>Técnica</Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {competency.carreira || "Geral"}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {tecnicas.map((competency, index) => renderCompetencyCard(competency, index))}
             </div>
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Modal */}
+      <CompetenciaModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        competency={selectedCompetency}
+        mode={modalMode}
+        onSave={handleSave}
+      />
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Eliminar Competência"
+        description={`Tem a certeza que deseja eliminar a competência "${selectedCompetency?.nome}"? Esta acção não pode ser revertida.`}
+        confirmText="Eliminar"
+        variant="danger"
+        onConfirm={confirmDelete}
+      />
     </AppLayout>
   );
 };

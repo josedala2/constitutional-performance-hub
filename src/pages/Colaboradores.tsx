@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,14 +20,78 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Users, Eye, ClipboardCheck, Mail } from "lucide-react";
+import { Plus, Search, Users, Eye, ClipboardCheck, Edit, Trash2 } from "lucide-react";
 import { mockUsers } from "@/data/mockData";
-import { translateRole } from "@/types/sgad";
+import { User, translateRole } from "@/types/sgad";
+import { ColaboradorModal } from "@/components/modals/ColaboradorModal";
+import { ConfirmDialog } from "@/components/modals/ConfirmDialog";
+import { toast } from "sonner";
 
 const Colaboradores = () => {
-  const colaboradores = mockUsers.filter(
+  const [users, setUsers] = useState(mockUsers);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [modalMode, setModalMode] = useState<"view" | "edit" | "create">("view");
+
+  const colaboradores = users.filter(
     (u) => u.role === "avaliado" || u.role === "avaliador"
   );
+
+  const handleView = (user: User) => {
+    setSelectedUser(user);
+    setModalMode("view");
+    setModalOpen(true);
+  };
+
+  const handleEdit = (user: User) => {
+    setSelectedUser(user);
+    setModalMode("edit");
+    setModalOpen(true);
+  };
+
+  const handleCreate = () => {
+    setSelectedUser(null);
+    setModalMode("create");
+    setModalOpen(true);
+  };
+
+  const handleDelete = (user: User) => {
+    setSelectedUser(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedUser) {
+      setUsers(users.filter((u) => u.id !== selectedUser.id));
+      toast.success("Colaborador eliminado com sucesso");
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  const handleSave = (data: Partial<User>) => {
+    if (modalMode === "create") {
+      const newUser: User = {
+        id: `user-${Date.now()}`,
+        nome: data.nome || "",
+        email: data.email || "",
+        role: data.role || "avaliado",
+        cargo: data.cargo || "",
+        carreira: "Técnico",
+        unidade_organica: data.unidade_organica || "",
+        ativo: data.ativo ?? true,
+      };
+      setUsers([newUser, ...users]);
+      toast.success("Colaborador criado com sucesso");
+    } else if (modalMode === "edit" && selectedUser) {
+      setUsers(users.map((u) => (u.id === selectedUser.id ? { ...u, ...data } : u)));
+      toast.success("Colaborador actualizado com sucesso");
+    }
+  };
+
+  // Stats
+  const totalAtivos = colaboradores.filter((c) => c.ativo).length;
+  const avaliadores = colaboradores.filter((c) => c.role === "avaliador").length;
 
   return (
     <AppLayout>
@@ -41,7 +106,7 @@ const Colaboradores = () => {
               Gestão dos colaboradores e suas avaliações
             </p>
           </div>
-          <Button variant="institutional" size="lg">
+          <Button variant="institutional" size="lg" onClick={handleCreate}>
             <Plus className="h-5 w-5 mr-2" />
             Adicionar Colaborador
           </Button>
@@ -55,7 +120,7 @@ const Colaboradores = () => {
                 <Users className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold">45</p>
+                <p className="text-2xl font-bold">{totalAtivos}</p>
                 <p className="text-sm text-muted-foreground">Total Activos</p>
               </div>
             </CardContent>
@@ -88,7 +153,7 @@ const Colaboradores = () => {
                 <Users className="h-6 w-6 text-accent" />
               </div>
               <div>
-                <p className="text-2xl font-bold">5</p>
+                <p className="text-2xl font-bold">{avaliadores}</p>
                 <p className="text-sm text-muted-foreground">Avaliadores</p>
               </div>
             </CardContent>
@@ -175,15 +240,15 @@ const Colaboradores = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" title="Ver perfil">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" title="Ver perfil" onClick={() => handleView(user)}>
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" title="Enviar email">
-                          <Mail className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" title="Editar" onClick={() => handleEdit(user)}>
+                          <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" title="Ver avaliação">
-                          <ClipboardCheck className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" title="Eliminar" onClick={() => handleDelete(user)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -194,6 +259,26 @@ const Colaboradores = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modal */}
+      <ColaboradorModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        user={selectedUser}
+        mode={modalMode}
+        onSave={handleSave}
+      />
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Eliminar Colaborador"
+        description={`Tem a certeza que deseja eliminar o colaborador ${selectedUser?.nome}? Esta acção não pode ser revertida.`}
+        confirmText="Eliminar"
+        variant="danger"
+        onConfirm={confirmDelete}
+      />
     </AppLayout>
   );
 };

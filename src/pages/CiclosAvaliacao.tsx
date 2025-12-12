@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,13 +19,73 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Calendar, Edit, Eye } from "lucide-react";
+import { Plus, Search, Calendar, Edit, Eye, Trash2 } from "lucide-react";
 import { mockCycles } from "@/data/mockData";
-import { getStatusVariant, translateStatus } from "@/types/sgad";
+import { EvaluationCycle, getStatusVariant, translateStatus } from "@/types/sgad";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
+import { CicloModal } from "@/components/modals/CicloModal";
+import { ConfirmDialog } from "@/components/modals/ConfirmDialog";
+import { toast } from "sonner";
 
 const CiclosAvaliacao = () => {
+  const [cycles, setCycles] = useState(mockCycles);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedCycle, setSelectedCycle] = useState<EvaluationCycle | null>(null);
+  const [modalMode, setModalMode] = useState<"view" | "edit" | "create">("view");
+
+  const handleView = (cycle: EvaluationCycle) => {
+    setSelectedCycle(cycle);
+    setModalMode("view");
+    setModalOpen(true);
+  };
+
+  const handleEdit = (cycle: EvaluationCycle) => {
+    setSelectedCycle(cycle);
+    setModalMode("edit");
+    setModalOpen(true);
+  };
+
+  const handleCreate = () => {
+    setSelectedCycle(null);
+    setModalMode("create");
+    setModalOpen(true);
+  };
+
+  const handleDelete = (cycle: EvaluationCycle) => {
+    setSelectedCycle(cycle);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedCycle) {
+      setCycles(cycles.filter((c) => c.id !== selectedCycle.id));
+      toast.success("Ciclo eliminado com sucesso");
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  const handleSave = (data: Partial<EvaluationCycle>) => {
+    if (modalMode === "create") {
+      const newCycle: EvaluationCycle = {
+        id: `cycle-${Date.now()}`,
+        ano: data.ano || new Date().getFullYear(),
+        tipo: data.tipo || "semestral",
+        semestre: data.semestre || 1,
+        data_inicio: data.data_inicio || "",
+        data_fim: data.data_fim || "",
+        estado: data.estado || "aberto",
+        created_at: new Date().toISOString(),
+      };
+      setCycles([newCycle, ...cycles]);
+      toast.success("Ciclo criado com sucesso");
+    } else if (modalMode === "edit" && selectedCycle) {
+      setCycles(cycles.map((c) => (c.id === selectedCycle.id ? { ...c, ...data } : c)));
+      toast.success("Ciclo actualizado com sucesso");
+    }
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -38,7 +99,7 @@ const CiclosAvaliacao = () => {
               Gestão dos ciclos de avaliação de desempenho
             </p>
           </div>
-          <Button variant="institutional" size="lg">
+          <Button variant="institutional" size="lg" onClick={handleCreate}>
             <Plus className="h-5 w-5 mr-2" />
             Novo Ciclo
           </Button>
@@ -100,7 +161,7 @@ const CiclosAvaliacao = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockCycles.map((cycle) => (
+                {cycles.map((cycle) => (
                   <TableRow key={cycle.id} className="hover:bg-secondary/50">
                     <TableCell className="font-medium">
                       {cycle.ano} - {cycle.semestre}º Semestre
@@ -118,12 +179,15 @@ const CiclosAvaliacao = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" title="Visualizar" onClick={() => handleView(cycle)}>
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" title="Editar" onClick={() => handleEdit(cycle)}>
                           <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" title="Eliminar" onClick={() => handleDelete(cycle)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -134,6 +198,26 @@ const CiclosAvaliacao = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modal */}
+      <CicloModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        cycle={selectedCycle}
+        mode={modalMode}
+        onSave={handleSave}
+      />
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Eliminar Ciclo"
+        description={`Tem a certeza que deseja eliminar o ciclo ${selectedCycle?.ano} - ${selectedCycle?.semestre}º Semestre? Esta acção não pode ser revertida.`}
+        confirmText="Eliminar"
+        variant="danger"
+        onConfirm={confirmDelete}
+      />
     </AppLayout>
   );
 };
