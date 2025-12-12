@@ -9,49 +9,61 @@ import {
   TrendingUp,
   PieChart,
   Calendar,
-  Building
+  Building,
+  UserCheck,
+  UsersRound,
+  Globe
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const reportTypes = [
   {
-    title: "Relatório Individual de Desempenho",
-    description: "Relatório detalhado por colaborador com objectivos, competências e NAF",
-    icon: FileText,
+    title: "Avaliação Superior-Subordinado",
+    description: "Relatórios de avaliação de desempenho realizadas por superiores hierárquicos",
+    icon: UserCheck,
     color: "bg-primary/10 text-primary",
+    route: "/relatorios/desempenho-superior",
   },
   {
-    title: "Relatório Agregado por Unidade",
-    description: "Visão consolidada do desempenho por unidade orgânica",
-    icon: Building,
+    title: "Avaliação entre Pares",
+    description: "Relatórios de avaliação de desempenho realizadas por colegas de trabalho",
+    icon: UsersRound,
     color: "bg-accent/10 text-accent",
+    route: "/relatorios/entre-pares",
+  },
+  {
+    title: "Avaliação por Utentes Internos",
+    description: "Relatórios de avaliação realizadas por outras unidades orgânicas",
+    icon: Building,
+    color: "bg-info/10 text-info",
+    route: "/relatorios/utentes-internos",
+  },
+  {
+    title: "Avaliação por Utentes Externos",
+    description: "Relatórios de satisfação do público e entidades externas",
+    icon: Globe,
+    color: "bg-success/10 text-success",
+    route: "/relatorios/utentes-externos",
   },
   {
     title: "Estatísticas do Ciclo",
     description: "Análise estatística completa do ciclo de avaliação",
     icon: BarChart3,
-    color: "bg-info/10 text-info",
+    color: "bg-warning/10 text-warning",
+    route: null,
   },
   {
     title: "Distribuição de Classificações",
     description: "Distribuição das classificações finais por categoria",
     icon: PieChart,
-    color: "bg-success/10 text-success",
-  },
-  {
-    title: "Evolução de Desempenho",
-    description: "Comparativo de desempenho entre ciclos anteriores",
-    icon: TrendingUp,
-    color: "bg-warning/10 text-warning",
-  },
-  {
-    title: "Lista de Colaboradores Avaliados",
-    description: "Listagem completa com estado das avaliações",
-    icon: Users,
     color: "bg-secondary text-secondary-foreground",
+    route: null,
   },
 ];
 
 const Relatorios = () => {
+  const navigate = useNavigate();
+  
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -100,6 +112,7 @@ const Relatorios = () => {
               key={report.title} 
               className="shadow-institutional hover:shadow-lg transition-all duration-300 cursor-pointer group animate-fade-in-up"
               style={{ animationDelay: `${index * 0.1}s` }}
+              onClick={() => report.route && navigate(report.route)}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
@@ -118,8 +131,15 @@ const Relatorios = () => {
                 <CardDescription>{report.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
-                  Gerar Relatório
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (report.route) navigate(report.route);
+                  }}
+                >
+                  {report.route ? "Ver Relatórios" : "Gerar Relatório"}
                 </Button>
               </CardContent>
             </Card>
