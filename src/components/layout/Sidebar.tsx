@@ -60,6 +60,33 @@ const avaliacoesSubmenu = [
   },
 ];
 
+const relatoriosSubmenu = [
+  { 
+    name: "Superior-Subordinado", 
+    href: "/relatorios/desempenho-superior", 
+    icon: UserCheck,
+    description: "Avaliação hierárquica"
+  },
+  { 
+    name: "Entre Pares", 
+    href: "/relatorios/entre-pares", 
+    icon: UsersRound,
+    description: "Avaliação de colegas"
+  },
+  { 
+    name: "Utentes Internos", 
+    href: "/relatorios/utentes-internos", 
+    icon: Building2,
+    description: "Unidades orgânicas"
+  },
+  { 
+    name: "Utentes Externos", 
+    href: "/relatorios/utentes-externos", 
+    icon: Globe,
+    description: "Público externo"
+  },
+];
+
 const navigation = [
   { name: "Painel Principal", href: "/", icon: LayoutDashboard },
   { name: "Ciclos de Avaliação", href: "/ciclos", icon: Calendar },
@@ -68,8 +95,7 @@ const navigation = [
   { name: "Competências", href: "/competencias", icon: Award },
 ];
 
-const navigationAfterAvaliacoes = [
-  { name: "Relatórios", href: "/relatorios", icon: BarChart3 },
+const navigationAfterRelatorios = [
   { name: "Documentos", href: "/documentos", icon: FileText },
 ];
 
@@ -82,8 +108,12 @@ export function Sidebar() {
   const [avaliacoesOpen, setAvaliacoesOpen] = useState(
     location.pathname.startsWith("/avaliacoes")
   );
+  const [relatoriosOpen, setRelatoriosOpen] = useState(
+    location.pathname.startsWith("/relatorios")
+  );
 
   const isAvaliacoesActive = location.pathname.startsWith("/avaliacoes");
+  const isRelatoriosActive = location.pathname.startsWith("/relatorios");
 
   return (
     <aside className="fixed left-0 top-0 z-50 flex h-screen w-64 flex-col bg-sidebar text-sidebar-foreground">
@@ -163,7 +193,49 @@ export function Sidebar() {
           </CollapsibleContent>
         </Collapsible>
 
-        {navigationAfterAvaliacoes.map((item) => {
+        {/* Relatórios with Submenu */}
+        <Collapsible open={relatoriosOpen} onOpenChange={setRelatoriosOpen}>
+          <CollapsibleTrigger asChild>
+            <button
+              className={cn(
+                "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                isRelatoriosActive
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              )}
+            >
+              <BarChart3 className="h-5 w-5 flex-shrink-0" />
+              <span className="flex-1 text-left">Relatórios</span>
+              {relatoriosOpen ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-1 pl-4 pt-1">
+            {relatoriosSubmenu.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200",
+                    isActive
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                  )}
+                >
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{item.name}</span>
+                </Link>
+              );
+            })}
+          </CollapsibleContent>
+        </Collapsible>
+
+        {navigationAfterRelatorios.map((item) => {
           const isActive = location.pathname === item.href;
           return (
             <Link
