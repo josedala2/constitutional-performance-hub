@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,11 +23,20 @@ import {
 } from "@/components/ui/select";
 import { Search, ClipboardCheck, Eye, FileText, CheckCircle } from "lucide-react";
 import { mockEvaluations, mockUsers, mockCycles } from "@/data/mockData";
-import { getGradeVariant } from "@/types/sgad";
+import { Evaluation, getGradeVariant } from "@/types/sgad";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
+import { AvaliacaoModal } from "@/components/modals/AvaliacaoModal";
+import { ConfirmDialog } from "@/components/modals/ConfirmDialog";
+import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const Avaliacoes = () => {
+  const [evaluations, setEvaluations] = useState(mockEvaluations);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [homologarDialogOpen, setHomologarDialogOpen] = useState(false);
+  const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | null>(null);
+
   const getUser = (id: string) => mockUsers.find((u) => u.id === id);
   const getCycle = (id: string) => mockCycles.find((c) => c.id === id);
 
@@ -49,10 +59,30 @@ const Avaliacoes = () => {
     }
   };
 
+  const handleView = (evaluation: Evaluation) => {
+    setSelectedEvaluation(evaluation);
+    setModalOpen(true);
+  };
+
+  const handleHomologar = () => {
+    setModalOpen(false);
+    setHomologarDialogOpen(true);
+  };
+
+  const confirmHomologar = () => {
+    if (selectedEvaluation) {
+      setEvaluations(evaluations.map((e) => 
+        e.id === selectedEvaluation.id ? { ...e, estado: "homologada" as const } : e
+      ));
+      toast.success("Avaliação homologada com sucesso");
+    }
+    setHomologarDialogOpen(false);
+  };
+
   // Stats
-  const totalAvaliacoes = mockEvaluations.length;
-  const homologadas = mockEvaluations.filter((e) => e.estado === "homologada").length;
-  const submetidas = mockEvaluations.filter((e) => e.estado === "submetida").length;
+  const totalAvaliacoes = evaluations.length;
+  const homologadas = evaluations.filter((e) => e.estado === "homologada").length;
+  const submetidas = evaluations.filter((e) => e.estado === "submetida").length;
   const progressPercent = ((homologadas + submetidas) / totalAvaliacoes) * 100;
 
   return (
@@ -68,10 +98,14 @@ const Avaliacoes = () => {
               Gestão das avaliações de desempenho
             </p>
           </div>
-          <Button variant="institutional" size="lg">
-            <ClipboardCheck className="h-5 w-5 mr-2" />
-            Nova Avaliação
-          </Button>
+          <div className="flex gap-2">
+            <Link to="/avaliacoes/pessoal-tecnico">
+              <Button variant="institutional" size="lg">
+                <ClipboardCheck className="h-5 w-5 mr-2" />
+                Nova Avaliação
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Progress Overview */}
@@ -169,7 +203,7 @@ const Avaliacoes = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockEvaluations.map((evaluation) => {
+                {evaluations.map((evaluation) => {
                   const avaliado = getUser(evaluation.avaliado_id);
                   const cycle = getCycle(evaluation.ciclo_id);
                   return (
@@ -206,15 +240,23 @@ const Avaliacoes = () => {
                       </TableCell>
                       <TableCell>{getStatusBadge(evaluation.estado)}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button variant="ghost" size="icon" title="Ver detalhes">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon" title="Ver detalhes" onClick={() => handleView(evaluation)}>
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" title="Gerar relatório">
                             <FileText className="h-4 w-4" />
                           </Button>
                           {evaluation.estado === "submetida" && (
-                            <Button variant="ghost" size="icon" title="Homologar">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              title="Homologar"
+                              onClick={() => {
+                                setSelectedEvaluation(evaluation);
+                                setHomologarDialogOpen(true);
+                              }}
+                            >
                               <CheckCircle className="h-4 w-4 text-success" />
                             </Button>
                           )}
@@ -228,6 +270,25 @@ const Avaliacoes = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modal */}
+      <AvaliacaoModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        evaluation={selectedEvaluation}
+        onHomologar={handleHomologar}
+      />
+
+      {/* Homologar Confirmation */}
+      <ConfirmDialog
+        open={homologarDialogOpen}
+        onOpenChange={setHomologarDialogOpen}
+        title="Homologar Avaliação"
+        description="Tem a certeza que deseja homologar esta avaliação? Após homologação, a avaliação não poderá ser alterada."
+        confirmText="Homologar"
+        variant="default"
+        onConfirm={confirmHomologar}
+      />
     </AppLayout>
   );
 };
