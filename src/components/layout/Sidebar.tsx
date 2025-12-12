@@ -19,7 +19,7 @@ import {
   Globe,
   ClipboardList,
 } from "lucide-react";
-import tribunalEmblem from "@/assets/tribunal-emblem.png";
+import tribunalLogo from "@/assets/tribunal-logo.png";
 import { useState } from "react";
 import {
   Collapsible,
@@ -89,7 +89,7 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 z-50 flex h-screen w-64 flex-col bg-sidebar text-sidebar-foreground">
       {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
-        <img src={tribunalEmblem} alt="Tribunal de Contas" className="h-10 w-10" />
+        <img src={tribunalLogo} alt="Tribunal de Contas" className="h-10 w-auto" />
         <div className="flex flex-col">
           <span className="text-sm font-serif font-semibold text-sidebar-foreground">
             Tribunal de Contas
