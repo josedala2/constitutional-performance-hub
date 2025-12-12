@@ -35,10 +35,10 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 z-50 flex h-screen w-64 flex-col bg-sidebar text-sidebar-foreground">
       {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
-        <img src={tribunalEmblem} alt="Tribunal Constitucional" className="h-10 w-10" />
+        <img src={tribunalEmblem} alt="Tribunal de Contas" className="h-10 w-10" />
         <div className="flex flex-col">
           <span className="text-sm font-serif font-semibold text-sidebar-foreground">
-            Tribunal Constitucional
+            Tribunal de Contas
           </span>
           <span className="text-[10px] text-sidebar-foreground/70 uppercase tracking-wider">
             SGAD
@@ -93,7 +93,7 @@ export function Sidebar() {
       {/* Footer */}
       <div className="border-t border-sidebar-border px-6 py-4">
         <p className="text-[10px] text-sidebar-foreground/50 text-center">
-          © 2025 Tribunal Constitucional
+          © 2025 Tribunal de Contas
           <br />
           Sistema de Gestão de Avaliação de Desempenho
         </p>
