@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,35 +9,93 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ClipboardList, Save, Send, Printer } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
-const objectivosIndividuais = [
-  { id: 1, descricao: "", metaFinal: "", nivelAlcancado: "", nivelConcretizacao: "" },
-  { id: 2, descricao: "", metaFinal: "", nivelAlcancado: "", nivelConcretizacao: "" },
-  { id: 3, descricao: "", metaFinal: "", nivelAlcancado: "", nivelConcretizacao: "" },
+interface ObjectiveRow {
+  id: number;
+  descricao: string;
+  metaFinal: string;
+  nivelAlcancado: string;
+  nivelConcretizacao: string;
+}
+
+interface CompetencyRow {
+  id: number;
+  nome: string;
+  nivelEsperado: number;
+  nivelAlcancado: number;
+  nivelConcretizacao: string;
+  observacoes: string;
+}
+
+const initialObjectivosIndividuais: ObjectiveRow[] = [
+  { id: 1, descricao: "Elaborar relatórios de auditoria trimestral", metaFinal: "15", nivelAlcancado: "14", nivelConcretizacao: "93%" },
+  { id: 2, descricao: "Reduzir tempo de processamento", metaFinal: "20%", nivelAlcancado: "18%", nivelConcretizacao: "90%" },
+  { id: 3, descricao: "Capacitar colaboradores", metaFinal: "10", nivelAlcancado: "10", nivelConcretizacao: "100%" },
 ];
 
-const objectivosEquipa = [
-  { id: 1, descricao: "", metaFinal: "", nivelAlcancado: "", nivelConcretizacao: "" },
-  { id: 2, descricao: "", metaFinal: "", nivelAlcancado: "", nivelConcretizacao: "" },
+const initialObjectivosEquipa: ObjectiveRow[] = [
+  { id: 1, descricao: "Implementar sistema de arquivo digital", metaFinal: "100%", nivelAlcancado: "95%", nivelConcretizacao: "95%" },
+  { id: 2, descricao: "Realizar sessões de formação interna", metaFinal: "4", nivelAlcancado: "4", nivelConcretizacao: "100%" },
 ];
 
-const competenciasTransversais = [
-  { id: 1, nome: "Adaptação profissional" },
-  { id: 2, nome: "Relacionamento interpessoal" },
-  { id: 3, nome: "Cooperação e trabalho em equipa" },
-  { id: 4, nome: "Integridade e Conduta" },
-  { id: 5, nome: "Assiduidade" },
-  { id: 6, nome: "Pontualidade" },
+const initialCompetenciasTransversais: CompetencyRow[] = [
+  { id: 1, nome: "Adaptação profissional", nivelEsperado: 4, nivelAlcancado: 4, nivelConcretizacao: "100%", observacoes: "Objectivo atingido" },
+  { id: 2, nome: "Relacionamento interpessoal", nivelEsperado: 4, nivelAlcancado: 5, nivelConcretizacao: "125%", observacoes: "Superou expectativas" },
+  { id: 3, nome: "Cooperação e trabalho em equipa", nivelEsperado: 4, nivelAlcancado: 4, nivelConcretizacao: "100%", observacoes: "Objectivo atingido" },
+  { id: 4, nome: "Integridade e Conduta", nivelEsperado: 5, nivelAlcancado: 5, nivelConcretizacao: "100%", observacoes: "Exemplar" },
+  { id: 5, nome: "Assiduidade", nivelEsperado: 5, nivelAlcancado: 5, nivelConcretizacao: "100%", observacoes: "Sem faltas" },
+  { id: 6, nome: "Pontualidade", nivelEsperado: 4, nivelAlcancado: 4, nivelConcretizacao: "100%", observacoes: "Cumpre horários" },
 ];
 
-const competenciasTecnicas = [
-  { id: 1, nome: "Conhecimento técnico" },
-  { id: 2, nome: "Qualidade do trabalho" },
-  { id: 3, nome: "Produtividade" },
+const initialCompetenciasTecnicas: CompetencyRow[] = [
+  { id: 1, nome: "Conhecimento técnico", nivelEsperado: 4, nivelAlcancado: 4, nivelConcretizacao: "100%", observacoes: "Domínio adequado" },
+  { id: 2, nome: "Qualidade do trabalho", nivelEsperado: 4, nivelAlcancado: 5, nivelConcretizacao: "125%", observacoes: "Qualidade superior" },
+  { id: 3, nome: "Produtividade", nivelEsperado: 4, nivelAlcancado: 4, nivelConcretizacao: "100%", observacoes: "Metas cumpridas" },
 ];
+
+const getGrauDesempenho = (valor: number): string => {
+  if (valor >= 4.5) return "Muito Bom";
+  if (valor >= 4) return "Bom";
+  if (valor >= 3) return "Suficiente";
+  if (valor >= 2) return "Insuficiente";
+  return "Mau";
+};
+
+const getGrauBadgeVariant = (grau: string) => {
+  switch (grau) {
+    case "Muito Bom": return "muito-bom" as const;
+    case "Bom": return "bom" as const;
+    case "Suficiente": return "suficiente" as const;
+    case "Insuficiente": return "insuficiente" as const;
+    case "Mau": return "mau" as const;
+    default: return "secondary" as const;
+  }
+};
 
 export default function FichaAcompanhamento() {
+  const [objectivosIndividuais, setObjectivosIndividuais] = useState(initialObjectivosIndividuais);
+  const [objectivosEquipa, setObjectivosEquipa] = useState(initialObjectivosEquipa);
+  const [competenciasTransversais, setCompetenciasTransversais] = useState(initialCompetenciasTransversais);
+  const [competenciasTecnicas, setCompetenciasTecnicas] = useState(initialCompetenciasTecnicas);
+
+  const [grauObjectivos, setGrauObjectivos] = useState("4.35");
+  const [grauCompetencias, setGrauCompetencias] = useState("4.42");
+
+  const avaliacaoGlobal = useMemo(() => {
+    return (parseFloat(grauObjectivos) + parseFloat(grauCompetencias)) / 2;
+  }, [grauObjectivos, grauCompetencias]);
+
+  const grauFinal = getGrauDesempenho(avaliacaoGlobal);
+
+  const handleSubmit = () => {
+    toast.success("Ficha de acompanhamento submetida com sucesso!");
+  };
+
+  const handleSave = () => {
+    toast.success("Rascunho guardado com sucesso!");
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -60,11 +119,11 @@ export default function FichaAcompanhamento() {
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleSave}>
               <Save className="mr-2 h-4 w-4" />
               Guardar Rascunho
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={handleSubmit}>
               <Send className="mr-2 h-4 w-4" />
               Submeter
             </Button>
@@ -81,7 +140,7 @@ export default function FichaAcompanhamento() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-2">
                 <Label htmlFor="ano">Ano</Label>
-                <Select>
+                <Select defaultValue="2025">
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar ano" />
                   </SelectTrigger>
@@ -93,19 +152,19 @@ export default function FichaAcompanhamento() {
               </div>
               <div className="space-y-2 md:col-span-3">
                 <Label htmlFor="nome">Nome Completo</Label>
-                <Input id="nome" placeholder="Nome do colaborador" />
+                <Input id="nome" defaultValue="Ana Maria Fernandes da Silva" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="orgao">Órgão/Serviço</Label>
-                <Input id="orgao" placeholder="Departamento" />
+                <Input id="orgao" defaultValue="Departamento Jurídico" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="cargo">Cargo</Label>
-                <Input id="cargo" placeholder="Cargo" />
+                <Input id="cargo" defaultValue="Técnico Superior" />
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="superior">Nome do Superior Hierárquico</Label>
-                <Input id="superior" placeholder="Nome do avaliador" />
+                <Input id="superior" defaultValue="Dr. António Manuel Silva" />
               </div>
             </div>
           </CardContent>
@@ -128,19 +187,41 @@ export default function FichaAcompanhamento() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {objectivosIndividuais.map((obj) => (
+                {objectivosIndividuais.map((obj, index) => (
                   <TableRow key={obj.id}>
                     <TableCell>
-                      <Textarea placeholder="Descreva o objectivo" className="min-h-[60px]" />
+                      <Textarea 
+                        value={obj.descricao}
+                        onChange={(e) => {
+                          const updated = [...objectivosIndividuais];
+                          updated[index].descricao = e.target.value;
+                          setObjectivosIndividuais(updated);
+                        }}
+                        className="min-h-[60px]" 
+                      />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Meta" />
+                      <Input 
+                        value={obj.metaFinal}
+                        onChange={(e) => {
+                          const updated = [...objectivosIndividuais];
+                          updated[index].metaFinal = e.target.value;
+                          setObjectivosIndividuais(updated);
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Alcançado" />
+                      <Input 
+                        value={obj.nivelAlcancado}
+                        onChange={(e) => {
+                          const updated = [...objectivosIndividuais];
+                          updated[index].nivelAlcancado = e.target.value;
+                          setObjectivosIndividuais(updated);
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="%" />
+                      <Badge variant="outline" className="text-sm">{obj.nivelConcretizacao}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -166,19 +247,41 @@ export default function FichaAcompanhamento() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {objectivosEquipa.map((obj) => (
+                {objectivosEquipa.map((obj, index) => (
                   <TableRow key={obj.id}>
                     <TableCell>
-                      <Textarea placeholder="Descreva o objectivo" className="min-h-[60px]" />
+                      <Textarea 
+                        value={obj.descricao}
+                        onChange={(e) => {
+                          const updated = [...objectivosEquipa];
+                          updated[index].descricao = e.target.value;
+                          setObjectivosEquipa(updated);
+                        }}
+                        className="min-h-[60px]" 
+                      />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Meta" />
+                      <Input 
+                        value={obj.metaFinal}
+                        onChange={(e) => {
+                          const updated = [...objectivosEquipa];
+                          updated[index].metaFinal = e.target.value;
+                          setObjectivosEquipa(updated);
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Alcançado" />
+                      <Input 
+                        value={obj.nivelAlcancado}
+                        onChange={(e) => {
+                          const updated = [...objectivosEquipa];
+                          updated[index].nivelAlcancado = e.target.value;
+                          setObjectivosEquipa(updated);
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="%" />
+                      <Badge variant="outline" className="text-sm">{obj.nivelConcretizacao}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -196,28 +299,51 @@ export default function FichaAcompanhamento() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[30%]">Designação</TableHead>
+                  <TableHead className="w-[25%]">Designação</TableHead>
                   <TableHead>Nível Esperado</TableHead>
                   <TableHead>Nível Alcançado</TableHead>
-                  <TableHead>Nível de Concretização</TableHead>
+                  <TableHead>Concretização</TableHead>
                   <TableHead>Observações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {competenciasTransversais.map((comp) => (
+                {competenciasTransversais.map((comp, index) => (
                   <TableRow key={comp.id}>
                     <TableCell className="font-medium">{comp.nome}</TableCell>
                     <TableCell>
-                      <Input placeholder="1-5" className="w-16" />
+                      <Input 
+                        value={comp.nivelEsperado}
+                        className="w-16 text-center"
+                        onChange={(e) => {
+                          const updated = [...competenciasTransversais];
+                          updated[index].nivelEsperado = parseInt(e.target.value) || 0;
+                          setCompetenciasTransversais(updated);
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="1-5" className="w-16" />
+                      <Input 
+                        value={comp.nivelAlcancado}
+                        className="w-16 text-center"
+                        onChange={(e) => {
+                          const updated = [...competenciasTransversais];
+                          updated[index].nivelAlcancado = parseInt(e.target.value) || 0;
+                          setCompetenciasTransversais(updated);
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="%" className="w-16" />
+                      <Badge variant="outline" className="text-sm">{comp.nivelConcretizacao}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Observações" />
+                      <Input 
+                        value={comp.observacoes}
+                        onChange={(e) => {
+                          const updated = [...competenciasTransversais];
+                          updated[index].observacoes = e.target.value;
+                          setCompetenciasTransversais(updated);
+                        }}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -235,28 +361,51 @@ export default function FichaAcompanhamento() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[30%]">Designação</TableHead>
+                  <TableHead className="w-[25%]">Designação</TableHead>
                   <TableHead>Nível Esperado</TableHead>
                   <TableHead>Nível Alcançado</TableHead>
-                  <TableHead>Nível de Concretização</TableHead>
+                  <TableHead>Concretização</TableHead>
                   <TableHead>Observações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {competenciasTecnicas.map((comp) => (
+                {competenciasTecnicas.map((comp, index) => (
                   <TableRow key={comp.id}>
                     <TableCell className="font-medium">{comp.nome}</TableCell>
                     <TableCell>
-                      <Input placeholder="1-5" className="w-16" />
+                      <Input 
+                        value={comp.nivelEsperado}
+                        className="w-16 text-center"
+                        onChange={(e) => {
+                          const updated = [...competenciasTecnicas];
+                          updated[index].nivelEsperado = parseInt(e.target.value) || 0;
+                          setCompetenciasTecnicas(updated);
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="1-5" className="w-16" />
+                      <Input 
+                        value={comp.nivelAlcancado}
+                        className="w-16 text-center"
+                        onChange={(e) => {
+                          const updated = [...competenciasTecnicas];
+                          updated[index].nivelAlcancado = parseInt(e.target.value) || 0;
+                          setCompetenciasTecnicas(updated);
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="%" className="w-16" />
+                      <Badge variant="outline" className="text-sm">{comp.nivelConcretizacao}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Observações" />
+                      <Input 
+                        value={comp.observacoes}
+                        onChange={(e) => {
+                          const updated = [...competenciasTecnicas];
+                          updated[index].observacoes = e.target.value;
+                          setCompetenciasTecnicas(updated);
+                        }}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -274,17 +423,31 @@ export default function FichaAcompanhamento() {
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label>Grau de concretização dos Objectivos</Label>
-                <Input placeholder="Valor" />
+                <Input 
+                  value={grauObjectivos}
+                  onChange={(e) => setGrauObjectivos(e.target.value)}
+                  className="text-center text-lg font-semibold"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Grau de concretização das Competências</Label>
-                <Input placeholder="Valor" />
+                <Input 
+                  value={grauCompetencias}
+                  onChange={(e) => setGrauCompetencias(e.target.value)}
+                  className="text-center text-lg font-semibold"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Avaliação Global do Desempenho</Label>
                 <div className="flex items-center gap-2">
-                  <Input placeholder="Valor" className="flex-1" />
-                  <Badge variant="secondary" className="text-base px-4 py-2">--</Badge>
+                  <Input 
+                    value={avaliacaoGlobal.toFixed(2)} 
+                    className="flex-1 text-center text-lg font-semibold" 
+                    readOnly 
+                  />
+                  <Badge variant={getGrauBadgeVariant(grauFinal)} className="text-base px-4 py-2">
+                    {grauFinal}
+                  </Badge>
                 </div>
               </div>
             </div>
@@ -300,18 +463,18 @@ export default function FichaAcompanhamento() {
             <div className="grid gap-6 md:grid-cols-3">
               <div className="space-y-2">
                 <Label>Avaliador</Label>
-                <Input placeholder="Nome" />
-                <Input type="date" />
+                <Input defaultValue="Dr. António Manuel Silva" />
+                <Input type="date" defaultValue="2025-06-30" />
               </div>
               <div className="space-y-2">
                 <Label>Avaliado</Label>
-                <Input placeholder="Nome" />
-                <Input type="date" />
+                <Input defaultValue="Ana Maria Fernandes da Silva" />
+                <Input type="date" defaultValue="2025-06-30" />
               </div>
               <div className="space-y-2">
                 <Label>Validação do Responsável Máximo da Área</Label>
-                <Input placeholder="Nome" />
-                <Input type="date" />
+                <Input defaultValue="Dr. Carlos Alberto Mendes" />
+                <Input type="date" defaultValue="2025-07-05" />
               </div>
             </div>
           </CardContent>

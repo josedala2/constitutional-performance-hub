@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,14 +9,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Save, Send, Printer } from "lucide-react";
+import { toast } from "sonner";
 
-const competencias = [
-  { id: 1, nome: "Qualidade do atendimento", pontuacao: 0 },
-  { id: 2, nome: "Tempo de resposta", pontuacao: 0 },
-  { id: 3, nome: "Conhecimento técnico demonstrado", pontuacao: 0 },
-  { id: 4, nome: "Disponibilidade", pontuacao: 0 },
-  { id: 5, nome: "Comunicação", pontuacao: 0 },
-  { id: 6, nome: "Resolução de problemas", pontuacao: 0 },
+interface CompetencyRow {
+  id: number;
+  nome: string;
+  pontuacao: number;
+  comentarioAvaliador: string;
+  comentarioAvaliado: string;
+}
+
+const initialCompetencias: CompetencyRow[] = [
+  { id: 1, nome: "Qualidade do atendimento", pontuacao: 4, comentarioAvaliador: "Atendimento profissional e cordial", comentarioAvaliado: "Procuro sempre melhorar" },
+  { id: 2, nome: "Tempo de resposta", pontuacao: 4, comentarioAvaliador: "Respostas dentro do prazo esperado", comentarioAvaliado: "Priorizo urgências" },
+  { id: 3, nome: "Conhecimento técnico demonstrado", pontuacao: 5, comentarioAvaliador: "Excelente domínio técnico", comentarioAvaliado: "Actualizo-me constantemente" },
+  { id: 4, nome: "Disponibilidade", pontuacao: 4, comentarioAvaliador: "Sempre disponível quando solicitado", comentarioAvaliado: "Esforço-me para ajudar" },
+  { id: 5, nome: "Comunicação", pontuacao: 5, comentarioAvaliador: "Comunicação clara e eficaz", comentarioAvaliado: "Tento ser objectivo" },
+  { id: 6, nome: "Resolução de problemas", pontuacao: 4, comentarioAvaliador: "Resolve problemas de forma eficiente", comentarioAvaliado: "Foco em soluções" },
 ];
 
 const pontuacaoOptions = [
@@ -26,7 +36,43 @@ const pontuacaoOptions = [
   { value: "1", label: "1 - Mau" },
 ];
 
+const getGrauDesempenho = (media: number): string => {
+  if (media >= 4.5) return "Muito Bom";
+  if (media >= 4) return "Bom";
+  if (media >= 3) return "Suficiente";
+  if (media >= 2) return "Insuficiente";
+  return "Mau";
+};
+
+const getGrauBadgeVariant = (grau: string) => {
+  switch (grau) {
+    case "Muito Bom": return "muito-bom" as const;
+    case "Bom": return "bom" as const;
+    case "Suficiente": return "suficiente" as const;
+    case "Insuficiente": return "insuficiente" as const;
+    case "Mau": return "mau" as const;
+    default: return "secondary" as const;
+  }
+};
+
 export default function FichaUtentesInternos() {
+  const [competencias, setCompetencias] = useState(initialCompetencias);
+
+  const media = useMemo(() => {
+    const total = competencias.reduce((acc, comp) => acc + comp.pontuacao, 0);
+    return competencias.length > 0 ? total / competencias.length : 0;
+  }, [competencias]);
+
+  const grau = getGrauDesempenho(media);
+
+  const handleSubmit = () => {
+    toast.success("Avaliação de utentes internos submetida com sucesso!");
+  };
+
+  const handleSave = () => {
+    toast.success("Rascunho guardado com sucesso!");
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -50,11 +96,11 @@ export default function FichaUtentesInternos() {
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleSave}>
               <Save className="mr-2 h-4 w-4" />
               Guardar Rascunho
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={handleSubmit}>
               <Send className="mr-2 h-4 w-4" />
               Submeter
             </Button>
@@ -71,7 +117,7 @@ export default function FichaUtentesInternos() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-2">
                 <Label htmlFor="ano">Ano</Label>
-                <Select>
+                <Select defaultValue="2025">
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar ano" />
                   </SelectTrigger>
@@ -83,19 +129,23 @@ export default function FichaUtentesInternos() {
               </div>
               <div className="space-y-2 md:col-span-3">
                 <Label htmlFor="nome">Nome Completo do Avaliado</Label>
-                <Input id="nome" placeholder="Nome do colaborador" />
+                <Input id="nome" defaultValue="Maria João Almeida Rodrigues" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="orgao">Órgão/Serviço</Label>
-                <Input id="orgao" placeholder="Departamento" />
+                <Input id="orgao" defaultValue="Gabinete de Atendimento" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="categoria">Categoria</Label>
-                <Input id="categoria" placeholder="Categoria profissional" />
+                <Input id="categoria" defaultValue="Técnico Profissional" />
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="superior">Nome do Superior Hierárquico</Label>
-                <Input id="superior" placeholder="Nome do superior" />
+                <Input id="superior" defaultValue="Dr. Fernando José Neto" />
+              </div>
+              <div className="space-y-2 md:col-span-4">
+                <Label htmlFor="avaliador">Avaliador (Utente Interno - Departamento)</Label>
+                <Input id="avaliador" defaultValue="Departamento de Contabilidade - Representado por Dra. Helena Sousa" />
               </div>
             </div>
           </CardContent>
@@ -111,20 +161,27 @@ export default function FichaUtentesInternos() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40%]">Competência</TableHead>
-                  <TableHead>Pontuação (1-5)</TableHead>
-                  <TableHead>Comentários do Avaliador</TableHead>
+                  <TableHead className="w-[20%]">Competência</TableHead>
+                  <TableHead className="w-[15%]">Pontuação (1-5)</TableHead>
+                  <TableHead className="w-[30%]">Comentários do Avaliador</TableHead>
                   <TableHead>Comentários do Avaliado</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {competencias.map((comp) => (
+                {competencias.map((comp, index) => (
                   <TableRow key={comp.id}>
                     <TableCell className="font-medium">{comp.nome}</TableCell>
                     <TableCell>
-                      <Select>
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="--" />
+                      <Select
+                        value={String(comp.pontuacao)}
+                        onValueChange={(value) => {
+                          const updated = [...competencias];
+                          updated[index].pontuacao = parseInt(value);
+                          setCompetencias(updated);
+                        }}
+                      >
+                        <SelectTrigger className="w-[160px]">
+                          <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           {pontuacaoOptions.map((opt) => (
@@ -136,10 +193,26 @@ export default function FichaUtentesInternos() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Textarea placeholder="Comentários" className="min-h-[60px]" />
+                      <Textarea 
+                        value={comp.comentarioAvaliador}
+                        onChange={(e) => {
+                          const updated = [...competencias];
+                          updated[index].comentarioAvaliador = e.target.value;
+                          setCompetencias(updated);
+                        }}
+                        className="min-h-[60px]" 
+                      />
                     </TableCell>
                     <TableCell>
-                      <Textarea placeholder="Comentários" className="min-h-[60px]" />
+                      <Textarea 
+                        value={comp.comentarioAvaliado}
+                        onChange={(e) => {
+                          const updated = [...competencias];
+                          updated[index].comentarioAvaliado = e.target.value;
+                          setCompetencias(updated);
+                        }}
+                        className="min-h-[60px]" 
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -147,9 +220,9 @@ export default function FichaUtentesInternos() {
             </Table>
             <div className="mt-4 flex items-center justify-end gap-4">
               <span className="text-sm text-muted-foreground">Média:</span>
-              <Badge variant="outline" className="text-base">0.00</Badge>
+              <Badge variant="outline" className="text-base">{media.toFixed(2)}</Badge>
               <span className="text-sm text-muted-foreground">Grau de Desempenho:</span>
-              <Badge variant="secondary">--</Badge>
+              <Badge variant={getGrauBadgeVariant(grau)}>{grau}</Badge>
             </div>
           </CardContent>
         </Card>
@@ -163,13 +236,13 @@ export default function FichaUtentesInternos() {
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>Avaliador (Utente Interno)</Label>
-                <Input placeholder="Nome" />
-                <Input type="date" />
+                <Input defaultValue="Dra. Helena Maria Sousa" />
+                <Input type="date" defaultValue="2025-06-25" />
               </div>
               <div className="space-y-2">
                 <Label>Avaliado</Label>
-                <Input placeholder="Nome" />
-                <Input type="date" />
+                <Input defaultValue="Maria João Almeida Rodrigues" />
+                <Input type="date" defaultValue="2025-06-25" />
               </div>
             </div>
           </CardContent>
