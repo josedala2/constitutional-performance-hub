@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,16 +9,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { UsersRound, Save, Send, Printer } from "lucide-react";
+import { toast } from "sonner";
 
-const competenciasComportamentais = [
-  { id: 1, nome: "Adaptação profissional", pontuacao: 0 },
-  { id: 2, nome: "Relacionamento interpessoal", pontuacao: 0 },
-  { id: 3, nome: "Cooperação e trabalho em equipa", pontuacao: 0 },
-  { id: 4, nome: "Integridade e Conduta", pontuacao: 0 },
-  { id: 5, nome: "Assiduidade", pontuacao: 0 },
-  { id: 6, nome: "Pontualidade", pontuacao: 0 },
-  { id: 7, nome: "Utilização adequada dos recursos", pontuacao: 0 },
-  { id: 8, nome: "Apresentação", pontuacao: 0 },
+interface CompetencyRow {
+  id: number;
+  nome: string;
+  comportamentos: string;
+  pontuacao: number;
+  observacao: string;
+}
+
+const initialCompetenciasComportamentais: CompetencyRow[] = [
+  { id: 1, nome: "Adaptação profissional", comportamentos: "Adapta-se rapidamente a novas tarefas e demonstra flexibilidade", pontuacao: 4, observacao: "Boa capacidade de adaptação" },
+  { id: 2, nome: "Relacionamento interpessoal", comportamentos: "Mantém bom relacionamento com todos os colegas do departamento", pontuacao: 5, observacao: "Excelente comunicação" },
+  { id: 3, nome: "Cooperação e trabalho em equipa", comportamentos: "Colabora activamente em projectos e apoia os colegas", pontuacao: 4, observacao: "Sempre disponível para ajudar" },
+  { id: 4, nome: "Integridade e Conduta", comportamentos: "Comportamento ético e responsável em todas as situações", pontuacao: 5, observacao: "Exemplar" },
+  { id: 5, nome: "Assiduidade", comportamentos: "Presente em todos os dias úteis, sem faltas injustificadas", pontuacao: 5, observacao: "100% de assiduidade" },
+  { id: 6, nome: "Pontualidade", comportamentos: "Cumpre rigorosamente os horários estabelecidos", pontuacao: 4, observacao: "Raramente se atrasa" },
+  { id: 7, nome: "Utilização adequada dos recursos", comportamentos: "Usa os recursos de forma consciente e económica", pontuacao: 4, observacao: "Cuidado com materiais" },
+  { id: 8, nome: "Apresentação", comportamentos: "Apresentação pessoal adequada ao ambiente institucional", pontuacao: 5, observacao: "Sempre impecável" },
 ];
 
 const pontuacaoOptions = [
@@ -28,7 +38,43 @@ const pontuacaoOptions = [
   { value: "1", label: "1 - Mau" },
 ];
 
+const getGrauDesempenho = (media: number): string => {
+  if (media >= 4.5) return "Muito Bom";
+  if (media >= 4) return "Bom";
+  if (media >= 3) return "Suficiente";
+  if (media >= 2) return "Insuficiente";
+  return "Mau";
+};
+
+const getGrauBadgeVariant = (grau: string) => {
+  switch (grau) {
+    case "Muito Bom": return "muito-bom" as const;
+    case "Bom": return "bom" as const;
+    case "Suficiente": return "suficiente" as const;
+    case "Insuficiente": return "insuficiente" as const;
+    case "Mau": return "mau" as const;
+    default: return "secondary" as const;
+  }
+};
+
 export default function FichaEntrePares() {
+  const [competencias, setCompetencias] = useState(initialCompetenciasComportamentais);
+
+  const media = useMemo(() => {
+    const total = competencias.reduce((acc, comp) => acc + comp.pontuacao, 0);
+    return competencias.length > 0 ? total / competencias.length : 0;
+  }, [competencias]);
+
+  const grau = getGrauDesempenho(media);
+
+  const handleSubmit = () => {
+    toast.success("Avaliação entre pares submetida com sucesso!");
+  };
+
+  const handleSave = () => {
+    toast.success("Rascunho guardado com sucesso!");
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -52,11 +98,11 @@ export default function FichaEntrePares() {
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleSave}>
               <Save className="mr-2 h-4 w-4" />
               Guardar Rascunho
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={handleSubmit}>
               <Send className="mr-2 h-4 w-4" />
               Submeter
             </Button>
@@ -73,7 +119,7 @@ export default function FichaEntrePares() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-2">
                 <Label htmlFor="ano">Ano</Label>
-                <Select>
+                <Select defaultValue="2025">
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar ano" />
                   </SelectTrigger>
@@ -85,7 +131,7 @@ export default function FichaEntrePares() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="semestre">Semestre</Label>
-                <Select>
+                <Select defaultValue="1">
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar semestre" />
                   </SelectTrigger>
@@ -97,15 +143,19 @@ export default function FichaEntrePares() {
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="nome">Nome Completo do Avaliado</Label>
-                <Input id="nome" placeholder="Nome do colaborador" />
+                <Input id="nome" defaultValue="Pedro Miguel Costa Santos" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="orgao">Órgão/Serviço</Label>
-                <Input id="orgao" placeholder="Departamento" />
+                <Input id="orgao" defaultValue="Gabinete de Informática" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="categoria">Categoria</Label>
-                <Input id="categoria" placeholder="Categoria profissional" />
+                <Input id="categoria" defaultValue="Técnico Superior" />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="avaliador">Avaliador (Par)</Label>
+                <Input id="avaliador" defaultValue="Sofia Helena Martins Pereira" />
               </div>
             </div>
           </CardContent>
@@ -121,23 +171,38 @@ export default function FichaEntrePares() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40%]">Competência</TableHead>
-                  <TableHead>Comportamentos Observados</TableHead>
-                  <TableHead>Pontuação (1-5)</TableHead>
+                  <TableHead className="w-[20%]">Competência</TableHead>
+                  <TableHead className="w-[30%]">Comportamentos Observados</TableHead>
+                  <TableHead className="w-[15%]">Pontuação (1-5)</TableHead>
                   <TableHead>Observação</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {competenciasComportamentais.map((comp) => (
+                {competencias.map((comp, index) => (
                   <TableRow key={comp.id}>
                     <TableCell className="font-medium">{comp.nome}</TableCell>
                     <TableCell>
-                      <Textarea placeholder="Descreva os comportamentos observados" className="min-h-[60px]" />
+                      <Textarea 
+                        value={comp.comportamentos}
+                        onChange={(e) => {
+                          const updated = [...competencias];
+                          updated[index].comportamentos = e.target.value;
+                          setCompetencias(updated);
+                        }}
+                        className="min-h-[60px]" 
+                      />
                     </TableCell>
                     <TableCell>
-                      <Select>
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="--" />
+                      <Select
+                        value={String(comp.pontuacao)}
+                        onValueChange={(value) => {
+                          const updated = [...competencias];
+                          updated[index].pontuacao = parseInt(value);
+                          setCompetencias(updated);
+                        }}
+                      >
+                        <SelectTrigger className="w-[160px]">
+                          <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           {pontuacaoOptions.map((opt) => (
@@ -149,7 +214,14 @@ export default function FichaEntrePares() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Input placeholder="Observação" />
+                      <Input 
+                        value={comp.observacao}
+                        onChange={(e) => {
+                          const updated = [...competencias];
+                          updated[index].observacao = e.target.value;
+                          setCompetencias(updated);
+                        }}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -157,9 +229,9 @@ export default function FichaEntrePares() {
             </Table>
             <div className="mt-4 flex items-center justify-end gap-4">
               <span className="text-sm text-muted-foreground">Média:</span>
-              <Badge variant="outline" className="text-base">0.00</Badge>
+              <Badge variant="outline" className="text-base">{media.toFixed(2)}</Badge>
               <span className="text-sm text-muted-foreground">Grau de Desempenho:</span>
-              <Badge variant="secondary">--</Badge>
+              <Badge variant={getGrauBadgeVariant(grau)}>{grau}</Badge>
             </div>
           </CardContent>
         </Card>
@@ -173,13 +245,13 @@ export default function FichaEntrePares() {
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>Avaliador (Par)</Label>
-                <Input placeholder="Nome" />
-                <Input type="date" />
+                <Input defaultValue="Sofia Helena Martins Pereira" />
+                <Input type="date" defaultValue="2025-06-28" />
               </div>
               <div className="space-y-2">
                 <Label>Avaliado</Label>
-                <Input placeholder="Nome" />
-                <Input type="date" />
+                <Input defaultValue="Pedro Miguel Costa Santos" />
+                <Input type="date" defaultValue="2025-06-28" />
               </div>
             </div>
           </CardContent>
