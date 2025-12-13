@@ -18,88 +18,126 @@ import {
   Calendar,
   Target,
   Award,
-  TrendingUp
+  TrendingUp,
+  FileText
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { RelatorioOficial, RelatorioOficialData } from "@/components/print/RelatorioOficial";
 
-const mockRelatorios = [
+const mockRelatorios: RelatorioOficialData[] = [
   {
-    id: "1",
-    avaliado: "Dr. Carlos Mendes",
-    cargo: "Técnico Superior",
-    unidade: "Departamento de Auditoria I",
-    avaliador: "Dr. António Silva",
-    cargoAvaliador: "Director de Departamento",
-    ciclo: "2024/2º Semestre",
-    dataAvaliacao: "2025-01-05",
-    objectivos: [
-      { nome: "Realizar 15 auditorias completas", peso: 30, pontuacao: 4.5, ponderado: 1.35 },
-      { nome: "Reduzir tempo médio de auditoria em 10%", peso: 25, pontuacao: 4.0, ponderado: 1.0 },
-      { nome: "Elaborar relatórios sem erros materiais", peso: 25, pontuacao: 5.0, ponderado: 1.25 },
-      { nome: "Participar em 3 formações técnicas", peso: 20, pontuacao: 4.0, ponderado: 0.8 },
+    nomeCompleto: "Dr. Carlos Mendes",
+    orgaoServico: "Departamento de Auditoria I",
+    categoriaFuncao: "Técnico Superior",
+    superiorHierarquico: "Dr. António Silva",
+    objectivosIndividuais: [
+      { descricao: "Realizar 15 auditorias completas", meta: "15", metaRealizada: "14", pontuacao: 4.5, dataConclusao: "31/12/2024" },
+      { descricao: "Reduzir tempo médio de auditoria em 10%", meta: "10%", metaRealizada: "8%", pontuacao: 4.0, dataConclusao: "31/12/2024" },
+      { descricao: "Elaborar relatórios sem erros materiais", meta: "100%", metaRealizada: "100%", pontuacao: 5.0, dataConclusao: "31/12/2024" },
+      { descricao: "Participar em 3 formações técnicas", meta: "3", metaRealizada: "3", pontuacao: 5.0, dataConclusao: "15/11/2024" },
     ],
-    competencias: [
-      { nome: "Conhecimento Técnico", pontuacao: 4.5 },
-      { nome: "Responsabilidade e Compromisso", pontuacao: 5.0 },
-      { nome: "Comunicação", pontuacao: 4.0 },
-      { nome: "Trabalho em Equipa", pontuacao: 4.5 },
-      { nome: "Orientação para Resultados", pontuacao: 4.5 },
+    objectivosEquipa: [
+      { descricao: "Melhorar índice de satisfação interna", meta: "85%", metaRealizada: "88%", pontuacao: 4.5, dataConclusao: "31/12/2024" },
+      { descricao: "Reduzir processos pendentes", meta: "20%", metaRealizada: "22%", pontuacao: 4.5, dataConclusao: "31/12/2024" },
     ],
-    naf: 4.4,
-    classificacao: "Muito Bom",
-    observacoes: "Colaborador exemplar com excelente desempenho técnico. Demonstra grande capacidade de liderança e compromisso com os objectivos institucionais.",
+    competenciasTransversais: [
+      { nome: "Responsabilidade e Compromisso", pontuacao: 5.0, observacoes: "Excelente" },
+      { nome: "Comunicação", pontuacao: 4.0, observacoes: "Muito bom" },
+      { nome: "Trabalho em Equipa", pontuacao: 4.5, observacoes: "Colaborador exemplar" },
+      { nome: "Orientação para Resultados", pontuacao: 4.5, observacoes: "-" },
+    ],
+    competenciasTecnicas: [
+      { nome: "Conhecimento Técnico de Auditoria", pontuacao: 4.5, observacoes: "Domínio elevado" },
+      { nome: "Análise Crítica", pontuacao: 4.0, observacoes: "-" },
+      { nome: "Elaboração de Relatórios", pontuacao: 5.0, observacoes: "Qualidade excepcional" },
+    ],
+    componentesNAF: [
+      { nome: "Objectivos Individuais", peso: 40, valor: 4.63 },
+      { nome: "Objectivos de Equipa", peso: 20, valor: 4.50 },
+      { nome: "Competências Transversais", peso: 20, valor: 4.50 },
+      { nome: "Competências Técnicas", peso: 20, valor: 4.50 },
+    ],
+    naf: 4.53,
+    classificacaoFinal: "Muito Bom",
+    conclusao: "Colaborador exemplar com excelente desempenho técnico. Demonstra grande capacidade de liderança e compromisso com os objectivos institucionais. Recomenda-se promoção a cargo de coordenação.",
+    dataAvaliador: "05/01/2025",
+    dataAvaliado: "05/01/2025",
   },
   {
-    id: "2",
-    avaliado: "Dra. Maria Santos",
-    cargo: "Técnica Superior",
-    unidade: "Departamento de Auditoria II",
-    avaliador: "Dr. João Ferreira",
-    cargoAvaliador: "Director de Departamento",
-    ciclo: "2024/2º Semestre",
-    dataAvaliacao: "2025-01-04",
-    objectivos: [
-      { nome: "Analisar 50 processos de contratação pública", peso: 35, pontuacao: 5.0, ponderado: 1.75 },
-      { nome: "Elaborar 10 pareceres técnicos", peso: 30, pontuacao: 4.5, ponderado: 1.35 },
-      { nome: "Apoiar formação de novos colaboradores", peso: 20, pontuacao: 4.0, ponderado: 0.8 },
-      { nome: "Participar em grupos de trabalho", peso: 15, pontuacao: 4.5, ponderado: 0.675 },
+    nomeCompleto: "Dra. Maria Santos",
+    orgaoServico: "Departamento de Auditoria II",
+    categoriaFuncao: "Técnica Superior",
+    superiorHierarquico: "Dr. João Ferreira",
+    objectivosIndividuais: [
+      { descricao: "Analisar 50 processos de contratação pública", meta: "50", metaRealizada: "52", pontuacao: 5.0, dataConclusao: "31/12/2024" },
+      { descricao: "Elaborar 10 pareceres técnicos", meta: "10", metaRealizada: "12", pontuacao: 5.0, dataConclusao: "30/11/2024" },
+      { descricao: "Apoiar formação de novos colaboradores", meta: "5", metaRealizada: "5", pontuacao: 4.5, dataConclusao: "31/12/2024" },
+      { descricao: "Participar em grupos de trabalho", meta: "3", metaRealizada: "4", pontuacao: 5.0, dataConclusao: "15/12/2024" },
     ],
-    competencias: [
-      { nome: "Conhecimento Técnico", pontuacao: 5.0 },
-      { nome: "Responsabilidade e Compromisso", pontuacao: 4.5 },
-      { nome: "Comunicação", pontuacao: 4.5 },
-      { nome: "Trabalho em Equipa", pontuacao: 4.0 },
-      { nome: "Orientação para Resultados", pontuacao: 5.0 },
+    objectivosEquipa: [
+      { descricao: "Atingir meta de processos do departamento", meta: "100%", metaRealizada: "105%", pontuacao: 5.0, dataConclusao: "31/12/2024" },
+      { descricao: "Implementar novos procedimentos", meta: "3", metaRealizada: "3", pontuacao: 4.5, dataConclusao: "30/11/2024" },
     ],
-    naf: 4.58,
-    classificacao: "Excelente",
-    observacoes: "Desempenho excepcional. A colaboradora superou todas as expectativas e contribuiu significativamente para os resultados do departamento.",
+    competenciasTransversais: [
+      { nome: "Responsabilidade e Compromisso", pontuacao: 5.0, observacoes: "Excepcional" },
+      { nome: "Comunicação", pontuacao: 4.5, observacoes: "Muito clara" },
+      { nome: "Trabalho em Equipa", pontuacao: 5.0, observacoes: "Referência" },
+      { nome: "Orientação para Resultados", pontuacao: 5.0, observacoes: "Supera expectativas" },
+    ],
+    competenciasTecnicas: [
+      { nome: "Conhecimento Técnico", pontuacao: 5.0, observacoes: "Especialista" },
+      { nome: "Análise Crítica", pontuacao: 5.0, observacoes: "-" },
+      { nome: "Elaboração de Relatórios", pontuacao: 4.5, observacoes: "-" },
+    ],
+    componentesNAF: [
+      { nome: "Objectivos Individuais", peso: 40, valor: 4.88 },
+      { nome: "Objectivos de Equipa", peso: 20, valor: 4.75 },
+      { nome: "Competências Transversais", peso: 20, valor: 4.88 },
+      { nome: "Competências Técnicas", peso: 20, valor: 4.83 },
+    ],
+    naf: 4.84,
+    classificacaoFinal: "Excelente",
+    conclusao: "Desempenho excepcional. A colaboradora superou todas as expectativas e contribuiu significativamente para os resultados do departamento. Forte candidata a cargos de direcção.",
+    dataAvaliador: "04/01/2025",
+    dataAvaliado: "04/01/2025",
   },
   {
-    id: "3",
-    avaliado: "Dr. Pedro Oliveira",
-    cargo: "Técnico Superior",
-    unidade: "Departamento Jurídico",
-    avaliador: "Dra. Ana Costa",
-    cargoAvaliador: "Directora de Departamento",
-    ciclo: "2024/2º Semestre",
-    dataAvaliacao: "2025-01-03",
-    objectivos: [
-      { nome: "Emitir 30 pareceres jurídicos", peso: 40, pontuacao: 3.5, ponderado: 1.4 },
-      { nome: "Acompanhar processos contenciosos", peso: 30, pontuacao: 4.0, ponderado: 1.2 },
-      { nome: "Actualizar base de dados jurídica", peso: 20, pontuacao: 3.0, ponderado: 0.6 },
-      { nome: "Formação contínua em direito público", peso: 10, pontuacao: 4.0, ponderado: 0.4 },
+    nomeCompleto: "Dr. Pedro Oliveira",
+    orgaoServico: "Departamento Jurídico",
+    categoriaFuncao: "Técnico Superior",
+    superiorHierarquico: "Dra. Ana Costa",
+    objectivosIndividuais: [
+      { descricao: "Emitir 30 pareceres jurídicos", meta: "30", metaRealizada: "25", pontuacao: 3.5, dataConclusao: "31/12/2024" },
+      { descricao: "Acompanhar processos contenciosos", meta: "15", metaRealizada: "15", pontuacao: 4.0, dataConclusao: "31/12/2024" },
+      { descricao: "Actualizar base de dados jurídica", meta: "100%", metaRealizada: "70%", pontuacao: 3.0, dataConclusao: "31/12/2024" },
+      { descricao: "Formação contínua em direito público", meta: "2", metaRealizada: "2", pontuacao: 4.0, dataConclusao: "30/09/2024" },
     ],
-    competencias: [
-      { nome: "Conhecimento Técnico", pontuacao: 4.0 },
-      { nome: "Responsabilidade e Compromisso", pontuacao: 3.5 },
-      { nome: "Comunicação", pontuacao: 3.5 },
-      { nome: "Trabalho em Equipa", pontuacao: 3.0 },
-      { nome: "Orientação para Resultados", pontuacao: 3.5 },
+    objectivosEquipa: [
+      { descricao: "Reduzir tempo de resposta a consultas", meta: "20%", metaRealizada: "15%", pontuacao: 3.5, dataConclusao: "31/12/2024" },
+      { descricao: "Uniformizar modelos de pareceres", meta: "100%", metaRealizada: "80%", pontuacao: 3.5, dataConclusao: "31/12/2024" },
     ],
-    naf: 3.6,
-    classificacao: "Bom",
-    observacoes: "Desempenho satisfatório com margem para melhoria na área de trabalho colaborativo e cumprimento de prazos.",
+    competenciasTransversais: [
+      { nome: "Responsabilidade e Compromisso", pontuacao: 3.5, observacoes: "A melhorar" },
+      { nome: "Comunicação", pontuacao: 3.5, observacoes: "-" },
+      { nome: "Trabalho em Equipa", pontuacao: 3.0, observacoes: "Necessita maior integração" },
+      { nome: "Orientação para Resultados", pontuacao: 3.5, observacoes: "-" },
+    ],
+    competenciasTecnicas: [
+      { nome: "Conhecimento Técnico Jurídico", pontuacao: 4.0, observacoes: "Bom domínio" },
+      { nome: "Análise Crítica", pontuacao: 3.5, observacoes: "-" },
+      { nome: "Elaboração de Pareceres", pontuacao: 4.0, observacoes: "-" },
+    ],
+    componentesNAF: [
+      { nome: "Objectivos Individuais", peso: 40, valor: 3.63 },
+      { nome: "Objectivos de Equipa", peso: 20, valor: 3.50 },
+      { nome: "Competências Transversais", peso: 20, valor: 3.38 },
+      { nome: "Competências Técnicas", peso: 20, valor: 3.83 },
+    ],
+    naf: 3.58,
+    classificacaoFinal: "Bom",
+    conclusao: "Desempenho satisfatório com margem para melhoria na área de trabalho colaborativo e cumprimento de prazos. Recomenda-se acompanhamento mais próximo e definição de plano de desenvolvimento.",
+    dataAvaliador: "03/01/2025",
+    dataAvaliado: "03/01/2025",
   },
 ];
 
@@ -121,11 +159,15 @@ const getClassificacaoColor = (classificacao: string) => {
 const RelatorioDesempenhoSuperior = () => {
   const navigate = useNavigate();
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate("/relatorios")}>
               <ArrowLeft className="h-5 w-5" />
@@ -140,7 +182,7 @@ const RelatorioDesempenhoSuperior = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={handlePrint}>
               <Printer className="h-4 w-4 mr-2" />
               Imprimir
             </Button>
@@ -152,7 +194,7 @@ const RelatorioDesempenhoSuperior = () => {
         </div>
 
         {/* Summary Stats */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-4 print:hidden">
           <Card className="shadow-institutional">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -173,7 +215,9 @@ const RelatorioDesempenhoSuperior = () => {
                   <Award className="h-5 w-5 text-success" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">4.19</p>
+                  <p className="text-2xl font-bold">
+                    {(mockRelatorios.reduce((acc, r) => acc + r.naf, 0) / mockRelatorios.length).toFixed(2)}
+                  </p>
                   <p className="text-sm text-muted-foreground">Média NAF</p>
                 </div>
               </div>
@@ -186,7 +230,9 @@ const RelatorioDesempenhoSuperior = () => {
                   <TrendingUp className="h-5 w-5 text-info" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">1</p>
+                  <p className="text-2xl font-bold">
+                    {mockRelatorios.filter(r => r.classificacaoFinal === "Excelente").length}
+                  </p>
                   <p className="text-sm text-muted-foreground">Excelentes</p>
                 </div>
               </div>
@@ -207,98 +253,158 @@ const RelatorioDesempenhoSuperior = () => {
           </Card>
         </div>
 
-        {/* Individual Reports */}
-        {mockRelatorios.map((relatorio, index) => (
-          <Card key={relatorio.id} className="shadow-institutional animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
-            <CardHeader className="border-b bg-muted/30">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <CardTitle className="text-xl font-serif">{relatorio.avaliado}</CardTitle>
-                  <CardDescription className="mt-1">
-                    {relatorio.cargo} • {relatorio.unidade}
-                  </CardDescription>
+        {/* Individual Reports - Screen View */}
+        <div className="print:hidden">
+          {mockRelatorios.map((relatorio, index) => (
+            <Card key={index} className="shadow-institutional animate-fade-in-up mb-6" style={{ animationDelay: `${index * 0.1}s` }}>
+              <CardHeader className="border-b bg-muted/30">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div>
+                    <CardTitle className="text-xl font-serif">{relatorio.nomeCompleto}</CardTitle>
+                    <CardDescription className="mt-1">
+                      {relatorio.categoriaFuncao} • {relatorio.orgaoServico}
+                    </CardDescription>
+                  </div>
+                  <Badge className={getClassificacaoColor(relatorio.classificacaoFinal)}>
+                    {relatorio.classificacaoFinal} ({relatorio.naf.toFixed(2)})
+                  </Badge>
                 </div>
-                <Badge className={getClassificacaoColor(relatorio.classificacao)}>
-                  {relatorio.classificacao} ({relatorio.naf.toFixed(2)})
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* Avaliador Info */}
-              <div className="grid gap-4 md:grid-cols-3 p-4 bg-muted/20 rounded-lg">
-                <div>
-                  <p className="text-sm text-muted-foreground">Avaliador</p>
-                  <p className="font-medium">{relatorio.avaliador}</p>
-                  <p className="text-sm text-muted-foreground">{relatorio.cargoAvaliador}</p>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                {/* Avaliador Info */}
+                <div className="grid gap-4 md:grid-cols-3 p-4 bg-muted/20 rounded-lg">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Avaliador</p>
+                    <p className="font-medium">{relatorio.superiorHierarquico}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Ciclo de Avaliação</p>
+                    <p className="font-medium">2024/2º Semestre</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Data da Avaliação</p>
+                    <p className="font-medium">{relatorio.dataAvaliador}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Ciclo de Avaliação</p>
-                  <p className="font-medium">{relatorio.ciclo}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Data da Avaliação</p>
-                  <p className="font-medium">{new Date(relatorio.dataAvaliacao).toLocaleDateString('pt-PT')}</p>
-                </div>
-              </div>
 
-              {/* Objectivos */}
-              <div>
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <Target className="h-4 w-4 text-accent" />
-                  Avaliação de Objectivos
-                </h4>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Objectivo</TableHead>
-                      <TableHead className="text-center w-20">Peso (%)</TableHead>
-                      <TableHead className="text-center w-24">Pontuação</TableHead>
-                      <TableHead className="text-center w-24">Ponderado</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {relatorio.objectivos.map((obj, i) => (
-                      <TableRow key={i}>
-                        <TableCell>{obj.nome}</TableCell>
-                        <TableCell className="text-center">{obj.peso}%</TableCell>
-                        <TableCell className="text-center font-medium">{obj.pontuacao.toFixed(1)}</TableCell>
-                        <TableCell className="text-center font-medium">{obj.ponderado.toFixed(2)}</TableCell>
+                {/* Objectivos Individuais */}
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <Target className="h-4 w-4 text-accent" />
+                    Objectivos Individuais (40%)
+                  </h4>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead className="text-center w-20">Meta</TableHead>
+                        <TableHead className="text-center w-24">Realizado</TableHead>
+                        <TableHead className="text-center w-24">Pontuação</TableHead>
                       </TableRow>
-                    ))}
-                    <TableRow className="bg-muted/30 font-semibold">
-                      <TableCell colSpan={2}>Total Objectivos</TableCell>
-                      <TableCell className="text-center">-</TableCell>
-                      <TableCell className="text-center">
-                        {relatorio.objectivos.reduce((acc, obj) => acc + obj.ponderado, 0).toFixed(2)}
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Competências */}
-              <div>
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <Award className="h-4 w-4 text-accent" />
-                  Avaliação de Competências
-                </h4>
-                <div className="grid gap-3 md:grid-cols-5">
-                  {relatorio.competencias.map((comp, i) => (
-                    <div key={i} className="p-3 border rounded-lg text-center">
-                      <p className="text-sm text-muted-foreground mb-1">{comp.nome}</p>
-                      <p className="text-xl font-bold text-primary">{comp.pontuacao.toFixed(1)}</p>
-                    </div>
-                  ))}
+                    </TableHeader>
+                    <TableBody>
+                      {relatorio.objectivosIndividuais.map((obj, i) => (
+                        <TableRow key={i}>
+                          <TableCell>{obj.descricao}</TableCell>
+                          <TableCell className="text-center">{obj.meta}</TableCell>
+                          <TableCell className="text-center">{obj.metaRealizada}</TableCell>
+                          <TableCell className="text-center font-medium">{obj.pontuacao.toFixed(1)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
-              </div>
 
-              {/* Observações */}
-              <div className="p-4 bg-muted/20 rounded-lg">
-                <h4 className="font-semibold mb-2">Observações do Avaliador</h4>
-                <p className="text-muted-foreground">{relatorio.observacoes}</p>
-              </div>
-            </CardContent>
-          </Card>
+                {/* Objectivos de Equipa */}
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <Target className="h-4 w-4 text-info" />
+                    Objectivos de Equipa (20%)
+                  </h4>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead className="text-center w-20">Meta</TableHead>
+                        <TableHead className="text-center w-24">Realizado</TableHead>
+                        <TableHead className="text-center w-24">Pontuação</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {relatorio.objectivosEquipa.map((obj, i) => (
+                        <TableRow key={i}>
+                          <TableCell>{obj.descricao}</TableCell>
+                          <TableCell className="text-center">{obj.meta}</TableCell>
+                          <TableCell className="text-center">{obj.metaRealizada}</TableCell>
+                          <TableCell className="text-center font-medium">{obj.pontuacao.toFixed(1)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Competências */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Award className="h-4 w-4 text-accent" />
+                      Competências Transversais (20%)
+                    </h4>
+                    <div className="space-y-2">
+                      {relatorio.competenciasTransversais.map((comp, i) => (
+                        <div key={i} className="flex justify-between items-center p-2 border rounded">
+                          <span className="text-sm">{comp.nome}</span>
+                          <span className="font-bold text-primary">{comp.pontuacao.toFixed(1)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-accent" />
+                      Competências Técnicas (20%)
+                    </h4>
+                    <div className="space-y-2">
+                      {relatorio.competenciasTecnicas.map((comp, i) => (
+                        <div key={i} className="flex justify-between items-center p-2 border rounded">
+                          <span className="text-sm">{comp.nome}</span>
+                          <span className="font-bold text-primary">{comp.pontuacao.toFixed(1)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* NAF Summary */}
+                <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <h4 className="font-semibold mb-3">Cálculo da NAF</h4>
+                  <div className="grid md:grid-cols-4 gap-4 mb-4">
+                    {relatorio.componentesNAF.map((comp, i) => (
+                      <div key={i} className="text-center p-3 bg-background rounded-lg">
+                        <p className="text-xs text-muted-foreground">{comp.nome}</p>
+                        <p className="text-sm font-medium">{comp.valor.toFixed(2)} × {comp.peso}%</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-between items-center pt-3 border-t">
+                    <span className="font-semibold">Nota de Avaliação Final (NAF)</span>
+                    <span className="text-2xl font-bold text-primary">{relatorio.naf.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* Conclusão */}
+                <div className="p-4 bg-muted/20 rounded-lg">
+                  <h4 className="font-semibold mb-2">Conclusão e Recomendações</h4>
+                  <p className="text-muted-foreground">{relatorio.conclusao}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Print View - Official Format */}
+        {mockRelatorios.map((relatorio, index) => (
+          <RelatorioOficial key={index} data={relatorio} />
         ))}
       </div>
     </AppLayout>
