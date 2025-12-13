@@ -67,13 +67,13 @@ interface RelatorioOficialProps {
 
 export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOficialProps) {
   const containerClass = showPrintStyles 
-    ? "hidden print:block print-content bg-white text-black p-6"
+    ? "hidden print:block print-content bg-white text-black p-4"
     : "bg-white text-black p-6 border rounded-lg";
 
   return (
-    <div className={containerClass}>
+    <div className={containerClass} style={{ fontSize: '9pt', lineHeight: '1.3' }}>
       {/* Cabeçalho Oficial */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-4" style={{ pageBreakInside: 'avoid' }}>
         <div className="flex justify-center mb-4">
           <img 
             src={tribunalLogo} 
@@ -97,8 +97,8 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
       </div>
 
       {/* 1. Identificação do Avaliado */}
-      <section className="mb-6">
-        <h2 className="text-sm font-bold bg-gray-100 p-2 mb-3 border-l-4 border-gray-800">
+      <section className="mb-4" style={{ pageBreakInside: 'avoid' }}>
+        <h2 className="text-xs font-bold bg-gray-100 p-1.5 mb-2 border-l-4 border-gray-800">
           1. Identificação do Avaliado
         </h2>
         <Table className="border">
@@ -122,18 +122,18 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
       </section>
 
       {/* 2. Objectivos Individuais (40%) */}
-      <section className="mb-6">
-        <h2 className="text-sm font-bold bg-gray-100 p-2 mb-3 border-l-4 border-gray-800">
+      <section className="mb-4" style={{ pageBreakInside: 'avoid' }}>
+        <h2 className="text-xs font-bold bg-gray-100 p-1.5 mb-2 border-l-4 border-gray-800">
           2. Objectivos Individuais (40%)
         </h2>
         <Table className="border">
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="border text-xs font-semibold text-gray-900">Descrição</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-20 text-center">Meta</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-24 text-center">Meta Realizada</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-24 text-center">Pontuação (1-5)</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-28 text-center">Data de Conclusão</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-16 text-center">Meta</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-20 text-center">Realizado</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-16 text-center">Pont.</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-24 text-center">Data</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -148,7 +148,7 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
             ))}
             {data.objectivosIndividuais.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="border text-xs text-center text-gray-500 py-4">
+                <TableCell colSpan={5} className="border text-xs text-center text-gray-500 py-2">
                   Sem objectivos individuais registados
                 </TableCell>
               </TableRow>
@@ -158,18 +158,18 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
       </section>
 
       {/* 3. Objectivos de Equipa (20%) */}
-      <section className="mb-6">
-        <h2 className="text-sm font-bold bg-gray-100 p-2 mb-3 border-l-4 border-gray-800">
+      <section className="mb-4" style={{ pageBreakInside: 'avoid' }}>
+        <h2 className="text-xs font-bold bg-gray-100 p-1.5 mb-2 border-l-4 border-gray-800">
           3. Objectivos de Equipa (20%)
         </h2>
         <Table className="border">
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="border text-xs font-semibold text-gray-900">Descrição</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-20 text-center">Meta</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-24 text-center">Meta Realizada</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-24 text-center">Pontuação (1-5)</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-28 text-center">Data de Conclusão</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-16 text-center">Meta</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-20 text-center">Realizado</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-16 text-center">Pont.</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-24 text-center">Data</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -184,7 +184,7 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
             ))}
             {data.objectivosEquipa.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="border text-xs text-center text-gray-500 py-4">
+                <TableCell colSpan={5} className="border text-xs text-center text-gray-500 py-2">
                   Sem objectivos de equipa registados
                 </TableCell>
               </TableRow>
@@ -194,15 +194,15 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
       </section>
 
       {/* 4. Competências Transversais (20%) */}
-      <section className="mb-6">
-        <h2 className="text-sm font-bold bg-gray-100 p-2 mb-3 border-l-4 border-gray-800">
+      <section className="mb-4" style={{ pageBreakInside: 'avoid' }}>
+        <h2 className="text-xs font-bold bg-gray-100 p-1.5 mb-2 border-l-4 border-gray-800">
           4. Competências Transversais (20%)
         </h2>
         <Table className="border">
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="border text-xs font-semibold text-gray-900">Competência</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-24 text-center">Pontuação (1-5)</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-16 text-center">Pont.</TableHead>
               <TableHead className="border text-xs font-semibold text-gray-900">Observações</TableHead>
             </TableRow>
           </TableHeader>
@@ -219,15 +219,15 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
       </section>
 
       {/* 5. Competências Técnicas Específicas (20%) */}
-      <section className="mb-6">
-        <h2 className="text-sm font-bold bg-gray-100 p-2 mb-3 border-l-4 border-gray-800">
+      <section className="mb-4" style={{ pageBreakInside: 'avoid' }}>
+        <h2 className="text-xs font-bold bg-gray-100 p-1.5 mb-2 border-l-4 border-gray-800">
           5. Competências Técnicas Específicas (20%)
         </h2>
         <Table className="border">
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="border text-xs font-semibold text-gray-900">Competência</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-24 text-center">Pontuação (1-5)</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-16 text-center">Pont.</TableHead>
               <TableHead className="border text-xs font-semibold text-gray-900">Observações</TableHead>
             </TableRow>
           </TableHeader>
@@ -244,21 +244,21 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
       </section>
 
       {/* 6. Nota de Avaliação Final (NAF) */}
-      <section className="mb-6">
-        <h2 className="text-sm font-bold bg-gray-100 p-2 mb-3 border-l-4 border-gray-800">
+      <section className="mb-4" style={{ pageBreakInside: 'avoid' }}>
+        <h2 className="text-xs font-bold bg-gray-100 p-1.5 mb-2 border-l-4 border-gray-800">
           6. Nota de Avaliação Final (NAF)
         </h2>
-        <div className="bg-gray-50 p-3 mb-3 border rounded text-xs">
-          <p className="font-medium text-gray-700">
-            NAF = (Objectivos Individuais × 40%) + (Objectivos de Equipa × 20%) + (Competências Transversais × 20%) + (Competências Técnicas × 20%)
+        <div className="bg-gray-50 p-2 mb-2 border rounded text-xs">
+          <p className="font-medium text-gray-700" style={{ fontSize: '8pt' }}>
+            NAF = (Obj. Individuais × 40%) + (Obj. Equipa × 20%) + (Comp. Transversais × 20%) + (Comp. Técnicas × 20%)
           </p>
         </div>
         <Table className="border">
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="border text-xs font-semibold text-gray-900">Componente</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-20 text-center">Peso</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-20 text-center">Valor</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-16 text-center">Peso</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-16 text-center">Valor</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -271,9 +271,9 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
             ))}
             <TableRow className="bg-gray-100 font-bold">
               <TableCell className="border text-xs" colSpan={2}>Nota de Avaliação Final (NAF)</TableCell>
-              <TableCell className="border text-xs text-center text-lg">{data.naf.toFixed(2)}</TableCell>
+              <TableCell className="border text-xs text-center font-bold">{data.naf.toFixed(2)}</TableCell>
             </TableRow>
-            <TableRow className="bg-primary/10">
+            <TableRow className="bg-blue-50">
               <TableCell className="border text-xs" colSpan={2}>Classificação Final</TableCell>
               <TableCell className="border text-xs text-center font-bold">{data.classificacaoFinal}</TableCell>
             </TableRow>
@@ -282,39 +282,39 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
       </section>
 
       {/* 7. Conclusão e Recomendações */}
-      <section className="mb-6">
-        <h2 className="text-sm font-bold bg-gray-100 p-2 mb-3 border-l-4 border-gray-800">
+      <section className="mb-4" style={{ pageBreakInside: 'avoid' }}>
+        <h2 className="text-sm font-bold bg-gray-100 p-2 mb-2 border-l-4 border-gray-800">
           7. Conclusão e Recomendações
         </h2>
-        <div className="border rounded p-4 min-h-[80px] text-xs">
+        <div className="border rounded p-3 min-h-[60px] text-xs">
           {data.conclusao || <span className="text-gray-400">Sem conclusão registada</span>}
         </div>
       </section>
 
       {/* 8. Assinaturas */}
-      <section className="mb-6 page-break-inside-avoid">
-        <h2 className="text-sm font-bold bg-gray-100 p-2 mb-3 border-l-4 border-gray-800">
+      <section className="mb-4" style={{ pageBreakInside: 'avoid' }}>
+        <h2 className="text-sm font-bold bg-gray-100 p-2 mb-2 border-l-4 border-gray-800">
           8. Assinaturas
         </h2>
         <Table className="border">
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="border text-xs font-semibold text-gray-900 text-center">Avaliador (Nome e Assinatura)</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-28 text-center">Data</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-24 text-center">Data</TableHead>
               <TableHead className="border text-xs font-semibold text-gray-900 text-center">Avaliado (Nome e Assinatura)</TableHead>
-              <TableHead className="border text-xs font-semibold text-gray-900 w-28 text-center">Data</TableHead>
+              <TableHead className="border text-xs font-semibold text-gray-900 w-24 text-center">Data</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell className="border h-20 align-bottom">
-                <div className="border-t border-gray-400 mt-12 pt-2 text-center text-xs">
+              <TableCell className="border h-16 align-bottom">
+                <div className="border-t border-gray-400 mt-8 pt-1 text-center text-xs">
                   {data.superiorHierarquico}
                 </div>
               </TableCell>
               <TableCell className="border text-xs text-center">{data.dataAvaliador || "___/___/______"}</TableCell>
-              <TableCell className="border h-20 align-bottom">
-                <div className="border-t border-gray-400 mt-12 pt-2 text-center text-xs">
+              <TableCell className="border h-16 align-bottom">
+                <div className="border-t border-gray-400 mt-8 pt-1 text-center text-xs">
                   {data.nomeCompleto}
                 </div>
               </TableCell>
@@ -325,7 +325,7 @@ export function RelatorioOficial({ data, showPrintStyles = true }: RelatorioOfic
       </section>
 
       {/* Rodapé */}
-      <footer className="mt-8 pt-4 border-t text-center text-xs text-gray-500">
+      <footer className="mt-4 pt-2 border-t text-center text-xs text-gray-500" style={{ pageBreakInside: 'avoid' }}>
         <p>Sistema de Gestão de Avaliação de Desempenho (SGAD) - Tribunal de Contas de Angola</p>
         <p className="mt-1">Documento gerado automaticamente em {new Date().toLocaleDateString('pt-PT')}</p>
       </footer>
