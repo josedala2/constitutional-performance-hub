@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,8 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
+import { DocumentoPreviewModal } from "@/components/modals/DocumentoPreviewModal";
+import { toast } from "sonner";
 
 const mockDocuments = [
   { 
@@ -59,6 +62,21 @@ const folders = [
 ];
 
 const Documentos = () => {
+  const [selectedDoc, setSelectedDoc] = useState<typeof mockDocuments[0] | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  const handleView = (doc: typeof mockDocuments[0]) => {
+    setSelectedDoc(doc);
+    setPreviewOpen(true);
+  };
+
+  const handleDownload = (doc: typeof mockDocuments[0]) => {
+    // Simulate download
+    toast.success(`A descarregar "${doc.nome}"`, {
+      description: `Tamanho: ${doc.tamanho}`,
+    });
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -147,10 +165,20 @@ const Documentos = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" title="Visualizar">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      title="Visualizar"
+                      onClick={() => handleView(doc)}
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" title="Download">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      title="Download"
+                      onClick={() => handleDownload(doc)}
+                    >
                       <Download className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" title="Eliminar">
@@ -162,6 +190,14 @@ const Documentos = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Preview Modal */}
+        <DocumentoPreviewModal
+          documento={selectedDoc}
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+          onDownload={handleDownload}
+        />
       </div>
     </AppLayout>
   );
