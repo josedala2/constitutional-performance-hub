@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { FileCheck, Save, Send, Printer } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { PrintHeader } from "@/components/print/PrintHeader";
+import { PrintFooter } from "@/components/print/PrintFooter";
 
 interface ObjectiveRow {
   id: number;
@@ -158,9 +160,15 @@ export default function FichaPessoalTecnico() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 print:space-y-4 print-container">
+        {/* Print Header - Only visible when printing */}
+        <PrintHeader 
+          title="Ficha de Avaliação - Pessoal Técnico e Não Técnico" 
+          subtitle="Anexo I - Artigo 51.º alínea a)"
+        />
+        
+        {/* Screen Header - Hidden when printing */}
+        <div className="flex items-center justify-between no-print">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
               <FileCheck className="h-6 w-6 text-primary" />
@@ -636,6 +644,9 @@ export default function FichaPessoalTecnico() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Print Footer */}
+        <PrintFooter documentCode="SGAD-FPT-001" />
       </div>
     </AppLayout>
   );
