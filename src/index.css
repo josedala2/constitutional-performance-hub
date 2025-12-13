@@ -221,3 +221,278 @@
 .stagger-3 { animation-delay: 0.3s; }
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
+
+/* ============================
+   PRINT STYLES - SGAD
+   ============================ */
+@media print {
+  /* Reset page setup */
+  @page {
+    size: A4;
+    margin: 15mm 10mm 15mm 10mm;
+  }
+
+  /* Hide non-printable elements */
+  .no-print,
+  header,
+  nav,
+  aside,
+  footer,
+  button,
+  .sidebar,
+  [role="navigation"],
+  .toaster {
+    display: none !important;
+  }
+
+  /* Reset body and backgrounds */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Print container */
+  .print-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Print header with logo */
+  .print-header {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-bottom: 2px solid hsl(220 60% 20%);
+    padding-bottom: 12pt;
+    margin-bottom: 16pt;
+  }
+
+  .print-header img {
+    height: 50px;
+    width: auto;
+    margin-bottom: 8pt;
+  }
+
+  .print-header h1 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 16pt !important;
+    font-weight: 700;
+    color: hsl(220 60% 20%) !important;
+    margin: 0 0 4pt 0;
+  }
+
+  .print-header .subtitle {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 10pt;
+    color: hsl(220 15% 45%) !important;
+    margin: 0;
+  }
+
+  /* Cards styling for print */
+  .card,
+  [class*="Card"] {
+    border: 1px solid hsl(220 20% 80%) !important;
+    box-shadow: none !important;
+    background: white !important;
+    page-break-inside: avoid;
+    margin-bottom: 12pt !important;
+    border-radius: 4pt !important;
+  }
+
+  .card-header,
+  [class*="CardHeader"] {
+    background: hsl(220 25% 96%) !important;
+    border-bottom: 1px solid hsl(220 20% 85%) !important;
+    padding: 8pt 12pt !important;
+  }
+
+  .card-title,
+  [class*="CardTitle"] {
+    font-family: 'Crimson Pro', serif !important;
+    font-size: 12pt !important;
+    font-weight: 600 !important;
+    color: hsl(220 60% 20%) !important;
+  }
+
+  .card-content,
+  [class*="CardContent"] {
+    padding: 12pt !important;
+  }
+
+  /* Tables */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 9pt !important;
+    page-break-inside: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  th, td {
+    border: 1px solid hsl(220 20% 80%) !important;
+    padding: 6pt 8pt !important;
+    text-align: left !important;
+    vertical-align: top !important;
+  }
+
+  th {
+    background: hsl(220 60% 20%) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 9pt !important;
+  }
+
+  td {
+    background: white !important;
+  }
+
+  tr:nth-child(even) td {
+    background: hsl(220 25% 97%) !important;
+  }
+
+  /* Form inputs - show as text */
+  input, 
+  textarea, 
+  select,
+  [role="combobox"] {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    font-size: inherit !important;
+    box-shadow: none !important;
+  }
+
+  /* Badges */
+  .badge,
+  [class*="Badge"] {
+    border: 1px solid currentColor !important;
+    background: transparent !important;
+    padding: 2pt 6pt !important;
+    font-size: 9pt !important;
+    font-weight: 600 !important;
+    border-radius: 3pt !important;
+  }
+
+  /* NAF and results section */
+  .print-results {
+    border: 2px solid hsl(220 60% 20%) !important;
+    background: hsl(220 25% 96%) !important;
+    padding: 12pt !important;
+    margin-top: 16pt !important;
+    border-radius: 4pt !important;
+  }
+
+  .print-results h3 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 14pt !important;
+    font-weight: 700 !important;
+    color: hsl(220 60% 20%) !important;
+    text-align: center;
+    margin-bottom: 8pt !important;
+  }
+
+  /* Signature section */
+  .print-signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24pt;
+    margin-top: 24pt;
+    page-break-inside: avoid;
+  }
+
+  .print-signature-box {
+    border-top: 1px solid hsl(220 20% 70%);
+    padding-top: 8pt;
+    text-align: center;
+  }
+
+  .print-signature-box .name {
+    font-weight: 600;
+    margin-bottom: 4pt;
+  }
+
+  .print-signature-box .label {
+    font-size: 9pt;
+    color: hsl(220 15% 45%);
+  }
+
+  /* Footer for print */
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 8pt;
+    color: hsl(220 15% 55%);
+    border-top: 1px solid hsl(220 20% 85%);
+    padding-top: 8pt;
+  }
+
+  /* Grade colors for print */
+  .grade-muito-bom { color: hsl(142 71% 30%) !important; }
+  .grade-bom { color: hsl(166 64% 35%) !important; }
+  .grade-suficiente { color: hsl(38 92% 40%) !important; }
+  .grade-insuficiente { color: hsl(25 95% 45%) !important; }
+  .grade-mau { color: hsl(0 72% 45%) !important; }
+
+  /* Labels for identification section */
+  .print-label {
+    font-size: 8pt;
+    font-weight: 600;
+    color: hsl(220 15% 45%);
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+    margin-bottom: 2pt;
+  }
+
+  .print-value {
+    font-size: 10pt;
+    color: hsl(220 25% 15%);
+    border-bottom: 1px solid hsl(220 20% 85%);
+    padding-bottom: 4pt;
+    margin-bottom: 8pt;
+  }
+
+  /* Page breaks */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .avoid-break {
+    page-break-inside: avoid;
+  }
+
+  /* Reset main content area */
+  main,
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Hide scrollbars */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Globe, Save, Send, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { PrintHeader } from "@/components/print/PrintHeader";
+import { PrintFooter } from "@/components/print/PrintFooter";
 
 interface QuestionRow {
   id: number;
@@ -44,11 +46,21 @@ export default function FichaUtentesExternos() {
     toast.success("Avaliação guardada com sucesso!");
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <AppLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 print:space-y-4 print-container">
+        {/* Print Header */}
+        <PrintHeader 
+          title="Ficha de Avaliação dos Utentes Externos" 
+          subtitle="Anexo V - Artigo 51.º alínea e)"
+        />
+        
+        {/* Screen Header */}
+        <div className="flex items-center justify-between no-print">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
               <Globe className="h-6 w-6 text-primary" />
@@ -63,7 +75,7 @@ export default function FichaUtentesExternos() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
             </Button>
@@ -174,6 +186,9 @@ export default function FichaUtentesExternos() {
           <p className="font-serif text-lg text-primary">Muito obrigado pela sua colaboração!</p>
           <p className="text-sm text-muted-foreground mt-1">A sua opinião ajuda-nos a melhorar os nossos serviços.</p>
         </div>
+
+        {/* Print Footer */}
+        <PrintFooter documentCode="SGAD-FUE-001" />
       </div>
     </AppLayout>
   );

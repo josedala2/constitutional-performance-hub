@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Building2, Save, Send, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { PrintHeader } from "@/components/print/PrintHeader";
+import { PrintFooter } from "@/components/print/PrintFooter";
 
 interface CompetencyRow {
   id: number;
@@ -73,11 +75,21 @@ export default function FichaUtentesInternos() {
     toast.success("Rascunho guardado com sucesso!");
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <AppLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 print:space-y-4 print-container">
+        {/* Print Header */}
+        <PrintHeader 
+          title="Ficha de Avaliação dos Utentes Internos" 
+          subtitle="Anexo IV - Artigo 51.º alínea d)"
+        />
+        
+        {/* Screen Header */}
+        <div className="flex items-center justify-between no-print">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
               <Building2 className="h-6 w-6 text-primary" />
@@ -92,7 +104,7 @@ export default function FichaUtentesInternos() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
             </Button>
@@ -247,6 +259,9 @@ export default function FichaUtentesInternos() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Print Footer */}
+        <PrintFooter documentCode="SGAD-FUI-001" />
       </div>
     </AppLayout>
   );
