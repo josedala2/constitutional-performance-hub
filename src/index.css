@@ -276,6 +276,37 @@
     margin: 0 auto 8pt auto !important;
   }
 
+  /* Page break controls */
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .page-break-inside-avoid {
+    page-break-inside: avoid;
+  }
+
+  /* Print content styling */
+  .print-content {
+    display: block !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  .print-content table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  .print-content th,
+  .print-content td {
+    border: 1px solid #333 !important;
+    padding: 6px 8px !important;
+  }
+
+  .print-content section {
+    page-break-inside: avoid;
+  }
+
   .print-header h1 {
     font-family: 'Crimson Pro', serif;
     font-size: 16pt !important;
