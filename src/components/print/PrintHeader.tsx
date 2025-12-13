@@ -7,10 +7,38 @@ interface PrintHeaderProps {
 
 export function PrintHeader({ title, subtitle }: PrintHeaderProps) {
   return (
-    <div className="print-header hidden print:flex">
-      <img src={tribunalLogo} alt="Tribunal de Contas" />
-      <h1>{title}</h1>
-      {subtitle && <p className="subtitle">{subtitle}</p>}
+    <div className="hidden print:block mb-6">
+      {/* Logo centered at top */}
+      <div className="flex justify-center mb-4">
+        <img 
+          src={tribunalLogo} 
+          alt="Tribunal de Contas" 
+          className="h-16 w-auto object-contain"
+          style={{ maxHeight: '60px' }}
+        />
+      </div>
+      
+      {/* Institution name */}
+      <div className="text-center mb-3">
+        <p className="text-xs uppercase tracking-widest text-gray-600 font-medium">
+          República de Angola
+        </p>
+        <p className="text-sm font-semibold text-gray-800">
+          Tribunal de Contas
+        </p>
+      </div>
+      
+      {/* Document title */}
+      <div className="text-center border-b-2 border-gray-800 pb-3">
+        <h1 className="text-lg font-bold text-gray-900 font-serif">
+          {title}
+        </h1>
+        {subtitle && (
+          <p className="text-xs text-gray-600 mt-1">
+            {subtitle}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

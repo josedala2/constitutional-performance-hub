@@ -263,21 +263,17 @@
     padding: 0 !important;
   }
 
-  /* Print header with logo */
-  .print-header {
-    display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    border-bottom: 2px solid hsl(220 60% 20%);
-    padding-bottom: 12pt;
+  /* Print header with logo - enhanced */
+  .print-header-container {
+    display: block !important;
     margin-bottom: 16pt;
   }
 
-  .print-header img {
-    height: 50px;
-    width: auto;
-    margin-bottom: 8pt;
+  .print-header-container img {
+    height: 60px !important;
+    width: auto !important;
+    display: block !important;
+    margin: 0 auto 8pt auto !important;
   }
 
   .print-header h1 {
