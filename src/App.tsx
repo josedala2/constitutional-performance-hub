@@ -22,6 +22,7 @@ import RelatorioDesempenhoSuperior from "./pages/relatorios/RelatorioDesempenhoS
 import RelatorioEntrePares from "./pages/relatorios/RelatorioEntrePares";
 import RelatorioUtentesInternos from "./pages/relatorios/RelatorioUtentesInternos";
 import RelatorioUtentesExternos from "./pages/relatorios/RelatorioUtentesExternos";
+import ProcessoAvaliacao from "./pages/ProcessoAvaliacao";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="/relatorios/entre-pares" element={<RelatorioEntrePares />} />
           <Route path="/relatorios/utentes-internos" element={<RelatorioUtentesInternos />} />
           <Route path="/relatorios/utentes-externos" element={<RelatorioUtentesExternos />} />
+          <Route path="/processo" element={<ProcessoAvaliacao />} />
           <Route path="/documentos" element={<Documentos />} />
           <Route path="/configuracoes" element={<Configuracoes />} />
           <Route path="*" element={<NotFound />} />
