@@ -19,6 +19,7 @@ import {
   Globe,
   ClipboardList,
   Workflow,
+  GitBranch,
 } from "lucide-react";
 import tribunalLogo from "@/assets/tribunal-logo.png";
 import { useState } from "react";
@@ -91,6 +92,7 @@ const relatoriosSubmenu = [
 const navigation = [
   { name: "Painel Principal", href: "/", icon: LayoutDashboard },
   { name: "Processo de Avaliação", href: "/processo", icon: Workflow },
+  { name: "Diagrama Casos de Uso", href: "/diagrama-casos-uso", icon: GitBranch },
   { name: "Ciclos de Avaliação", href: "/ciclos", icon: Calendar },
   { name: "Colaboradores", href: "/colaboradores", icon: Users },
   { name: "Objectivos", href: "/objectivos", icon: Target },
