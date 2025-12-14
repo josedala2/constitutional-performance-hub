@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthGuard } from "@/components/guards/AuthGuard";
+import { AdminGuard } from "@/components/guards/AdminGuard";
 import Dashboard from "./pages/Dashboard";
 import CiclosAvaliacao from "./pages/CiclosAvaliacao";
 import Colaboradores from "./pages/Colaboradores";
@@ -74,13 +75,13 @@ const App = () => (
             <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
             <Route path="/meu-perfil" element={<ProtectedRoute><MeuPerfil /></ProtectedRoute>} />
             
-            {/* Rotas de Administração protegidas */}
-            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/utilizadores" element={<ProtectedRoute><Utilizadores /></ProtectedRoute>} />
-            <Route path="/admin/perfis" element={<ProtectedRoute><Perfis /></ProtectedRoute>} />
-            <Route path="/admin/permissoes" element={<ProtectedRoute><Permissoes /></ProtectedRoute>} />
-            <Route path="/admin/auditoria" element={<ProtectedRoute><Auditoria /></ProtectedRoute>} />
-            <Route path="/admin/unidades" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
+            {/* Rotas de Administração - apenas ADMIN e RH */}
+            <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+            <Route path="/admin/utilizadores" element={<AdminGuard><Utilizadores /></AdminGuard>} />
+            <Route path="/admin/perfis" element={<AdminGuard><Perfis /></AdminGuard>} />
+            <Route path="/admin/permissoes" element={<AdminGuard><Permissoes /></AdminGuard>} />
+            <Route path="/admin/auditoria" element={<AdminGuard><Auditoria /></AdminGuard>} />
+            <Route path="/admin/unidades" element={<AdminGuard><UnidadesOrganicas /></AdminGuard>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
