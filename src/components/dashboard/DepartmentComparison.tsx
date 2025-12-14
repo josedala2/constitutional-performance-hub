@@ -11,19 +11,12 @@ import {
 } from "recharts";
 
 const data = [
-  { departamento: "Jurídico", naf: 3.8 },
-  { departamento: "Financeiro", naf: 3.6 },
-  { departamento: "Administrativo", naf: 3.4 },
-  { departamento: "TI", naf: 3.9 },
-  { departamento: "RH", naf: 3.5 },
+  { departamento: "Jurídico", naf: 3.8, color: "hsl(var(--chart-1))" },
+  { departamento: "Financeiro", naf: 3.6, color: "hsl(var(--chart-2))" },
+  { departamento: "Administrativo", naf: 3.4, color: "hsl(var(--chart-3))" },
+  { departamento: "TI", naf: 3.9, color: "hsl(var(--chart-4))" },
+  { departamento: "RH", naf: 3.5, color: "hsl(var(--chart-5))" },
 ];
-
-const getBarColor = (naf: number) => {
-  if (naf >= 3.8) return "hsl(var(--chart-1))";
-  if (naf >= 3.5) return "hsl(var(--chart-2))";
-  if (naf >= 3.0) return "hsl(var(--chart-3))";
-  return "hsl(var(--chart-4))";
-};
 
 export const DepartmentComparison = () => {
   return (
@@ -65,7 +58,7 @@ export const DepartmentComparison = () => {
               />
               <Bar dataKey="naf" radius={[0, 4, 4, 0]}>
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={getBarColor(entry.naf)} />
+                  <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Bar>
             </BarChart>
