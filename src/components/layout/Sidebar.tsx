@@ -32,6 +32,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useSidebarContext } from "@/contexts/SidebarContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -129,6 +130,7 @@ const bottomNavigation = [
 export function Sidebar() {
   const location = useLocation();
   const { collapsed, toggle } = useSidebarContext();
+  const { canManageUsers } = useAuth();
   const [avaliacoesOpen, setAvaliacoesOpen] = useState(
     location.pathname.startsWith("/avaliacoes")
   );
@@ -356,68 +358,74 @@ export function Sidebar() {
             return <NavItem key={item.name} item={item} isActive={isActive} />;
           })}
 
-          {/* Separator */}
-          <div className="my-4 border-t border-sidebar-border" />
+          {/* Separator - only show if admin menu is visible */}
+          {canManageUsers && (
+            <div className="my-4 border-t border-sidebar-border" />
+          )}
 
-          {/* Administração with Submenu */}
-          {collapsed ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  to="/admin/utilizadores"
-                  className={cn(
-                    "flex items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition-all duration-200",
-                    isAdminActive
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  )}
-                >
-                  <Shield className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Administração</TooltipContent>
-            </Tooltip>
-          ) : (
-            <Collapsible open={adminOpen} onOpenChange={setAdminOpen}>
-              <CollapsibleTrigger asChild>
-                <button
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                    isAdminActive
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  )}
-                >
-                  <Shield className="h-5 w-5 flex-shrink-0" />
-                  <span className="flex-1 text-left">Administração</span>
-                  {adminOpen ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-1 pl-4 pt-1">
-                {adminSubmenu.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
+          {/* Administração with Submenu - only for ADMIN and RH */}
+          {canManageUsers && (
+            <>
+              {collapsed ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
                     <Link
-                      key={item.name}
-                      to={item.href}
+                      to="/admin"
                       className={cn(
-                        "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                        "flex items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition-all duration-200",
+                        isAdminActive
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       )}
                     >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">{item.name}</span>
+                      <Shield className="h-5 w-5" />
                     </Link>
-                  );
-                })}
-              </CollapsibleContent>
-            </Collapsible>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Administração</TooltipContent>
+                </Tooltip>
+              ) : (
+                <Collapsible open={adminOpen} onOpenChange={setAdminOpen}>
+                  <CollapsibleTrigger asChild>
+                    <button
+                      className={cn(
+                        "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                        isAdminActive
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      )}
+                    >
+                      <Shield className="h-5 w-5 flex-shrink-0" />
+                      <span className="flex-1 text-left">Administração</span>
+                      {adminOpen ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-1 pl-4 pt-1">
+                    {adminSubmenu.map((item) => {
+                      const isActive = location.pathname === item.href;
+                      return (
+                        <Link
+                          key={item.name}
+                          to={item.href}
+                          className={cn(
+                            "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200",
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                          )}
+                        >
+                          <item.icon className="h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{item.name}</span>
+                        </Link>
+                      );
+                    })}
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+            </>
           )}
         </nav>
 
