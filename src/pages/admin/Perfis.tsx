@@ -8,9 +8,40 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRoles, useCreateRole, useUpdateRole, useRolePermissions, usePermissions, useUpdateRolePermissions } from "@/hooks/useRoles";
-import { Plus, Edit, Shield, Search } from "lucide-react";
+import { Plus, Edit, Shield, Search, CheckSquare, Square } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+const MODULE_LABELS: Record<string, string> = {
+  audit: "Auditoria",
+  competencies: "Competências",
+  cycles: "Ciclos de Avaliação",
+  documents: "Documentos",
+  employees: "Colaboradores",
+  evaluations: "Avaliações",
+  objectives: "Objectivos",
+  org_units: "Unidades Orgânicas",
+  permissions: "Permissões",
+  reports: "Relatórios",
+  roles: "Perfis",
+  user_roles: "Atribuição de Perfis",
+  users: "Utilizadores",
+};
+
+// Component to show permission count for a role
+function RolePermissionCount({ roleId }: { roleId: string }) {
+  const { data: rolePermissions, isLoading } = useRolePermissions(roleId);
+  
+  if (isLoading) return <span className="text-muted-foreground text-sm">...</span>;
+  
+  const count = rolePermissions?.length || 0;
+  return (
+    <Badge variant="outline" className="font-mono">
+      {count}
+    </Badge>
+  );
+}
 
 export default function Perfis() {
   const [search, setSearch] = useState("");
@@ -25,7 +56,7 @@ export default function Perfis() {
   const createRole = useCreateRole();
   const updateRole = useUpdateRole();
   const { data: permissions } = usePermissions();
-  const { data: rolePermissions } = useRolePermissions(selectedRole?.id || "");
+  const { data: rolePermissions, isLoading: isLoadingRolePermissions } = useRolePermissions(selectedRole?.id || "");
   const updateRolePermissions = useUpdateRolePermissions();
 
   // Update selected permissions when rolePermissions changes
@@ -100,6 +131,28 @@ export default function Perfis() {
     return acc;
   }, {} as Record<string, typeof permissions>);
 
+  const selectAllInModule = (modulePermissions: typeof permissions) => {
+    const moduleIds = modulePermissions?.map(p => p.id) || [];
+    setSelectedPermissions(prev => [...new Set([...prev, ...moduleIds])]);
+  };
+
+  const deselectAllInModule = (modulePermissions: typeof permissions) => {
+    const moduleIds = modulePermissions?.map(p => p.id) || [];
+    setSelectedPermissions(prev => prev.filter(id => !moduleIds.includes(id)));
+  };
+
+  const selectAll = () => {
+    setSelectedPermissions(permissions?.map(p => p.id) || []);
+  };
+
+  const deselectAll = () => {
+    setSelectedPermissions([]);
+  };
+
+  const isModuleFullySelected = (modulePermissions: typeof permissions) => {
+    return modulePermissions?.every(p => selectedPermissions.includes(p.id)) || false;
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -165,6 +218,7 @@ export default function Perfis() {
                   <TableRow>
                     <TableHead>Nome</TableHead>
                     <TableHead>Descrição</TableHead>
+                    <TableHead>Permissões</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead className="w-[150px]">Ações</TableHead>
                   </TableRow>
@@ -174,6 +228,9 @@ export default function Perfis() {
                     <TableRow key={role.id}>
                       <TableCell className="font-medium">{role.name}</TableCell>
                       <TableCell>{role.description || "-"}</TableCell>
+                      <TableCell>
+                        <RolePermissionCount roleId={role.id} />
+                      </TableCell>
                       <TableCell>
                         <Badge variant={role.is_system ? "secondary" : "outline"}>
                           {role.is_system ? "Sistema" : "Personalizado"}
@@ -227,55 +284,116 @@ export default function Perfis() {
 
         {/* Permissions Dialog */}
         <Dialog open={isPermissionsOpen} onOpenChange={setIsPermissionsOpen}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[85vh]">
             <DialogHeader>
-              <DialogTitle>Permissões - {selectedRole?.name}</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Permissões - {selectedRole?.name}
+              </DialogTitle>
             </DialogHeader>
-            <div className="space-y-6 mt-4">
-              {groupedPermissions &&
-                Object.entries(groupedPermissions).map(([module, perms]) => (
-                  <div key={module} className="space-y-3">
-                    <h3 className="font-semibold capitalize text-lg border-b pb-2">{module}</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {perms?.map((permission) => (
-                        <div key={permission.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={permission.id}
-                            checked={selectedPermissions.includes(permission.id)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setSelectedPermissions([...selectedPermissions, permission.id]);
-                              } else {
-                                setSelectedPermissions(
-                                  selectedPermissions.filter((id) => id !== permission.id)
-                                );
-                              }
-                            }}
-                          />
-                          <label
-                            htmlFor={permission.id}
-                            className="text-sm cursor-pointer flex-1"
-                          >
-                            <span className="font-medium">{permission.code}</span>
-                            {permission.description && (
-                              <span className="text-muted-foreground block text-xs">
-                                {permission.description}
-                              </span>
-                            )}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
+            
+            {isLoadingRolePermissions ? (
+              <div className="text-center py-8 text-muted-foreground">A carregar permissões...</div>
+            ) : (
+              <div className="space-y-4">
+                {/* Actions bar */}
+                <div className="flex items-center justify-between border-b pb-3">
+                  <div className="text-sm text-muted-foreground">
+                    {selectedPermissions.length} de {permissions?.length || 0} permissões selecionadas
                   </div>
-                ))}
-              <Button
-                onClick={handleSavePermissions}
-                className="w-full"
-                disabled={updateRolePermissions.isPending}
-              >
-                {updateRolePermissions.isPending ? "A guardar..." : "Guardar Permissões"}
-              </Button>
-            </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={selectAll}>
+                      <CheckSquare className="h-4 w-4 mr-1" />
+                      Selecionar Todas
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={deselectAll}>
+                      <Square className="h-4 w-4 mr-1" />
+                      Limpar Seleção
+                    </Button>
+                  </div>
+                </div>
+
+                <ScrollArea className="h-[50vh] pr-4">
+                  <div className="space-y-6">
+                    {groupedPermissions &&
+                      Object.entries(groupedPermissions)
+                        .sort(([a], [b]) => (MODULE_LABELS[a] || a).localeCompare(MODULE_LABELS[b] || b))
+                        .map(([module, perms]) => (
+                          <div key={module} className="space-y-3">
+                            <div className="flex items-center justify-between border-b pb-2">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-base">
+                                  {MODULE_LABELS[module] || module}
+                                </h3>
+                                <Badge variant="secondary" className="text-xs">
+                                  {perms?.filter(p => selectedPermissions.includes(p.id)).length}/{perms?.length}
+                                </Badge>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs"
+                                onClick={() => 
+                                  isModuleFullySelected(perms) 
+                                    ? deselectAllInModule(perms) 
+                                    : selectAllInModule(perms)
+                                }
+                              >
+                                {isModuleFullySelected(perms) ? "Desmarcar módulo" : "Selecionar módulo"}
+                              </Button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {perms?.map((permission) => (
+                                <div 
+                                  key={permission.id} 
+                                  className={`flex items-start space-x-2 p-2 rounded-md transition-colors ${
+                                    selectedPermissions.includes(permission.id) 
+                                      ? "bg-primary/5 border border-primary/20" 
+                                      : "hover:bg-muted/50"
+                                  }`}
+                                >
+                                  <Checkbox
+                                    id={permission.id}
+                                    checked={selectedPermissions.includes(permission.id)}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        setSelectedPermissions([...selectedPermissions, permission.id]);
+                                      } else {
+                                        setSelectedPermissions(
+                                          selectedPermissions.filter((id) => id !== permission.id)
+                                        );
+                                      }
+                                    }}
+                                    className="mt-0.5"
+                                  />
+                                  <label
+                                    htmlFor={permission.id}
+                                    className="text-sm cursor-pointer flex-1"
+                                  >
+                                    <span className="font-mono text-xs text-primary">{permission.code}</span>
+                                    {permission.description && (
+                                      <span className="text-muted-foreground block text-xs mt-0.5">
+                                        {permission.description}
+                                      </span>
+                                    )}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                  </div>
+                </ScrollArea>
+
+                <Button
+                  onClick={handleSavePermissions}
+                  className="w-full"
+                  disabled={updateRolePermissions.isPending}
+                >
+                  {updateRolePermissions.isPending ? "A guardar..." : "Guardar Permissões"}
+                </Button>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </div>
