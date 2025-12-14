@@ -83,7 +83,7 @@ export default function Auth() {
 
     try {
       const validated = loginSchema.parse(loginData);
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: validated.email,
         password: validated.password,
       });
@@ -96,6 +96,8 @@ export default function Auth() {
         }
       } else {
         toast({ title: "Sucesso", description: "Login efetuado com sucesso" });
+        // Redirecionar de imediato para a rota pretendida
+        navigate(from, { replace: true });
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
