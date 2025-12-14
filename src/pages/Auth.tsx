@@ -25,14 +25,14 @@ const signupSchema = z.object({
 });
 
 const TEST_USERS = [
-  { email: "admin@tribunal.pt", password: "Admin123!", role: "ADMIN", label: "Administrador" },
-  { email: "rh@tribunal.pt", password: "RH123456!", role: "RH", label: "Recursos Humanos" },
-  { email: "auditor@tribunal.pt", password: "Auditor123!", role: "AUDITOR", label: "Auditor" },
-  { email: "avaliador@tribunal.pt", password: "Avaliador123!", role: "AVALIADOR", label: "Avaliador" },
-  { email: "avaliado@tribunal.pt", password: "Avaliado123!", role: "AVALIADO", label: "Avaliado" },
-  { email: "par@tribunal.pt", password: "Par12345!", role: "PAR", label: "Par" },
-  { email: "utente.interno@tribunal.pt", password: "Interno123!", role: "UTENTE_INTERNO", label: "Utente Interno" },
-  { email: "utente.externo@tribunal.pt", password: "Externo123!", role: "UTENTE_EXTERNO", label: "Utente Externo" },
+  { email: "admin@tribunal.ao", password: "Admin123!", role: "ADMIN", label: "Administrador" },
+  { email: "rh@tribunal.ao", password: "RH123456!", role: "RH", label: "Recursos Humanos" },
+  { email: "auditor@tribunal.ao", password: "Auditor123!", role: "AUDITOR", label: "Auditor" },
+  { email: "avaliador@tribunal.ao", password: "Avaliador123!", role: "AVALIADOR", label: "Avaliador" },
+  { email: "avaliado@tribunal.ao", password: "Avaliado123!", role: "AVALIADO", label: "Avaliado" },
+  { email: "par@tribunal.ao", password: "Par12345!", role: "PAR", label: "Par" },
+  { email: "utente.interno@tribunal.ao", password: "Interno123!", role: "UTENTE_INTERNO", label: "Utente Interno" },
+  { email: "utente.externo@tribunal.ao", password: "Externo123!", role: "UTENTE_EXTERNO", label: "Utente Externo" },
 ];
 
 const ROLE_COLORS: Record<string, string> = {
