@@ -4,6 +4,10 @@ import { EvaluationProgress } from "@/components/dashboard/EvaluationProgress";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { CycleOverview } from "@/components/dashboard/CycleOverview";
 import { NAFDistribution } from "@/components/dashboard/NAFDistribution";
+import { PerformanceTrend } from "@/components/dashboard/PerformanceTrend";
+import { DepartmentComparison } from "@/components/dashboard/DepartmentComparison";
+import { ObjectivesCompletion } from "@/components/dashboard/ObjectivesCompletion";
+import { CompetenciesRadar } from "@/components/dashboard/CompetenciesRadar";
 import { Users, ClipboardCheck, Clock, TrendingUp } from "lucide-react";
 import { mockDashboardStats } from "@/data/mockData";
 
@@ -55,6 +59,18 @@ const Dashboard = () => {
             variant="accent"
             className="animate-fade-in-up stagger-4"
           />
+        </div>
+
+        {/* Performance Charts Row */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <PerformanceTrend />
+          <DepartmentComparison />
+        </div>
+
+        {/* Analysis Charts Row */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ObjectivesCompletion />
+          <CompetenciesRadar />
         </div>
 
         {/* Main Content Grid */}
