@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,9 @@ import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { format, subDays, startOfDay } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import { 
   Users, 
   Shield, 
@@ -21,7 +24,9 @@ import {
   UserX,
   ArrowRight,
   Activity,
-  TrendingUp
+  TrendingUp,
+  UserPlus,
+  Loader2
 } from "lucide-react";
 import {
   AreaChart,
@@ -61,11 +66,51 @@ const CHART_COLORS = [
 ];
 
 export default function AdminDashboard() {
+  const [isCreatingTestUsers, setIsCreatingTestUsers] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
   const { data: profileStats, isLoading: loadingProfiles } = useProfileStats();
   const { data: roleStats, isLoading: loadingRoles } = useRoleStats();
   const { data: recentLogs, isLoading: loadingLogs } = useRecentAuditLogs(50);
   const { data: profiles } = useProfiles();
   const { data: orgUnits } = useOrgUnits();
+
+  const handleCreateTestUsers = async () => {
+    setIsCreatingTestUsers(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-test-users');
+      
+      if (error) {
+        throw error;
+      }
+
+      if (data?.success) {
+        toast({
+          title: "Utilizadores de Teste Criados",
+          description: `${data.results?.filter((r: any) => r.status === 'created').length || 0} utilizadores criados com sucesso.`,
+        });
+        
+        // Show credentials in console for reference
+        console.log("Test Users Credentials:", data.credentials);
+        
+        // Refresh data
+        queryClient.invalidateQueries({ queryKey: ['profiles'] });
+        queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
+      } else {
+        throw new Error(data?.error || 'Erro desconhecido');
+      }
+    } catch (error: any) {
+      console.error('Error creating test users:', error);
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível criar os utilizadores de teste.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingTestUsers(false);
+    }
+  };
 
   const getActorName = (actorId: string | null) => {
     if (!actorId) return "Sistema";
@@ -197,11 +242,30 @@ export default function AdminDashboard() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold font-serif text-foreground">Painel de Administração</h1>
-          <p className="text-muted-foreground mt-1">
-            Visão geral do sistema de gestão de utilizadores e acessos
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold font-serif text-foreground">Painel de Administração</h1>
+            <p className="text-muted-foreground mt-1">
+              Visão geral do sistema de gestão de utilizadores e acessos
+            </p>
+          </div>
+          <Button 
+            onClick={handleCreateTestUsers} 
+            disabled={isCreatingTestUsers}
+            variant="outline"
+          >
+            {isCreatingTestUsers ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                A criar...
+              </>
+            ) : (
+              <>
+                <UserPlus className="h-4 w-4 mr-2" />
+                Criar Utilizadores de Teste
+              </>
+            )}
+          </Button>
         </div>
 
         {/* Stats Grid */}
