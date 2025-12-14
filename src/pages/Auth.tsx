@@ -6,8 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { ChevronDown, Users } from "lucide-react";
 import tribunalLogo from "@/assets/tribunal-logo.png";
 
 const loginSchema = z.object({
@@ -21,12 +24,35 @@ const signupSchema = z.object({
   fullName: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
 });
 
+const TEST_USERS = [
+  { email: "admin@tribunal.pt", password: "Admin123!", role: "ADMIN", label: "Administrador" },
+  { email: "rh@tribunal.pt", password: "RH123456!", role: "RH", label: "Recursos Humanos" },
+  { email: "auditor@tribunal.pt", password: "Auditor123!", role: "AUDITOR", label: "Auditor" },
+  { email: "avaliador@tribunal.pt", password: "Avaliador123!", role: "AVALIADOR", label: "Avaliador" },
+  { email: "avaliado@tribunal.pt", password: "Avaliado123!", role: "AVALIADO", label: "Avaliado" },
+  { email: "par@tribunal.pt", password: "Par12345!", role: "PAR", label: "Par" },
+  { email: "utente.interno@tribunal.pt", password: "Interno123!", role: "UTENTE_INTERNO", label: "Utente Interno" },
+  { email: "utente.externo@tribunal.pt", password: "Externo123!", role: "UTENTE_EXTERNO", label: "Utente Externo" },
+];
+
+const ROLE_COLORS: Record<string, string> = {
+  ADMIN: "bg-chart-1 text-white hover:bg-chart-1/90",
+  RH: "bg-chart-2 text-white hover:bg-chart-2/90",
+  AUDITOR: "bg-chart-3 text-white hover:bg-chart-3/90",
+  AVALIADOR: "bg-chart-4 text-white hover:bg-chart-4/90",
+  AVALIADO: "bg-chart-5 text-white hover:bg-chart-5/90",
+  PAR: "bg-primary text-primary-foreground hover:bg-primary/90",
+  UTENTE_INTERNO: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+  UTENTE_EXTERNO: "bg-muted text-muted-foreground hover:bg-muted/80",
+};
+
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signupData, setSignupData] = useState({ email: "", password: "", fullName: "" });
+  const [showTestUsers, setShowTestUsers] = useState(false);
 
   // Obter a rota pretendida (se existir)
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/";
@@ -46,6 +72,10 @@ export default function Auth() {
 
     return () => subscription.unsubscribe();
   }, [navigate, from]);
+
+  const handleQuickFill = (email: string, password: string) => {
+    setLoginData({ email, password });
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,6 +182,38 @@ export default function Auth() {
                   {isLoading ? "A entrar..." : "Entrar"}
                 </Button>
               </form>
+
+              {/* Quick fill test users */}
+              <Collapsible open={showTestUsers} onOpenChange={setShowTestUsers} className="mt-4">
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-between text-muted-foreground text-sm">
+                    <span className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      Utilizadores de Teste
+                    </span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${showTestUsers ? "rotate-180" : ""}`} />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    {TEST_USERS.map((user) => (
+                      <Button
+                        key={user.email}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className={`text-xs justify-start ${ROLE_COLORS[user.role]}`}
+                        onClick={() => handleQuickFill(user.email, user.password)}
+                      >
+                        {user.label}
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2 text-center">
+                    Clique para preencher as credenciais automaticamente
+                  </p>
+                </CollapsibleContent>
+              </Collapsible>
             </TabsContent>
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4 mt-4">
