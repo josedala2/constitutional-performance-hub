@@ -25,6 +25,7 @@ import RelatorioUtentesInternos from "./pages/relatorios/RelatorioUtentesInterno
 import RelatorioUtentesExternos from "./pages/relatorios/RelatorioUtentesExternos";
 import ProcessoAvaliacao from "./pages/ProcessoAvaliacao";
 import Auth from "./pages/Auth";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import Utilizadores from "./pages/admin/Utilizadores";
 import Perfis from "./pages/admin/Perfis";
 import Permissoes from "./pages/admin/Permissoes";
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/documentos" element={<Documentos />} />
             <Route path="/configuracoes" element={<Configuracoes />} />
             {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/utilizadores" element={<Utilizadores />} />
             <Route path="/admin/perfis" element={<Perfis />} />
             <Route path="/admin/permissoes" element={<Permissoes />} />
