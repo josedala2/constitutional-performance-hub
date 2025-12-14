@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { TestUsersCredentialsModal } from "@/components/modals/TestUsersCredentialsModal";
 import { 
   Users, 
   Shield, 
@@ -65,8 +66,17 @@ const CHART_COLORS = [
   "hsl(var(--chart-5))",
 ];
 
+interface TestUserCredential {
+  email: string;
+  password: string;
+  role: string;
+  name: string;
+}
+
 export default function AdminDashboard() {
   const [isCreatingTestUsers, setIsCreatingTestUsers] = useState(false);
+  const [credentialsModalOpen, setCredentialsModalOpen] = useState(false);
+  const [testUserCredentials, setTestUserCredentials] = useState<TestUserCredential[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -86,13 +96,18 @@ export default function AdminDashboard() {
       }
 
       if (data?.success) {
+        const createdCount = data.results?.filter((r: any) => r.status === 'created').length || 0;
+        
         toast({
           title: "Utilizadores de Teste Criados",
-          description: `${data.results?.filter((r: any) => r.status === 'created').length || 0} utilizadores criados com sucesso.`,
+          description: `${createdCount} utilizadores criados com sucesso.`,
         });
         
-        // Show credentials in console for reference
-        console.log("Test Users Credentials:", data.credentials);
+        // Show credentials modal
+        if (data.credentials && data.credentials.length > 0) {
+          setTestUserCredentials(data.credentials);
+          setCredentialsModalOpen(true);
+        }
         
         // Refresh data
         queryClient.invalidateQueries({ queryKey: ['profiles'] });
@@ -604,6 +619,12 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <TestUsersCredentialsModal
+        open={credentialsModalOpen}
+        onOpenChange={setCredentialsModalOpen}
+        credentials={testUserCredentials}
+      />
     </AppLayout>
   );
 }
