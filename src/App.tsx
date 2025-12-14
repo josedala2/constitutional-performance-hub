@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthGuard } from "@/components/guards/AuthGuard";
 import Dashboard from "./pages/Dashboard";
 import CiclosAvaliacao from "./pages/CiclosAvaliacao";
 import Colaboradores from "./pages/Colaboradores";
@@ -34,6 +35,11 @@ import UnidadesOrganicas from "./pages/admin/UnidadesOrganicas";
 
 const queryClient = new QueryClient();
 
+// Componente wrapper para rotas protegidas
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  return <AuthGuard>{children}</AuthGuard>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -42,33 +48,38 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            {/* Rota pública */}
             <Route path="/auth" element={<Auth />} />
-            <Route path="/ciclos" element={<CiclosAvaliacao />} />
-            <Route path="/colaboradores" element={<Colaboradores />} />
-            <Route path="/objectivos" element={<Objectivos />} />
-            <Route path="/competencias" element={<Competencias />} />
-            <Route path="/avaliacoes" element={<Avaliacoes />} />
-            <Route path="/avaliacoes/pessoal-tecnico" element={<FichaPessoalTecnico />} />
-            <Route path="/avaliacoes/entre-pares" element={<FichaEntrePares />} />
-            <Route path="/avaliacoes/utentes-internos" element={<FichaUtentesInternos />} />
-            <Route path="/avaliacoes/utentes-externos" element={<FichaUtentesExternos />} />
-            <Route path="/avaliacoes/acompanhamento" element={<FichaAcompanhamento />} />
-            <Route path="/relatorios" element={<Relatorios />} />
-            <Route path="/relatorios/desempenho-superior" element={<RelatorioDesempenhoSuperior />} />
-            <Route path="/relatorios/entre-pares" element={<RelatorioEntrePares />} />
-            <Route path="/relatorios/utentes-internos" element={<RelatorioUtentesInternos />} />
-            <Route path="/relatorios/utentes-externos" element={<RelatorioUtentesExternos />} />
-            <Route path="/processo" element={<ProcessoAvaliacao />} />
-            <Route path="/documentos" element={<Documentos />} />
-            <Route path="/configuracoes" element={<Configuracoes />} />
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/utilizadores" element={<Utilizadores />} />
-            <Route path="/admin/perfis" element={<Perfis />} />
-            <Route path="/admin/permissoes" element={<Permissoes />} />
-            <Route path="/admin/auditoria" element={<Auditoria />} />
-            <Route path="/admin/unidades" element={<UnidadesOrganicas />} />
+            
+            {/* Rotas protegidas */}
+            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/ciclos" element={<ProtectedRoute><CiclosAvaliacao /></ProtectedRoute>} />
+            <Route path="/colaboradores" element={<ProtectedRoute><Colaboradores /></ProtectedRoute>} />
+            <Route path="/objectivos" element={<ProtectedRoute><Objectivos /></ProtectedRoute>} />
+            <Route path="/competencias" element={<ProtectedRoute><Competencias /></ProtectedRoute>} />
+            <Route path="/avaliacoes" element={<ProtectedRoute><Avaliacoes /></ProtectedRoute>} />
+            <Route path="/avaliacoes/pessoal-tecnico" element={<ProtectedRoute><FichaPessoalTecnico /></ProtectedRoute>} />
+            <Route path="/avaliacoes/entre-pares" element={<ProtectedRoute><FichaEntrePares /></ProtectedRoute>} />
+            <Route path="/avaliacoes/utentes-internos" element={<ProtectedRoute><FichaUtentesInternos /></ProtectedRoute>} />
+            <Route path="/avaliacoes/utentes-externos" element={<ProtectedRoute><FichaUtentesExternos /></ProtectedRoute>} />
+            <Route path="/avaliacoes/acompanhamento" element={<ProtectedRoute><FichaAcompanhamento /></ProtectedRoute>} />
+            <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
+            <Route path="/relatorios/desempenho-superior" element={<ProtectedRoute><RelatorioDesempenhoSuperior /></ProtectedRoute>} />
+            <Route path="/relatorios/entre-pares" element={<ProtectedRoute><RelatorioEntrePares /></ProtectedRoute>} />
+            <Route path="/relatorios/utentes-internos" element={<ProtectedRoute><RelatorioUtentesInternos /></ProtectedRoute>} />
+            <Route path="/relatorios/utentes-externos" element={<ProtectedRoute><RelatorioUtentesExternos /></ProtectedRoute>} />
+            <Route path="/processo" element={<ProtectedRoute><ProcessoAvaliacao /></ProtectedRoute>} />
+            <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
+            <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+            
+            {/* Rotas de Administração protegidas */}
+            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/utilizadores" element={<ProtectedRoute><Utilizadores /></ProtectedRoute>} />
+            <Route path="/admin/perfis" element={<ProtectedRoute><Perfis /></ProtectedRoute>} />
+            <Route path="/admin/permissoes" element={<ProtectedRoute><Permissoes /></ProtectedRoute>} />
+            <Route path="/admin/auditoria" element={<ProtectedRoute><Auditoria /></ProtectedRoute>} />
+            <Route path="/admin/unidades" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
