@@ -103,16 +103,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Inicialização
   useEffect(() => {
-    // Configurar listener de auth state PRIMEIRO
+    let mounted = true;
+
+    // PRIMEIRO verificar sessão existente
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        loadUserData(session.user.id).finally(() => {
+          if (mounted) setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    // DEPOIS configurar listener de auth state
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
 
         // Carregar dados do utilizador de forma assíncrona
         if (session?.user) {
           setTimeout(() => {
-            loadUserData(session.user.id);
+            if (mounted) loadUserData(session.user.id);
           }, 0);
         } else {
           setProfile(null);
@@ -122,21 +142,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // DEPOIS verificar sessão existente
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        loadUserData(session.user.id).finally(() => {
-          setIsLoading(false);
-        });
-      } else {
-        setIsLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Verificações de roles
