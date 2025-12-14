@@ -18,70 +18,70 @@ interface TestUser {
 
 const testUsers: TestUser[] = [
   {
-    email: "admin@tribunal.pt",
+    email: "admin@tribunal.ao",
     password: "Admin123!",
     fullName: "Carlos Administrador",
     employeeCode: "TC001",
     jobTitle: "Administrador de Sistemas",
-    orgUnitId: "a0000000-0000-0000-0000-000000000004", // Gabinete de Informática
+    orgUnitId: "a0000000-0000-0000-0000-000000000004",
     roleName: "ADMIN",
   },
   {
-    email: "rh@tribunal.pt",
+    email: "rh@tribunal.ao",
     password: "RH123456!",
     fullName: "Ana Recursos Humanos",
     employeeCode: "TC002",
     jobTitle: "Técnica de RH",
-    orgUnitId: "a0000000-0000-0000-0000-000000000003", // Gabinete de RH
+    orgUnitId: "a0000000-0000-0000-0000-000000000003",
     roleName: "RH",
   },
   {
-    email: "auditor@tribunal.pt",
+    email: "auditor@tribunal.ao",
     password: "Auditor123!",
     fullName: "João Auditor",
     employeeCode: "TC003",
     jobTitle: "Auditor Interno",
-    orgUnitId: "a0000000-0000-0000-0000-000000000002", // Secretaria-Geral
+    orgUnitId: "a0000000-0000-0000-0000-000000000002",
     roleName: "AUDITOR",
   },
   {
-    email: "avaliador@tribunal.pt",
+    email: "avaliador@tribunal.ao",
     password: "Avaliador123!",
     fullName: "Maria Avaliadora",
     employeeCode: "TC004",
     jobTitle: "Coordenadora de Secção",
-    orgUnitId: "a0000000-0000-0000-0000-000000000005", // Gabinete Jurídico
+    orgUnitId: "a0000000-0000-0000-0000-000000000005",
     roleName: "AVALIADOR",
   },
   {
-    email: "avaliado@tribunal.pt",
+    email: "avaliado@tribunal.ao",
     password: "Avaliado123!",
     fullName: "Pedro Avaliado",
     employeeCode: "TC005",
     jobTitle: "Técnico Superior",
-    orgUnitId: "a0000000-0000-0000-0000-000000000005", // Gabinete Jurídico
+    orgUnitId: "a0000000-0000-0000-0000-000000000005",
     roleName: "AVALIADO",
   },
   {
-    email: "par@tribunal.pt",
+    email: "par@tribunal.ao",
     password: "Par12345!",
     fullName: "Sofia Par",
     employeeCode: "TC006",
     jobTitle: "Técnica Superior",
-    orgUnitId: "a0000000-0000-0000-0000-000000000005", // Gabinete Jurídico
+    orgUnitId: "a0000000-0000-0000-0000-000000000005",
     roleName: "PAR",
   },
   {
-    email: "utente.interno@tribunal.pt",
+    email: "utente.interno@tribunal.ao",
     password: "Interno123!",
     fullName: "Miguel Interno",
     employeeCode: "TC007",
     jobTitle: "Assistente Técnico",
-    orgUnitId: "a0000000-0000-0000-0000-000000000002", // Secretaria-Geral
+    orgUnitId: "a0000000-0000-0000-0000-000000000002",
     roleName: "UTENTE_INTERNO",
   },
   {
-    email: "utente.externo@tribunal.pt",
+    email: "utente.externo@tribunal.ao",
     password: "Externo123!",
     fullName: "Rita Externa",
     employeeCode: null,
