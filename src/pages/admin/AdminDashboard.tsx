@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +8,8 @@ import { useProfileStats } from "@/hooks/useProfiles";
 import { useRoleStats } from "@/hooks/useRoles";
 import { useRecentAuditLogs } from "@/hooks/useAuditLogs";
 import { useProfiles } from "@/hooks/useProfiles";
-import { format } from "date-fns";
+import { useOrgUnits } from "@/hooks/useOrgUnits";
+import { format, subDays, startOfDay } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import { 
@@ -18,8 +20,24 @@ import {
   UserCheck, 
   UserX,
   ArrowRight,
-  Activity
+  Activity,
+  TrendingUp
 } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  Legend,
+} from "recharts";
 
 const ACTION_LABELS: Record<string, string> = {
   LOGIN: "Login",
@@ -34,17 +52,97 @@ const ACTION_LABELS: Record<string, string> = {
   PERMISSION_CHANGE: "Alteração de Permissões",
 };
 
+const CHART_COLORS = [
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
+];
+
 export default function AdminDashboard() {
   const { data: profileStats, isLoading: loadingProfiles } = useProfileStats();
   const { data: roleStats, isLoading: loadingRoles } = useRoleStats();
-  const { data: recentLogs, isLoading: loadingLogs } = useRecentAuditLogs(10);
+  const { data: recentLogs, isLoading: loadingLogs } = useRecentAuditLogs(50);
   const { data: profiles } = useProfiles();
+  const { data: orgUnits } = useOrgUnits();
 
   const getActorName = (actorId: string | null) => {
     if (!actorId) return "Sistema";
     const profile = profiles?.find((p) => p.id === actorId);
     return profile?.full_name || "Desconhecido";
   };
+
+  // Calculate activity by day for the last 7 days
+  const activityByDay = useMemo(() => {
+    if (!recentLogs) return [];
+    
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = startOfDay(subDays(new Date(), i));
+      const dayStr = format(date, "yyyy-MM-dd");
+      const dayLabel = format(date, "EEE", { locale: pt });
+      
+      const count = recentLogs.filter(log => {
+        const logDate = format(startOfDay(new Date(log.created_at)), "yyyy-MM-dd");
+        return logDate === dayStr;
+      }).length;
+      
+      days.push({
+        day: dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1),
+        atividade: count,
+      });
+    }
+    return days;
+  }, [recentLogs]);
+
+  // Calculate users by status
+  const usersByStatus = useMemo(() => {
+    return [
+      { name: "Ativos", value: profileStats?.active || 0, color: CHART_COLORS[1] },
+      { name: "Inativos", value: profileStats?.inactive || 0, color: CHART_COLORS[4] },
+    ];
+  }, [profileStats]);
+
+  // Calculate users by org unit
+  const usersByOrgUnit = useMemo(() => {
+    if (!profiles || !orgUnits) return [];
+    
+    const counts: Record<string, number> = {};
+    profiles.forEach(profile => {
+      const unitName = orgUnits.find(u => u.id === profile.org_unit_id)?.name || "Sem Unidade";
+      counts[unitName] = (counts[unitName] || 0) + 1;
+    });
+    
+    return Object.entries(counts)
+      .map(([name, value], index) => ({
+        name: name.length > 15 ? name.substring(0, 15) + "..." : name,
+        utilizadores: value,
+        color: CHART_COLORS[index % CHART_COLORS.length],
+      }))
+      .sort((a, b) => b.utilizadores - a.utilizadores)
+      .slice(0, 5);
+  }, [profiles, orgUnits]);
+
+  // Calculate activity by type
+  const activityByType = useMemo(() => {
+    if (!recentLogs) return [];
+    
+    const counts: Record<string, number> = {};
+    recentLogs.forEach(log => {
+      const label = ACTION_LABELS[log.action] || log.action;
+      counts[label] = (counts[label] || 0) + 1;
+    });
+    
+    return Object.entries(counts)
+      .map(([name, value], index) => ({
+        name: name.length > 12 ? name.substring(0, 12) + "..." : name,
+        count: value,
+        color: CHART_COLORS[index % CHART_COLORS.length],
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  }, [recentLogs]);
 
   const stats = [
     {
@@ -127,6 +225,202 @@ export default function AdminDashboard() {
               </Card>
             </Link>
           ))}
+        </div>
+
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Activity Trend Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Atividade nos Últimos 7 Dias
+              </CardTitle>
+              <CardDescription>Número de ações registadas por dia</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[250px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={activityByDay} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorAtividade" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="day" 
+                      tick={{ fontSize: 12 }}
+                      className="text-muted-foreground"
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      className="text-muted-foreground"
+                      allowDecimals={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                      labelStyle={{ color: "hsl(var(--foreground))" }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="atividade"
+                      name="Ações"
+                      stroke="hsl(var(--chart-1))"
+                      fillOpacity={1}
+                      fill="url(#colorAtividade)"
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Users by Status Pie Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Distribuição de Utilizadores
+              </CardTitle>
+              <CardDescription>Por estado de conta</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[250px] flex items-center justify-center">
+                {profileStats && (profileStats.active > 0 || profileStats.inactive > 0) ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={usersByStatus}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={5}
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        labelLine={false}
+                      >
+                        {usersByStatus.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-muted-foreground text-center">
+                    Sem dados de utilizadores
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Second Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Users by Org Unit */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Utilizadores por Unidade Orgânica</CardTitle>
+              <CardDescription>Top 5 unidades com mais utilizadores</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[250px]">
+                {usersByOrgUnit.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart 
+                      data={usersByOrgUnit} 
+                      layout="vertical"
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis type="number" tick={{ fontSize: 12 }} allowDecimals={false} />
+                      <YAxis 
+                        dataKey="name" 
+                        type="category" 
+                        tick={{ fontSize: 11 }}
+                        width={100}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Bar dataKey="utilizadores" radius={[0, 4, 4, 0]}>
+                        {usersByOrgUnit.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-muted-foreground">
+                    Sem dados de unidades orgânicas
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Activity by Type */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Tipos de Atividade</CardTitle>
+              <CardDescription>Ações mais frequentes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[250px]">
+                {activityByType.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart 
+                      data={activityByType}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis 
+                        dataKey="name" 
+                        tick={{ fontSize: 10 }}
+                        height={50}
+                      />
+                      <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Bar dataKey="count" name="Ocorrências" radius={[4, 4, 0, 0]}>
+                        {activityByType.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-muted-foreground">
+                    Sem dados de atividade
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Quick Actions */}
@@ -220,7 +514,7 @@ export default function AdminDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {recentLogs.map((log) => (
+                  {recentLogs.slice(0, 10).map((log) => (
                     <TableRow key={log.id}>
                       <TableCell className="text-sm text-muted-foreground">
                         {format(new Date(log.created_at), "dd/MM HH:mm", { locale: pt })}
