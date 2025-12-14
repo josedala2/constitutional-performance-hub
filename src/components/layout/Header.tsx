@@ -11,15 +11,39 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { currentUser } from "@/data/mockData";
-import { translateRole } from "@/types/sgad";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+
+const ROLE_LABELS: Record<string, string> = {
+  ADMIN: "Administrador",
+  RH: "Recursos Humanos",
+  AUDITOR: "Auditor",
+  AVALIADOR: "Avaliador",
+  AVALIADO: "Avaliado",
+  PAR: "Par",
+  UTENTE_INTERNO: "Utente Interno",
+  UTENTE_EXTERNO: "Utente Externo",
+};
 
 export function Header() {
-  const initials = currentUser.nome
+  const { profile, userRoles, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const displayName = profile?.full_name || "Utilizador";
+  const displayEmail = profile?.email || "";
+  const primaryRole = userRoles[0]?.role?.name || "";
+
+  const initials = displayName
     .split(" ")
     .map((n) => n[0])
     .slice(0, 2)
-    .join("");
+    .join("")
+    .toUpperCase();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-card px-6 shadow-sm">
@@ -77,18 +101,20 @@ export function Header() {
                 </AvatarFallback>
               </Avatar>
               <div className="hidden md:flex flex-col items-start">
-                <span className="text-sm font-medium">{currentUser.nome}</span>
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                  {translateRole(currentUser.role)}
-                </Badge>
+                <span className="text-sm font-medium">{displayName}</span>
+                {primaryRole && (
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                    {ROLE_LABELS[primaryRole] || primaryRole}
+                  </Badge>
+                )}
               </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium">{currentUser.nome}</p>
-                <p className="text-xs text-muted-foreground">{currentUser.email}</p>
+                <p className="text-sm font-medium">{displayName}</p>
+                <p className="text-xs text-muted-foreground">{displayEmail}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -96,12 +122,12 @@ export function Header() {
               <User className="mr-2 h-4 w-4" />
               Meu Perfil
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/configuracoes")}>
               <Settings className="mr-2 h-4 w-4" />
               Configurações
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer text-destructive">
+            <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
               Terminar Sessão
             </DropdownMenuItem>
