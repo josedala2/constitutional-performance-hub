@@ -71,9 +71,9 @@ export const PerformanceTrend = () => {
                 type="monotone"
                 dataKey="competencias"
                 name="Competências"
-                stroke="hsl(var(--secondary))"
+                stroke="hsl(var(--chart-2))"
                 strokeWidth={2}
-                dot={{ fill: "hsl(var(--secondary))" }}
+                dot={{ fill: "hsl(var(--chart-2))" }}
               />
             </LineChart>
           </ResponsiveContainer>
