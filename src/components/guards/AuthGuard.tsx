@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
@@ -7,9 +6,11 @@ interface AuthGuardProps {
   children: ReactNode;
 }
 
+// Guardião de autenticação sem bloqueio:
+// - Enquanto isLoading: mostra ecrã de carregamento
+// - Depois: renderiza sempre children, mesmo sem user (login deixa de ser obrigatório)
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { user, isLoading } = useAuth();
-  const location = useLocation();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -20,11 +21,6 @@ export function AuthGuard({ children }: AuthGuardProps) {
         </div>
       </div>
     );
-  }
-
-  if (!user) {
-    // Guardar a rota pretendida para redirecionar após login
-    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
