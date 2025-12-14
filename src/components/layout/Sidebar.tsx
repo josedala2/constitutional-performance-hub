@@ -20,6 +20,9 @@ import {
   Workflow,
   PanelLeftClose,
   PanelLeft,
+  Shield,
+  Key,
+  ScrollText,
 } from "lucide-react";
 import tribunalLogo from "@/assets/tribunal-logo.png";
 import { useState } from "react";
@@ -110,6 +113,13 @@ const navigationAfterRelatorios = [
   { name: "Documentos", href: "/documentos", icon: FileText },
 ];
 
+const adminSubmenu = [
+  { name: "Utilizadores", href: "/admin/utilizadores", icon: Users, shortName: "Utilizadores" },
+  { name: "Perfis", href: "/admin/perfis", icon: Shield, shortName: "Perfis" },
+  { name: "Permissões", href: "/admin/permissoes", icon: Key, shortName: "Permissões" },
+  { name: "Auditoria", href: "/admin/auditoria", icon: ScrollText, shortName: "Auditoria" },
+];
+
 const bottomNavigation = [
   { name: "Configurações", href: "/configuracoes", icon: Settings },
 ];
@@ -123,9 +133,13 @@ export function Sidebar() {
   const [relatoriosOpen, setRelatoriosOpen] = useState(
     location.pathname.startsWith("/relatorios")
   );
+  const [adminOpen, setAdminOpen] = useState(
+    location.pathname.startsWith("/admin")
+  );
 
   const isAvaliacoesActive = location.pathname.startsWith("/avaliacoes");
   const isRelatoriosActive = location.pathname.startsWith("/relatorios");
+  const isAdminActive = location.pathname.startsWith("/admin");
 
   const NavItem = ({ item, isActive }: { item: { name: string; href: string; icon: React.ElementType }; isActive: boolean }) => {
     const content = (
@@ -339,6 +353,70 @@ export function Sidebar() {
             const isActive = location.pathname === item.href;
             return <NavItem key={item.name} item={item} isActive={isActive} />;
           })}
+
+          {/* Separator */}
+          <div className="my-4 border-t border-sidebar-border" />
+
+          {/* Administração with Submenu */}
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  to="/admin/utilizadores"
+                  className={cn(
+                    "flex items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition-all duration-200",
+                    isAdminActive
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
+                >
+                  <Shield className="h-5 w-5" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">Administração</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Collapsible open={adminOpen} onOpenChange={setAdminOpen}>
+              <CollapsibleTrigger asChild>
+                <button
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                    isAdminActive
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
+                >
+                  <Shield className="h-5 w-5 flex-shrink-0" />
+                  <span className="flex-1 text-left">Administração</span>
+                  {adminOpen ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-1 pl-4 pt-1">
+                {adminSubmenu.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={cn(
+                        "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200",
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                      )}
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </CollapsibleContent>
+            </Collapsible>
+          )}
         </nav>
 
         {/* Bottom Navigation */}
