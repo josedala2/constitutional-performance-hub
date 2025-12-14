@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  Legend,
 } from "recharts";
 
 const data = [
@@ -17,6 +18,20 @@ const data = [
   { departamento: "TI", naf: 3.9, color: "hsl(var(--chart-4))" },
   { departamento: "RH", naf: 3.5, color: "hsl(var(--chart-5))" },
 ];
+
+const renderLegend = () => (
+  <div className="flex flex-wrap justify-center gap-4 mt-2">
+    {data.map((entry, index) => (
+      <div key={`legend-${index}`} className="flex items-center gap-1.5">
+        <div 
+          className="w-3 h-3 rounded-sm" 
+          style={{ backgroundColor: entry.color }}
+        />
+        <span className="text-xs text-muted-foreground">{entry.departamento}</span>
+      </div>
+    ))}
+  </div>
+);
 
 export const DepartmentComparison = () => {
   return (
@@ -61,6 +76,7 @@ export const DepartmentComparison = () => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Bar>
+              <Legend content={renderLegend} />
             </BarChart>
           </ResponsiveContainer>
         </div>
