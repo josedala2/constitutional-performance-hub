@@ -2,7 +2,7 @@
 // Configuração de Permissões e Módulos
 
 export const APP_CONFIG = {
-  app: "SGAD - Tribunal Constitucional",
+  app: "SGAD - Tribunal de Contas",
   version: "1.0.0",
 } as const;
 
