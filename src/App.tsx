@@ -26,6 +26,7 @@ import RelatorioUtentesInternos from "./pages/relatorios/RelatorioUtentesInterno
 import RelatorioUtentesExternos from "./pages/relatorios/RelatorioUtentesExternos";
 import ProcessoAvaliacao from "./pages/ProcessoAvaliacao";
 import Auth from "./pages/Auth";
+import MeuPerfil from "./pages/MeuPerfil";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Utilizadores from "./pages/admin/Utilizadores";
 import Perfis from "./pages/admin/Perfis";
@@ -71,6 +72,7 @@ const App = () => (
             <Route path="/processo" element={<ProtectedRoute><ProcessoAvaliacao /></ProtectedRoute>} />
             <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
             <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+            <Route path="/meu-perfil" element={<ProtectedRoute><MeuPerfil /></ProtectedRoute>} />
             
             {/* Rotas de Administração protegidas */}
             <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
