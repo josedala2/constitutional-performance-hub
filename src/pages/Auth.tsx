@@ -36,14 +36,14 @@ const TEST_USERS = [
 ];
 
 const ROLE_COLORS: Record<string, string> = {
-  ADMIN: "bg-chart-1 text-white hover:bg-chart-1/90",
-  RH: "bg-chart-2 text-white hover:bg-chart-2/90",
-  AUDITOR: "bg-chart-3 text-white hover:bg-chart-3/90",
-  AVALIADOR: "bg-chart-4 text-white hover:bg-chart-4/90",
-  AVALIADO: "bg-chart-5 text-white hover:bg-chart-5/90",
-  PAR: "bg-primary text-primary-foreground hover:bg-primary/90",
-  UTENTE_INTERNO: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-  UTENTE_EXTERNO: "bg-muted text-muted-foreground hover:bg-muted/80",
+  ADMIN: "bg-chart-1/20 text-chart-1 border-chart-1/30 hover:bg-chart-1/30",
+  RH: "bg-chart-2/20 text-chart-2 border-chart-2/30 hover:bg-chart-2/30",
+  AUDITOR: "bg-chart-3/20 text-chart-3 border-chart-3/30 hover:bg-chart-3/30",
+  AVALIADOR: "bg-chart-4/20 text-chart-4 border-chart-4/30 hover:bg-chart-4/30",
+  AVALIADO: "bg-chart-5/20 text-chart-5 border-chart-5/30 hover:bg-chart-5/30",
+  PAR: "bg-primary/20 text-primary border-primary/30 hover:bg-primary/30",
+  UTENTE_INTERNO: "bg-secondary text-secondary-foreground border-border hover:bg-secondary/80",
+  UTENTE_EXTERNO: "bg-muted text-foreground border-border hover:bg-muted/80",
 };
 
 export default function Auth() {
