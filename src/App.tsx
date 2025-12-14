@@ -30,6 +30,7 @@ import Utilizadores from "./pages/admin/Utilizadores";
 import Perfis from "./pages/admin/Perfis";
 import Permissoes from "./pages/admin/Permissoes";
 import Auditoria from "./pages/admin/Auditoria";
+import UnidadesOrganicas from "./pages/admin/UnidadesOrganicas";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="/admin/perfis" element={<Perfis />} />
             <Route path="/admin/permissoes" element={<Permissoes />} />
             <Route path="/admin/auditoria" element={<Auditoria />} />
+            <Route path="/admin/unidades" element={<UnidadesOrganicas />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
