@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,13 @@ import {
   CheckCircle2,
   Clock,
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
+  Printer
 } from "lucide-react";
 import { mockUsers, mockCycles, mockObjectives, mockCompetencies, mockEvaluations, mockEmployeeSummaries } from "@/data/mockData";
+import { PrintHeader } from "@/components/print/PrintHeader";
+import { PrintFooter } from "@/components/print/PrintFooter";
+import { PrintSignatures } from "@/components/print/PrintSignatures";
 
 export default function ConsultaAvaliacoes() {
   const navigate = useNavigate();
@@ -82,10 +86,14 @@ export default function ConsultaAvaliacoes() {
     ? (completedObjectives / userObjectives.length) * 100 
     : 0;
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between print:hidden">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />
@@ -97,10 +105,21 @@ export default function ConsultaAvaliacoes() {
             </p>
           </div>
         </div>
+        {selectedUser && (
+          <Button onClick={handlePrint} className="gap-2">
+            <Printer className="h-4 w-4" />
+            Imprimir Relatório
+          </Button>
+        )}
       </div>
 
-      {/* Selector */}
-      <Card>
+      {/* Print Header - only visible when printing */}
+      <div className="hidden print:block">
+        <PrintHeader title="RELATÓRIO DE AVALIAÇÃO DE DESEMPENHO" />
+      </div>
+
+      {/* Selector - hidden when printing */}
+      <Card className="print:hidden">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
@@ -125,6 +144,21 @@ export default function ConsultaAvaliacoes() {
           </Select>
         </CardContent>
       </Card>
+
+      {/* Print-only: Collaborator Info Section */}
+      {selectedUser && (
+        <div className="hidden print:block border rounded-lg p-6 mb-6">
+          <h2 className="font-serif text-xl font-bold mb-4 border-b pb-2">DADOS DO COLABORADOR</h2>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div><strong>Nome:</strong> {selectedUser.nome}</div>
+            <div><strong>Cargo:</strong> {selectedUser.cargo}</div>
+            <div><strong>Carreira:</strong> {selectedUser.carreira}</div>
+            <div><strong>Unidade Orgânica:</strong> {selectedUser.unidade_organica}</div>
+            <div><strong>Email:</strong> {selectedUser.email}</div>
+            <div><strong>NAF Médio:</strong> {averageNAF.toFixed(2)} - {getQualitativeGrade(averageNAF).label}</div>
+          </div>
+        </div>
+      )}
 
       {/* User Profile & Stats */}
       {selectedUser && (
@@ -502,7 +536,7 @@ export default function ConsultaAvaliacoes() {
 
       {/* Empty State */}
       {!selectedUser && (
-        <Card className="border-dashed">
+        <Card className="border-dashed print:hidden">
           <CardContent className="py-16">
             <div className="text-center text-muted-foreground">
               <User className="h-16 w-16 mx-auto mb-4 opacity-30" />
@@ -511,6 +545,20 @@ export default function ConsultaAvaliacoes() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Print Footer */}
+      {selectedUser && (
+        <div className="hidden print:block mt-8">
+          <PrintSignatures 
+            signatures={[
+              { name: selectedUser.nome, label: "Avaliado(a)" },
+              { name: "________________________", label: "Avaliador(a)" },
+              { name: "________________________", label: "Dirigente" }
+            ]}
+          />
+          <PrintFooter documentCode="SGAD-RAD-001" />
+        </div>
       )}
     </div>
   );
