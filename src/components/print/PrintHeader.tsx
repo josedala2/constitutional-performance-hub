@@ -13,8 +13,8 @@ export function PrintHeader({ title, subtitle }: PrintHeaderProps) {
         <img 
           src={tribunalLogo} 
           alt="Tribunal de Contas" 
-          className="h-16 w-auto object-contain"
-          style={{ maxHeight: '60px' }}
+          className="h-20 w-auto object-contain"
+          style={{ maxHeight: '80px' }}
         />
       </div>
       
