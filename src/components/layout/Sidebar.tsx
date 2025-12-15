@@ -22,6 +22,7 @@ import {
   PanelLeft,
   Shield,
   Key,
+  Search,
   ScrollText,
 } from "lucide-react";
 import tribunalLogo from "@/assets/tribunal-logo.png";
@@ -106,6 +107,7 @@ const navigation = [
   { name: "Processo de Avaliação", href: "/processo", icon: Workflow },
   { name: "Ciclos de Avaliação", href: "/ciclos", icon: Calendar },
   { name: "Colaboradores", href: "/colaboradores", icon: Users },
+  { name: "Consulta de Avaliações", href: "/consulta-avaliacoes", icon: Search },
   { name: "Objectivos", href: "/objectivos", icon: Target },
   { name: "Competências", href: "/competencias", icon: Award },
 ];
