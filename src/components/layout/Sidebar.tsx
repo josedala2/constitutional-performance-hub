@@ -187,7 +187,7 @@ export function Sidebar() {
           <img 
             src={tribunalLogo} 
             alt="Tribunal de Contas" 
-            className={cn("h-10 w-auto transition-all duration-300", collapsed && "h-8")} 
+            className={cn("h-12 w-auto transition-all duration-300", collapsed && "h-10")} 
           />
           {!collapsed && (
             <div className="flex flex-col">
