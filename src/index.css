@@ -653,4 +653,35 @@
   .allow-break-before {
     page-break-before: auto !important;
   }
+
+  /* Show all tab contents when printing */
+  [role="tablist"] {
+    display: none !important;
+  }
+  
+  [role="tabpanel"] {
+    display: block !important;
+    opacity: 1 !important;
+    position: static !important;
+    visibility: visible !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  [data-state="inactive"][role="tabpanel"] {
+    display: block !important;
+  }
+
+  /* Print section titles */
+  .print-section-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 14pt !important;
+    font-weight: 700 !important;
+    color: hsl(220 60% 20%) !important;
+    border-bottom: 2pt solid hsl(42 75% 50%);
+    padding-bottom: 4pt;
+    margin-top: 16pt;
+    margin-bottom: 8pt;
+    page-break-after: avoid !important;
+  }
 }
