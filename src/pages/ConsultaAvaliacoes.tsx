@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,11 +20,13 @@ import {
   BarChart3,
   CheckCircle2,
   Clock,
-  AlertCircle
+  AlertCircle,
+  ArrowLeft
 } from "lucide-react";
 import { mockUsers, mockCycles, mockObjectives, mockCompetencies, mockEvaluations, mockEmployeeSummaries } from "@/data/mockData";
 
 export default function ConsultaAvaliacoes() {
+  const navigate = useNavigate();
   const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   const selectedUser = mockUsers.find(u => u.id === selectedUserId);
@@ -82,11 +86,16 @@ export default function ConsultaAvaliacoes() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">Consulta de Avaliações</h1>
-          <p className="text-muted-foreground">
-            Selecione um colaborador para visualizar o histórico completo de avaliações
-          </p>
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="font-serif text-3xl font-bold text-foreground">Consulta de Avaliações</h1>
+            <p className="text-muted-foreground">
+              Selecione um colaborador para visualizar o histórico completo de avaliações
+            </p>
+          </div>
         </div>
       </div>
 
