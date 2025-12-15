@@ -34,6 +34,7 @@ import Perfis from "./pages/admin/Perfis";
 import Permissoes from "./pages/admin/Permissoes";
 import Auditoria from "./pages/admin/Auditoria";
 import UnidadesOrganicas from "./pages/admin/UnidadesOrganicas";
+import ConsultaAvaliacoes from "./pages/ConsultaAvaliacoes";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const App = () => (
             <Route path="/avaliacoes/utentes-internos" element={<ProtectedRoute><FichaUtentesInternos /></ProtectedRoute>} />
             <Route path="/avaliacoes/utentes-externos" element={<ProtectedRoute><FichaUtentesExternos /></ProtectedRoute>} />
             <Route path="/avaliacoes/acompanhamento" element={<ProtectedRoute><FichaAcompanhamento /></ProtectedRoute>} />
+            <Route path="/consulta-avaliacoes" element={<ProtectedRoute><ConsultaAvaliacoes /></ProtectedRoute>} />
             <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
             <Route path="/relatorios/desempenho-superior" element={<ProtectedRoute><RelatorioDesempenhoSuperior /></ProtectedRoute>} />
             <Route path="/relatorios/entre-pares" element={<ProtectedRoute><RelatorioEntrePares /></ProtectedRoute>} />
