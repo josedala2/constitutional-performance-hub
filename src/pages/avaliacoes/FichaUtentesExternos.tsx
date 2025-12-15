@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Globe, Save, Send, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { PrintHeader } from "@/components/print/PrintHeader";
@@ -48,6 +48,12 @@ export default function FichaUtentesExternos() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleRespostaChange = (index: number, value: string) => {
+    const updated = [...questoes];
+    updated[index].resposta = value;
+    setQuestoes(updated);
   };
 
   return (
@@ -130,39 +136,46 @@ export default function FichaUtentesExternos() {
           </CardContent>
         </Card>
 
-        {/* Questionário */}
-        <Card className="border-gold/30 bg-gold/5">
-          <CardHeader className="text-center">
+        {/* Questionário em Tabela */}
+        <Card>
+          <CardHeader className="text-center border-b bg-primary/5">
             <CardTitle className="font-serif text-xl">AVALIE O NOSSO ATENDIMENTO</CardTitle>
             <CardDescription className="text-base">A SUA OPINIÃO É MUITO IMPORTANTE</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {questoes.map((questao, index) => (
-              <div key={questao.id} className="space-y-3 p-4 rounded-lg bg-background">
-                <Label className="text-base font-medium">{questao.texto}</Label>
-                <RadioGroup 
-                  className="flex flex-wrap gap-4"
-                  value={questao.resposta}
-                  onValueChange={(value) => {
-                    const updated = [...questoes];
-                    updated[index].resposta = value;
-                    setQuestoes(updated);
-                  }}
-                >
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="w-[50px] text-center font-semibold">N.º</TableHead>
+                  <TableHead className="font-semibold">Questão</TableHead>
                   {opcoes.map((opcao) => (
-                    <div key={opcao.value} className="flex items-center space-x-2">
-                      <RadioGroupItem value={opcao.value} id={`q${questao.id}-${opcao.value}`} />
-                      <Label 
-                        htmlFor={`q${questao.id}-${opcao.value}`} 
-                        className={`cursor-pointer ${questao.resposta === opcao.value ? 'font-semibold text-primary' : ''}`}
-                      >
-                        {opcao.label}
-                      </Label>
-                    </div>
+                    <TableHead key={opcao.value} className="w-[100px] text-center font-semibold">
+                      {opcao.label}
+                    </TableHead>
                   ))}
-                </RadioGroup>
-              </div>
-            ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {questoes.map((questao, index) => (
+                  <TableRow key={questao.id} className="hover:bg-muted/30">
+                    <TableCell className="text-center font-medium">{questao.id}</TableCell>
+                    <TableCell className="font-medium">{questao.texto}</TableCell>
+                    {opcoes.map((opcao) => (
+                      <TableCell key={opcao.value} className="text-center">
+                        <input
+                          type="radio"
+                          name={`questao-${questao.id}`}
+                          value={opcao.value}
+                          checked={questao.resposta === opcao.value}
+                          onChange={() => handleRespostaChange(index, opcao.value)}
+                          className="h-4 w-4 cursor-pointer accent-primary"
+                        />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
 
