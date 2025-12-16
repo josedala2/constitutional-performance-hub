@@ -35,6 +35,7 @@ import Permissoes from "./pages/admin/Permissoes";
 import Auditoria from "./pages/admin/Auditoria";
 import UnidadesOrganicas from "./pages/admin/UnidadesOrganicas";
 import ConsultaAvaliacoes from "./pages/ConsultaAvaliacoes";
+import Instalar from "./pages/Instalar";
 
 const queryClient = new QueryClient();
 
@@ -51,8 +52,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Rota pública */}
+            {/* Rotas públicas */}
             <Route path="/auth" element={<Auth />} />
+            <Route path="/instalar" element={<Instalar />} />
             
             {/* Rotas protegidas */}
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
