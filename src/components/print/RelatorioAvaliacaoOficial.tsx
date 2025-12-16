@@ -111,97 +111,136 @@ export function RelatorioAvaliacaoOficial({
     <div className="hidden print:block print-report-oficial">
       {/* ========== PAGE 1 - DADOS PESSOAIS E HISTÓRICO ========== */}
       <div className="report-page">
-        {/* Official Header with Coat of Arms */}
-        <header className="report-header">
-          <div className="header-emblem">
-            <img src={tribunalLogo} alt="Emblema" className="emblem-img" />
-          </div>
-          <div className="header-text">
-            <p className="institution-name">TRIBUNAL DE CONTAS</p>
-            <p className="country-name">REPÚBLICA DE ANGOLA</p>
-            <div className="header-divider"></div>
+        {/* Official Header with Logo */}
+        <header className="report-header-compact">
+          <img src={tribunalLogo} alt="Tribunal de Contas" className="header-logo-main" />
+          <div className="header-titles">
+            <h1 className="header-institution">TRIBUNAL DE CONTAS</h1>
+            <p className="header-country">REPÚBLICA DE ANGOLA</p>
           </div>
         </header>
 
         {/* Document Title */}
-        <div className="document-title-section">
-          <h1 className="document-title">RELATÓRIO DE AVALIAÇÃO DE DESEMPENHO</h1>
-          <p className="document-subtitle">Ficha Individual do Colaborador</p>
-          <p className="legal-reference">(Nos termos do RADFP – Decreto Presidencial n.º 173/25)</p>
+        <div className="document-title-compact">
+          <h2 className="doc-title">RELATÓRIO DE AVALIAÇÃO DE DESEMPENHO</h2>
+          <p className="doc-reference">Decreto Presidencial n.º 173/25 - RADFP</p>
         </div>
 
-        {/* Section I - Dados Pessoais */}
-        <section className="report-section">
-          <SectionHeader number="I" title="DADOS DO COLABORADOR" />
-          <div className="personal-data-card">
-            <div className="personal-data-grid">
-              <div className="personal-data-main">
-                <div className="collaborator-name">{nomeAvaliado}</div>
-                <div className="collaborator-role">{funcaoExercida}</div>
-              </div>
-              <div className="personal-data-details">
-                <div className="detail-row">
-                  <span className="detail-label">Categoria/Carreira:</span>
-                  <span className="detail-value">{categoriaCarreira}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Órgão/Serviço:</span>
-                  <span className="detail-value">{orgaoServico}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Área/Departamento:</span>
-                  <span className="detail-value">{areaDepartamento}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Data de Início:</span>
-                  <span className="detail-value">{dataInicioFuncao}</span>
-                </div>
-                {email && (
-                  <div className="detail-row">
-                    <span className="detail-label">Email:</span>
-                    <span className="detail-value">{email}</span>
-                  </div>
-                )}
-              </div>
+        {/* Section I - Identificação do Colaborador (Table Format) */}
+        <section className="report-section-compact">
+          <div className="section-header-line">
+            <span className="section-num">I</span>
+            <span className="section-txt">IDENTIFICAÇÃO DO COLABORADOR</span>
+          </div>
+          <table className="data-table">
+            <tbody>
+              <tr>
+                <td className="label-cell">Nome Completo</td>
+                <td className="value-cell" colSpan={3}>{nomeAvaliado}</td>
+              </tr>
+              <tr>
+                <td className="label-cell">Função Exercida</td>
+                <td className="value-cell">{funcaoExercida}</td>
+                <td className="label-cell">Categoria/Carreira</td>
+                <td className="value-cell">{categoriaCarreira}</td>
+              </tr>
+              <tr>
+                <td className="label-cell">Órgão/Serviço</td>
+                <td className="value-cell">{orgaoServico}</td>
+                <td className="label-cell">Área/Departamento</td>
+                <td className="value-cell">{areaDepartamento}</td>
+              </tr>
+              <tr>
+                <td className="label-cell">Data de Início</td>
+                <td className="value-cell">{dataInicioFuncao}</td>
+                <td className="label-cell">Email</td>
+                <td className="value-cell">{email || "—"}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        {/* Section II - Enquadramento da Avaliação */}
+        <section className="report-section-compact">
+          <div className="section-header-line">
+            <span className="section-num">II</span>
+            <span className="section-txt">ENQUADRAMENTO DA AVALIAÇÃO</span>
+          </div>
+          <table className="data-table">
+            <tbody>
+              <tr>
+                <td className="label-cell">Ano</td>
+                <td className="value-cell">{ano}</td>
+                <td className="label-cell">Semestre</td>
+                <td className="value-cell">{semestre}</td>
+              </tr>
+              <tr>
+                <td className="label-cell">Período Avaliado</td>
+                <td className="value-cell">{periodoAvaliado}</td>
+                <td className="label-cell">Tipo de Avaliação</td>
+                <td className="value-cell">{tipoAvaliacao}</td>
+              </tr>
+              <tr>
+                <td className="label-cell">Modelo Aplicado</td>
+                <td className="value-cell">{modeloAplicado}</td>
+                <td className="label-cell">Avaliador</td>
+                <td className="value-cell">{avaliador}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        {/* Section III - Resumo NAF */}
+        <section className="report-section-compact">
+          <div className="section-header-line">
+            <span className="section-num">III</span>
+            <span className="section-txt">NOTA DE AVALIAÇÃO FINAL</span>
+          </div>
+          <div className="naf-summary-compact">
+            <div className="naf-box">
+              <span className="naf-label">NAF</span>
+              <span className="naf-value">{notaFinal.toFixed(2)}</span>
             </div>
-            <div className="naf-summary-box">
-              <div className="naf-summary-label">NAF Médio</div>
-              <div className="naf-summary-value">{notaFinal.toFixed(2)}</div>
-              <div className="naf-summary-classification">{classificacaoQualitativa}</div>
+            <div className="naf-classification-box">
+              <span className="naf-class-label">Classificação Qualitativa</span>
+              <span className="naf-class-value">{classificacaoQualitativa}</span>
             </div>
           </div>
         </section>
 
-        {/* Section II - Histórico de Avaliações */}
-        <section className="report-section">
-          <SectionHeader number="II" title="HISTÓRICO DE AVALIAÇÕES" />
-          <table className="report-table history-table">
+        {/* Section IV - Histórico de Avaliações */}
+        <section className="report-section-compact">
+          <div className="section-header-line">
+            <span className="section-num">IV</span>
+            <span className="section-txt">HISTÓRICO DE AVALIAÇÕES</span>
+          </div>
+          <table className="history-table-compact">
             <thead>
               <tr>
                 <th>Ciclo</th>
-                <th className="col-center">Tipo</th>
+                <th>Tipo</th>
                 <th>Avaliador</th>
-                <th className="col-center">Data</th>
-                <th className="col-center">NAF</th>
-                <th className="col-center">Classificação</th>
-                <th className="col-center">Estado</th>
+                <th>Data</th>
+                <th>NAF</th>
+                <th>Classificação</th>
+                <th>Estado</th>
               </tr>
             </thead>
             <tbody>
               {historicoAvaliacoes.length > 0 ? historicoAvaliacoes.map((eval_item) => (
                 <tr key={eval_item.id}>
                   <td>{eval_item.ciclo}</td>
-                  <td className="text-center">{eval_item.tipo}</td>
+                  <td>{eval_item.tipo}</td>
                   <td>{eval_item.avaliador}</td>
-                  <td className="text-center">{eval_item.data}</td>
-                  <td className="text-center score-cell">{eval_item.naf.toFixed(2)}</td>
-                  <td className="text-center">
-                    <span className={`classification-badge ${eval_item.classificacao.toLowerCase().replace(' ', '-')}`}>
+                  <td>{eval_item.data}</td>
+                  <td className="naf-cell">{eval_item.naf.toFixed(2)}</td>
+                  <td>
+                    <span className={`class-tag ${eval_item.classificacao.toLowerCase().replace(' ', '-')}`}>
                       {eval_item.classificacao}
                     </span>
                   </td>
-                  <td className="text-center">
-                    <span className={`status-badge ${eval_item.estado}`}>
+                  <td>
+                    <span className={`status-tag ${eval_item.estado}`}>
                       {eval_item.estado === 'homologada' ? 'Homologada' : 
                        eval_item.estado === 'submetida' ? 'Submetida' : 'Em Curso'}
                     </span>
@@ -209,31 +248,17 @@ export function RelatorioAvaliacaoOficial({
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan={7} className="text-center empty-row">Sem avaliações registadas</td>
+                  <td colSpan={7} className="empty-cell">Sem avaliações registadas</td>
                 </tr>
               )}
             </tbody>
           </table>
         </section>
 
-        {/* Section III - Enquadramento da Avaliação Actual */}
-        <section className="report-section">
-          <SectionHeader number="III" title="ENQUADRAMENTO DA AVALIAÇÃO ACTUAL" />
-          <div className="fields-grid cols-3">
-            <FieldBox label="Ano" value={ano} />
-            <FieldBox label="Semestre" value={semestre} />
-            <FieldBox label="Período Avaliado" value={periodoAvaliado} />
-          </div>
-          <div className="fields-grid cols-3">
-            <FieldBox label="Tipo de Avaliação" value={tipoAvaliacao} />
-            <FieldBox label="Modelo Aplicado" value={modeloAplicado} />
-            <FieldBox label="Avaliador" value={avaliador} />
-          </div>
-        </section>
-
         {/* Page 1 Footer */}
-        <footer className="page-footer">
-          <span>Página 1/3</span>
+        <footer className="page-footer-compact">
+          <span className="page-num">Página 1/3</span>
+          <span className="page-ref">SGAD - Sistema de Gestão de Avaliação de Desempenho</span>
         </footer>
       </div>
 
