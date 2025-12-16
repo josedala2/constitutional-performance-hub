@@ -17,6 +17,17 @@ interface CompetencyData {
   pontuacao?: number;
 }
 
+interface EvaluationHistoryData {
+  id: string;
+  ciclo: string;
+  tipo: string;
+  avaliador: string;
+  data: string;
+  naf: number;
+  classificacao: string;
+  estado: string;
+}
+
 interface RelatorioAvaliacaoOficialProps {
   ano: string;
   semestre: string;
@@ -26,11 +37,13 @@ interface RelatorioAvaliacaoOficialProps {
   nomeAvaliado: string;
   funcaoExercida: string;
   dataInicioFuncao: string;
+  email?: string;
   avaliador: string;
   funcaoAvaliador: string;
   tipoAvaliacao: string;
   modeloAplicado: string;
   periodoAvaliado: string;
+  historicoAvaliacoes: EvaluationHistoryData[];
   objectivos: ObjectiveData[];
   competenciasTransversais: CompetencyData[];
   competenciasTecnicas: CompetencyData[];
@@ -56,11 +69,13 @@ export function RelatorioAvaliacaoOficial({
   nomeAvaliado,
   funcaoExercida,
   dataInicioFuncao,
+  email,
   avaliador,
   funcaoAvaliador,
   tipoAvaliacao,
   modeloAplicado,
   periodoAvaliado,
+  historicoAvaliacoes,
   objectivos,
   competenciasTransversais,
   competenciasTecnicas,
@@ -94,9 +109,9 @@ export function RelatorioAvaliacaoOficial({
 
   return (
     <div className="hidden print:block print-report-oficial">
-      {/* ========== PAGE 1 ========== */}
+      {/* ========== PAGE 1 - DADOS PESSOAIS E HISTÓRICO ========== */}
       <div className="report-page">
-        {/* Official Header with Coat of Arms styling */}
+        {/* Official Header with Coat of Arms */}
         <header className="report-header">
           <div className="header-emblem">
             <img src={tribunalLogo} alt="Emblema" className="emblem-img" />
@@ -110,49 +125,137 @@ export function RelatorioAvaliacaoOficial({
 
         {/* Document Title */}
         <div className="document-title-section">
-          <h1 className="document-title">FICHA DE AVALIAÇÃO DE DESEMPENHO</h1>
-          <p className="document-subtitle">Relatório Geral de Avaliação</p>
+          <h1 className="document-title">RELATÓRIO DE AVALIAÇÃO DE DESEMPENHO</h1>
+          <p className="document-subtitle">Ficha Individual do Colaborador</p>
           <p className="legal-reference">(Nos termos do RADFP – Decreto Presidencial n.º 173/25)</p>
         </div>
 
-        {/* Section I - Identificação Geral */}
+        {/* Section I - Dados Pessoais */}
         <section className="report-section">
-          <SectionHeader number="I" title="IDENTIFICAÇÃO GERAL" />
+          <SectionHeader number="I" title="DADOS DO COLABORADOR" />
+          <div className="personal-data-card">
+            <div className="personal-data-grid">
+              <div className="personal-data-main">
+                <div className="collaborator-name">{nomeAvaliado}</div>
+                <div className="collaborator-role">{funcaoExercida}</div>
+              </div>
+              <div className="personal-data-details">
+                <div className="detail-row">
+                  <span className="detail-label">Categoria/Carreira:</span>
+                  <span className="detail-value">{categoriaCarreira}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Órgão/Serviço:</span>
+                  <span className="detail-value">{orgaoServico}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Área/Departamento:</span>
+                  <span className="detail-value">{areaDepartamento}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Data de Início:</span>
+                  <span className="detail-value">{dataInicioFuncao}</span>
+                </div>
+                {email && (
+                  <div className="detail-row">
+                    <span className="detail-label">Email:</span>
+                    <span className="detail-value">{email}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="naf-summary-box">
+              <div className="naf-summary-label">NAF Médio</div>
+              <div className="naf-summary-value">{notaFinal.toFixed(2)}</div>
+              <div className="naf-summary-classification">{classificacaoQualitativa}</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section II - Histórico de Avaliações */}
+        <section className="report-section">
+          <SectionHeader number="II" title="HISTÓRICO DE AVALIAÇÕES" />
+          <table className="report-table history-table">
+            <thead>
+              <tr>
+                <th>Ciclo</th>
+                <th className="col-center">Tipo</th>
+                <th>Avaliador</th>
+                <th className="col-center">Data</th>
+                <th className="col-center">NAF</th>
+                <th className="col-center">Classificação</th>
+                <th className="col-center">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {historicoAvaliacoes.length > 0 ? historicoAvaliacoes.map((eval_item) => (
+                <tr key={eval_item.id}>
+                  <td>{eval_item.ciclo}</td>
+                  <td className="text-center">{eval_item.tipo}</td>
+                  <td>{eval_item.avaliador}</td>
+                  <td className="text-center">{eval_item.data}</td>
+                  <td className="text-center score-cell">{eval_item.naf.toFixed(2)}</td>
+                  <td className="text-center">
+                    <span className={`classification-badge ${eval_item.classificacao.toLowerCase().replace(' ', '-')}`}>
+                      {eval_item.classificacao}
+                    </span>
+                  </td>
+                  <td className="text-center">
+                    <span className={`status-badge ${eval_item.estado}`}>
+                      {eval_item.estado === 'homologada' ? 'Homologada' : 
+                       eval_item.estado === 'submetida' ? 'Submetida' : 'Em Curso'}
+                    </span>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={7} className="text-center empty-row">Sem avaliações registadas</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
+
+        {/* Section III - Enquadramento da Avaliação Actual */}
+        <section className="report-section">
+          <SectionHeader number="III" title="ENQUADRAMENTO DA AVALIAÇÃO ACTUAL" />
           <div className="fields-grid cols-3">
             <FieldBox label="Ano" value={ano} />
             <FieldBox label="Semestre" value={semestre} />
-            <FieldBox label="Órgão/Serviço" value={orgaoServico} />
+            <FieldBox label="Período Avaliado" value={periodoAvaliado} />
           </div>
-          <div className="fields-grid cols-1">
-            <FieldBox label="Área/Departamento" value={areaDepartamento} />
-          </div>
-          <div className="fields-grid cols-2">
-            <FieldBox label="Nome do Avaliado" value={nomeAvaliado} className="highlight" />
-            <FieldBox label="Categoria/Carreira" value={categoriaCarreira} />
-          </div>
-          <div className="fields-grid cols-2">
-            <FieldBox label="Função Exercida" value={funcaoExercida} />
-            <FieldBox label="Data de Início na Função" value={dataInicioFuncao} />
-          </div>
-          <div className="fields-grid cols-2">
-            <FieldBox label="Avaliador (Superior Hierárquico)" value={avaliador} />
-            <FieldBox label="Função do Avaliador" value={funcaoAvaliador} />
-          </div>
-        </section>
-
-        {/* Section II - Enquadramento */}
-        <section className="report-section">
-          <SectionHeader number="II" title="ENQUADRAMENTO DA AVALIAÇÃO" />
           <div className="fields-grid cols-3">
             <FieldBox label="Tipo de Avaliação" value={tipoAvaliacao} />
             <FieldBox label="Modelo Aplicado" value={modeloAplicado} />
-            <FieldBox label="Período Avaliado" value={periodoAvaliado} />
+            <FieldBox label="Avaliador" value={avaliador} />
           </div>
         </section>
 
-        {/* Section III - Objectivos */}
+        {/* Page 1 Footer */}
+        <footer className="page-footer">
+          <span>Página 1/3</span>
+        </footer>
+      </div>
+
+      {/* ========== PAGE 2 - OBJECTIVOS E COMPETÊNCIAS ========== */}
+      <div className="report-page page-break">
+        {/* Continuation Header */}
+        <header className="continuation-header">
+          <div className="continuation-left">
+            <img src={tribunalLogo} alt="Emblema" className="continuation-logo" />
+            <div>
+              <span className="continuation-title">Relatório de Avaliação de Desempenho</span>
+              <span className="continuation-name">{nomeAvaliado}</span>
+            </div>
+          </div>
+          <div className="continuation-right">
+            <span>Página 2/3</span>
+          </div>
+        </header>
+
+        {/* Section IV - Objectivos */}
         <section className="report-section">
-          <SectionHeader number="III" title="OBJECTIVOS DE DESEMPENHO (Ponderação: 60%)" />
+          <SectionHeader number="IV" title="OBJECTIVOS DE DESEMPENHO (Ponderação: 60%)" />
           <table className="report-table">
             <thead>
               <tr>
@@ -183,9 +286,9 @@ export function RelatorioAvaliacaoOficial({
           </table>
         </section>
 
-        {/* Section IV - Competências Transversais */}
+        {/* Section V - Competências Transversais */}
         <section className="report-section">
-          <SectionHeader number="IV" title="COMPETÊNCIAS TRANSVERSAIS (Ponderação: 20%)" />
+          <SectionHeader number="V" title="COMPETÊNCIAS TRANSVERSAIS (Ponderação: 20%)" />
           <div className="competencies-grid">
             {competenciasTransversais.map((comp) => (
               <div key={comp.id} className="competency-item">
@@ -196,9 +299,9 @@ export function RelatorioAvaliacaoOficial({
           </div>
         </section>
 
-        {/* Section V - Competências Técnicas */}
+        {/* Section VI - Competências Técnicas */}
         <section className="report-section">
-          <SectionHeader number="V" title="COMPETÊNCIAS ESPECÍFICAS/TÉCNICAS (Ponderação: 20%)" />
+          <SectionHeader number="VI" title="COMPETÊNCIAS ESPECÍFICAS/TÉCNICAS (Ponderação: 20%)" />
           <div className="competencies-grid">
             {competenciasTecnicas.map((comp) => (
               <div key={comp.id} className="competency-item">
@@ -209,9 +312,9 @@ export function RelatorioAvaliacaoOficial({
           </div>
         </section>
 
-        {/* Section VI - Nota Final */}
+        {/* Section VII - Nota Final */}
         <section className="report-section naf-section">
-          <SectionHeader number="VI" title="NOTA FINAL DE AVALIAÇÃO (NFA)" />
+          <SectionHeader number="VII" title="NOTA FINAL DE AVALIAÇÃO (NFA)" />
           <div className="naf-grid">
             <div className="naf-component">
               <span className="naf-label">Objectivos</span>
@@ -235,9 +338,9 @@ export function RelatorioAvaliacaoOficial({
           </div>
         </section>
 
-        {/* Section VII - Classificação Qualitativa */}
+        {/* Section VIII - Classificação Qualitativa */}
         <section className="report-section classification-section">
-          <SectionHeader number="VII" title="CLASSIFICAÇÃO QUALITATIVA FINAL" />
+          <SectionHeader number="VIII" title="CLASSIFICAÇÃO QUALITATIVA FINAL" />
           <div className="classification-grid">
             {classificacoes.map((c) => (
               <div 
@@ -252,22 +355,25 @@ export function RelatorioAvaliacaoOficial({
         </section>
       </div>
 
-      {/* ========== PAGE 2 ========== */}
+      {/* ========== PAGE 3 - ANÁLISE E ASSINATURAS ========== */}
       <div className="report-page page-break">
         {/* Continuation Header */}
         <header className="continuation-header">
           <div className="continuation-left">
-            <span className="continuation-title">Ficha de Avaliação de Desempenho</span>
-            <span className="continuation-name">{nomeAvaliado}</span>
+            <img src={tribunalLogo} alt="Emblema" className="continuation-logo" />
+            <div>
+              <span className="continuation-title">Relatório de Avaliação de Desempenho</span>
+              <span className="continuation-name">{nomeAvaliado}</span>
+            </div>
           </div>
           <div className="continuation-right">
-            <span>Página 2/2</span>
+            <span>Página 3/3</span>
           </div>
         </header>
 
-        {/* Section VIII - Análise Descritiva */}
+        {/* Section IX - Análise Descritiva */}
         <section className="report-section">
-          <SectionHeader number="VIII" title="ANÁLISE DESCRITIVA DO AVALIADOR" />
+          <SectionHeader number="IX" title="ANÁLISE DESCRITIVA DO AVALIADOR" />
           <div className="descriptive-block">
             <div className="descriptive-item">
               <h4 className="descriptive-label">Pontos Fortes:</h4>
@@ -290,25 +396,25 @@ export function RelatorioAvaliacaoOficial({
           </div>
         </section>
 
-        {/* Section IX - Autoavaliação */}
+        {/* Section X - Autoavaliação */}
         <section className="report-section">
-          <SectionHeader number="IX" title="AUTOAVALIAÇÃO DO AVALIADO" />
+          <SectionHeader number="X" title="AUTOAVALIAÇÃO DO AVALIADO" />
           <div className="self-assessment-box">
             <p className="self-assessment-text">{comentarioAvaliado || "—"}</p>
           </div>
         </section>
 
-        {/* Section X - Conclusão */}
+        {/* Section XI - Conclusão */}
         <section className="report-section">
-          <SectionHeader number="X" title="CONCLUSÃO E ENCAMINHAMENTOS" />
+          <SectionHeader number="XI" title="CONCLUSÃO E ENCAMINHAMENTOS" />
           <div className="conclusion-box">
             <p>{conclusaoEncaminhamentos || "—"}</p>
           </div>
         </section>
 
-        {/* Section XI - Assinaturas */}
+        {/* Section XII - Assinaturas */}
         <section className="report-section signatures-section">
-          <SectionHeader number="XI" title="ASSINATURAS E HOMOLOGAÇÃO" />
+          <SectionHeader number="XII" title="ASSINATURAS E HOMOLOGAÇÃO" />
           <div className="signatures-grid">
             <div className="signature-block">
               <div className="signature-line"></div>

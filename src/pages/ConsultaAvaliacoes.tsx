@@ -592,11 +592,22 @@ export default function ConsultaAvaliacoes() {
           nomeAvaliado={selectedUser.nome}
           funcaoExercida={selectedUser.cargo}
           dataInicioFuncao="01/01/2020"
+          email={selectedUser.email}
           avaliador={userEvaluations[0] ? getEvaluatorName(userEvaluations[0].avaliador_id) : "N/A"}
           funcaoAvaliador="Dirigente"
           tipoAvaliacao="Avaliação Ordinária"
           modeloAplicado="Modelo RADFP"
           periodoAvaliado={`01/01/${new Date().getFullYear()} a ${new Date().toLocaleDateString('pt-PT')}`}
+          historicoAvaliacoes={userEvaluations.map(eval_item => ({
+            id: eval_item.id,
+            ciclo: getCycleName(eval_item.ciclo_id),
+            tipo: eval_item.tipo,
+            avaliador: getEvaluatorName(eval_item.avaliador_id),
+            data: new Date(eval_item.data_avaliacao).toLocaleDateString('pt-PT'),
+            naf: eval_item.nota_final || 0,
+            classificacao: getQualitativeGrade(eval_item.nota_final || 0).label,
+            estado: eval_item.estado
+          }))}
           objectivos={userObjectives.map(obj => ({
             id: obj.id,
             descricao: obj.descricao,

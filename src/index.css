@@ -1186,4 +1186,202 @@
     color: #a0aec0 !important;
     margin: 0;
   }
+
+  /* Personal Data Card */
+  .print-report-oficial .personal-data-card {
+    display: flex;
+    gap: 12pt;
+    border: 1pt solid #1a365d;
+    padding: 10pt;
+    background: #f8fafc;
+  }
+
+  .print-report-oficial .personal-data-grid {
+    flex: 1;
+  }
+
+  .print-report-oficial .personal-data-main {
+    margin-bottom: 8pt;
+    padding-bottom: 6pt;
+    border-bottom: 0.5pt solid #e2e8f0;
+  }
+
+  .print-report-oficial .collaborator-name {
+    font-family: 'Crimson Pro', serif !important;
+    font-size: 14pt !important;
+    font-weight: 700;
+    color: #1a365d !important;
+    margin-bottom: 2pt;
+  }
+
+  .print-report-oficial .collaborator-role {
+    font-size: 10pt !important;
+    color: #4a5568 !important;
+    font-weight: 500;
+  }
+
+  .print-report-oficial .personal-data-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4pt;
+  }
+
+  .print-report-oficial .detail-row {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .print-report-oficial .detail-label {
+    font-size: 7pt !important;
+    color: #718096 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3pt;
+  }
+
+  .print-report-oficial .detail-value {
+    font-size: 9pt !important;
+    color: #1a1a1a !important;
+    font-weight: 500;
+  }
+
+  .print-report-oficial .naf-summary-box {
+    min-width: 80pt;
+    text-align: center;
+    padding: 10pt;
+    background: #1a365d;
+    color: white !important;
+    border: 2pt solid #c9a227;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .print-report-oficial .naf-summary-label {
+    font-size: 7pt !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+    opacity: 0.9;
+  }
+
+  .print-report-oficial .naf-summary-value {
+    font-size: 22pt !important;
+    font-weight: 700;
+    color: #c9a227 !important;
+    line-height: 1.1;
+  }
+
+  .print-report-oficial .naf-summary-classification {
+    font-size: 8pt !important;
+    font-weight: 600;
+    margin-top: 2pt;
+  }
+
+  /* History Table */
+  .print-report-oficial .history-table td {
+    font-size: 8pt !important;
+  }
+
+  .print-report-oficial .classification-badge {
+    display: inline-block;
+    padding: 1pt 4pt;
+    border-radius: 2pt;
+    font-size: 7pt !important;
+    font-weight: 600;
+  }
+
+  .print-report-oficial .classification-badge.muito-bom {
+    background: #c6f6d5;
+    color: #22543d !important;
+  }
+
+  .print-report-oficial .classification-badge.bom {
+    background: #b2f5ea;
+    color: #234e52 !important;
+  }
+
+  .print-report-oficial .classification-badge.suficiente {
+    background: #fefcbf;
+    color: #744210 !important;
+  }
+
+  .print-report-oficial .classification-badge.insuficiente {
+    background: #fed7aa;
+    color: #7b341e !important;
+  }
+
+  .print-report-oficial .classification-badge.mau {
+    background: #fed7d7;
+    color: #822727 !important;
+  }
+
+  .print-report-oficial .status-badge {
+    display: inline-block;
+    padding: 1pt 4pt;
+    border-radius: 2pt;
+    font-size: 7pt !important;
+    font-weight: 500;
+  }
+
+  .print-report-oficial .status-badge.homologada {
+    background: #c6f6d5;
+    color: #22543d !important;
+  }
+
+  .print-report-oficial .status-badge.submetida {
+    background: #bee3f8;
+    color: #2a4365 !important;
+  }
+
+  .print-report-oficial .status-badge.em_curso {
+    background: #fefcbf;
+    color: #744210 !important;
+  }
+
+  /* Continuation Header */
+  .print-report-oficial .continuation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 6pt;
+    margin-bottom: 12pt;
+    border-bottom: 1pt solid #1a365d;
+  }
+
+  .print-report-oficial .continuation-left {
+    display: flex;
+    align-items: center;
+    gap: 8pt;
+  }
+
+  .print-report-oficial .continuation-logo {
+    height: 30px !important;
+    width: auto !important;
+  }
+
+  .print-report-oficial .continuation-title {
+    display: block;
+    font-size: 10pt !important;
+    font-weight: 600;
+    color: #1a365d !important;
+  }
+
+  .print-report-oficial .continuation-name {
+    display: block;
+    font-size: 8pt !important;
+    color: #4a5568 !important;
+  }
+
+  .print-report-oficial .continuation-right {
+    font-size: 8pt !important;
+    color: #718096 !important;
+  }
+
+  /* Page Footer */
+  .print-report-oficial .page-footer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 8pt !important;
+    color: #a0aec0 !important;
+  }
 }
