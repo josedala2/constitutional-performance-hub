@@ -1100,6 +1100,40 @@
     border-top: 0.5pt solid #ccc;
   }
 
+  /* ========== CABEÇALHO OFICIAL RADFP ========== */
+  .print-report-radfp-continuous .official-header-radfp,
+  .print-report-radfp .official-header-radfp {
+    text-align: center;
+    margin-bottom: 20pt;
+    padding-bottom: 12pt;
+    border-bottom: 2pt solid #1a365d;
+  }
+
+  .print-report-radfp-continuous .header-logo-radfp,
+  .print-report-radfp .header-logo-radfp {
+    height: 70px !important;
+    width: auto !important;
+    margin-bottom: 10pt;
+  }
+
+  .print-report-radfp-continuous .header-title-radfp,
+  .print-report-radfp .header-title-radfp {
+    font-size: 14pt !important;
+    font-weight: 700 !important;
+    color: #1a365d !important;
+    text-transform: uppercase;
+    letter-spacing: 1pt;
+    margin: 0 0 6pt 0;
+  }
+
+  .print-report-radfp-continuous .header-subtitle-radfp,
+  .print-report-radfp .header-subtitle-radfp {
+    font-size: 10pt !important;
+    font-style: italic;
+    color: #475569 !important;
+    margin: 0;
+  }
+
   /* ========== HISTÓRICO DE AVALIAÇÕES TABLE ========== */
   .print-report-radfp-continuous .historico-section,
   .print-report-radfp .historico-section {
