@@ -1,5 +1,4 @@
 import React from "react";
-import tribunalLogo from "@/assets/tribunal-logo.png";
 
 interface ObjectiveData {
   id: string;
@@ -18,19 +17,8 @@ interface CompetencyData {
 }
 
 interface RelatorioAvaliacaoOficialProps {
-  ano: string;
-  semestre: string;
-  orgaoServico: string;
-  areaDepartamento: string;
-  categoriaCarreira: string;
   nomeAvaliado: string;
-  funcaoExercida: string;
-  dataInicioFuncao: string;
   avaliador: string;
-  funcaoAvaliador: string;
-  tipoAvaliacao: string;
-  modeloAplicado: string;
-  periodoAvaliado: string;
   objectivos: ObjectiveData[];
   competenciasTransversais: CompetencyData[];
   competenciasTecnicas: CompetencyData[];
@@ -48,19 +36,8 @@ interface RelatorioAvaliacaoOficialProps {
 }
 
 export function RelatorioAvaliacaoOficial({
-  ano,
-  semestre,
-  orgaoServico,
-  areaDepartamento,
-  categoriaCarreira,
   nomeAvaliado,
-  funcaoExercida,
-  dataInicioFuncao,
   avaliador,
-  funcaoAvaliador,
-  tipoAvaliacao,
-  modeloAplicado,
-  periodoAvaliado,
   objectivos,
   competenciasTransversais,
   competenciasTecnicas,
@@ -78,82 +55,8 @@ export function RelatorioAvaliacaoOficial({
 }: RelatorioAvaliacaoOficialProps) {
   const classificacoes = ["Muito Bom", "Bom", "Suficiente", "Insuficiente", "Mau"];
 
-  // Official Header Component
-  const OfficialHeader = () => (
-    <header className="official-header">
-      <div className="header-logo-section">
-        <img src={tribunalLogo} alt="Tribunal de Contas" className="official-logo" />
-      </div>
-      <div className="header-title-section">
-        <p className="header-country-name">ANGOLA</p>
-      </div>
-    </header>
-  );
-
   return (
     <div className="hidden print:block print-report-radfp-continuous">
-      <OfficialHeader />
-
-      {/* Document Title */}
-      <div className="document-title-radfp">
-        <h1>FICHA / RELATÓRIO GERAL DE AVALIAÇÃO DE DESEMPENHO</h1>
-        <p className="legal-ref">(Nos termos do RADFP – Decreto Presidencial n.º 173/25)</p>
-      </div>
-
-      {/* I. IDENTIFICAÇÃO GERAL */}
-      <section className="section-radfp">
-        <h2 className="section-title-radfp">I. IDENTIFICAÇÃO GERAL</h2>
-        <table className="form-table-radfp">
-          <tbody>
-            <tr>
-              <td className="cell-label">Ano:</td>
-              <td className="cell-value">{ano}</td>
-              <td className="cell-label">Semestre:</td>
-              <td className="cell-value">{semestre}</td>
-              <td className="cell-label">Órgão/Serviço:</td>
-              <td className="cell-value" colSpan={2}>{orgaoServico}</td>
-            </tr>
-            <tr>
-              <td className="cell-label">Área/Departamento:</td>
-              <td className="cell-value">{areaDepartamento}</td>
-              <td className="cell-label">Categoria/Carreira:</td>
-              <td className="cell-value">{categoriaCarreira}</td>
-              <td className="cell-label">Nome do Avaliado:</td>
-              <td className="cell-value" colSpan={2}>{nomeAvaliado}</td>
-            </tr>
-            <tr>
-              <td className="cell-label">Função Exercida:</td>
-              <td className="cell-value">{funcaoExercida}</td>
-              <td className="cell-label">Data de Início na Função:</td>
-              <td className="cell-value">{dataInicioFuncao}</td>
-              <td className="cell-label">Avaliador (Superior Hierárquico):</td>
-              <td className="cell-value" colSpan={2}>{avaliador}</td>
-            </tr>
-            <tr>
-              <td className="cell-label">Função do Avaliador:</td>
-              <td className="cell-value" colSpan={6}>{funcaoAvaliador}</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      {/* II. ENQUADRAMENTO DA AVALIAÇÃO */}
-      <section className="section-radfp">
-        <h2 className="section-title-radfp">II. ENQUADRAMENTO DA AVALIAÇÃO</h2>
-        <table className="form-table-radfp">
-          <tbody>
-            <tr>
-              <td className="cell-label">Tipo de Avaliação:</td>
-              <td className="cell-value">{tipoAvaliacao}</td>
-              <td className="cell-label">Modelo Aplicado:</td>
-              <td className="cell-value">{modeloAplicado}</td>
-              <td className="cell-label">Período Avaliado:</td>
-              <td className="cell-value">{periodoAvaliado}</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
       {/* III. OBJECTIVOS DE DESEMPENHO */}
       <section className="section-radfp">
         <h2 className="section-title-radfp">III. OBJECTIVOS DE DESEMPENHO (até 60%)</h2>
