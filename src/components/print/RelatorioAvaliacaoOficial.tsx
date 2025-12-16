@@ -17,17 +17,6 @@ interface CompetencyData {
   pontuacao?: number;
 }
 
-interface EvaluationHistoryData {
-  id: string;
-  ciclo: string;
-  tipo: string;
-  avaliador: string;
-  data: string;
-  naf: number;
-  classificacao: string;
-  estado: string;
-}
-
 interface RelatorioAvaliacaoOficialProps {
   ano: string;
   semestre: string;
@@ -37,13 +26,11 @@ interface RelatorioAvaliacaoOficialProps {
   nomeAvaliado: string;
   funcaoExercida: string;
   dataInicioFuncao: string;
-  email?: string;
   avaliador: string;
   funcaoAvaliador: string;
   tipoAvaliacao: string;
   modeloAplicado: string;
   periodoAvaliado: string;
-  historicoAvaliacoes: EvaluationHistoryData[];
   objectivos: ObjectiveData[];
   competenciasTransversais: CompetencyData[];
   competenciasTecnicas: CompetencyData[];
@@ -69,13 +56,11 @@ export function RelatorioAvaliacaoOficial({
   nomeAvaliado,
   funcaoExercida,
   dataInicioFuncao,
-  email,
   avaliador,
   funcaoAvaliador,
   tipoAvaliacao,
   modeloAplicado,
   periodoAvaliado,
-  historicoAvaliacoes,
   objectivos,
   competenciasTransversais,
   competenciasTecnicas,
@@ -93,386 +78,271 @@ export function RelatorioAvaliacaoOficial({
 }: RelatorioAvaliacaoOficialProps) {
   const classificacoes = ["Muito Bom", "Bom", "Suficiente", "Insuficiente", "Mau"];
 
-  const SectionHeader = ({ number, title }: { number: string; title: string }) => (
-    <div className="report-section-header">
-      <span className="section-number">{number}.</span>
-      <span className="section-title">{title}</span>
-    </div>
-  );
-
-  const FieldBox = ({ label, value, className = "" }: { label: string; value: string; className?: string }) => (
-    <div className={`field-box ${className}`}>
-      <span className="field-label">{label}</span>
-      <span className="field-value">{value || "—"}</span>
-    </div>
+  // Official Header Component
+  const OfficialHeader = () => (
+    <header className="official-header">
+      <div className="header-logo-section">
+        <img src={tribunalLogo} alt="Tribunal de Contas" className="official-logo" />
+      </div>
+      <div className="header-title-section">
+        <p className="header-country-name">ANGOLA</p>
+      </div>
+    </header>
   );
 
   return (
-    <div className="hidden print:block print-report-oficial">
-      {/* ========== PAGE 1 - DADOS PESSOAIS E HISTÓRICO ========== */}
-      <div className="report-page">
-        {/* Official Header with Logo */}
-        <header className="report-header-compact">
-          <img src={tribunalLogo} alt="Tribunal de Contas" className="header-logo-main" />
-          <div className="header-titles">
-            <h1 className="header-institution">TRIBUNAL DE CONTAS</h1>
-            <p className="header-country">REPÚBLICA DE ANGOLA</p>
-          </div>
-        </header>
+    <div className="hidden print:block print-report-radfp">
+      {/* ========== PAGE 1 ========== */}
+      <div className="report-page-radfp">
+        <OfficialHeader />
 
         {/* Document Title */}
-        <div className="document-title-compact">
-          <h2 className="doc-title">RELATÓRIO DE AVALIAÇÃO DE DESEMPENHO</h2>
-          <p className="doc-reference">Decreto Presidencial n.º 173/25 - RADFP</p>
+        <div className="document-title-radfp">
+          <h1>FICHA / RELATÓRIO GERAL DE AVALIAÇÃO DE DESEMPENHO</h1>
+          <p className="legal-ref">(Nos termos do RADFP – Decreto Presidencial n.º 173/25)</p>
         </div>
 
-        {/* Section I - Identificação do Colaborador (Table Format) */}
-        <section className="report-section-compact">
-          <div className="section-header-line">
-            <span className="section-num">I</span>
-            <span className="section-txt">IDENTIFICAÇÃO DO COLABORADOR</span>
-          </div>
-          <table className="data-table">
+        {/* I. IDENTIFICAÇÃO GERAL */}
+        <section className="section-radfp">
+          <h2 className="section-title-radfp">I. IDENTIFICAÇÃO GERAL</h2>
+          <table className="form-table-radfp">
             <tbody>
               <tr>
-                <td className="label-cell">Nome Completo</td>
-                <td className="value-cell" colSpan={3}>{nomeAvaliado}</td>
+                <td className="cell-label">Ano:</td>
+                <td className="cell-value">{ano}</td>
+                <td className="cell-label">Semestre:</td>
+                <td className="cell-value">{semestre}</td>
+                <td className="cell-label">Órgão/Serviço:</td>
+                <td className="cell-value" colSpan={2}>{orgaoServico}</td>
               </tr>
               <tr>
-                <td className="label-cell">Função Exercida</td>
-                <td className="value-cell">{funcaoExercida}</td>
-                <td className="label-cell">Categoria/Carreira</td>
-                <td className="value-cell">{categoriaCarreira}</td>
+                <td className="cell-label">Área/Departamento:</td>
+                <td className="cell-value">{areaDepartamento}</td>
+                <td className="cell-label">Categoria/Carreira:</td>
+                <td className="cell-value">{categoriaCarreira}</td>
+                <td className="cell-label">Nome do Avaliado:</td>
+                <td className="cell-value" colSpan={2}>{nomeAvaliado}</td>
               </tr>
               <tr>
-                <td className="label-cell">Órgão/Serviço</td>
-                <td className="value-cell">{orgaoServico}</td>
-                <td className="label-cell">Área/Departamento</td>
-                <td className="value-cell">{areaDepartamento}</td>
+                <td className="cell-label">Função Exercida:</td>
+                <td className="cell-value">{funcaoExercida}</td>
+                <td className="cell-label">Data de Início na Função:</td>
+                <td className="cell-value">{dataInicioFuncao}</td>
+                <td className="cell-label">Avaliador (Superior Hierárquico):</td>
+                <td className="cell-value" colSpan={2}>{avaliador}</td>
               </tr>
               <tr>
-                <td className="label-cell">Data de Início</td>
-                <td className="value-cell">{dataInicioFuncao}</td>
-                <td className="label-cell">Email</td>
-                <td className="value-cell">{email || "—"}</td>
+                <td className="cell-label">Função do Avaliador:</td>
+                <td className="cell-value" colSpan={6}>{funcaoAvaliador}</td>
               </tr>
             </tbody>
           </table>
         </section>
 
-        {/* Section II - Enquadramento da Avaliação */}
-        <section className="report-section-compact">
-          <div className="section-header-line">
-            <span className="section-num">II</span>
-            <span className="section-txt">ENQUADRAMENTO DA AVALIAÇÃO</span>
-          </div>
-          <table className="data-table">
+        {/* II. ENQUADRAMENTO DA AVALIAÇÃO */}
+        <section className="section-radfp">
+          <h2 className="section-title-radfp">II. ENQUADRAMENTO DA AVALIAÇÃO</h2>
+          <table className="form-table-radfp">
             <tbody>
               <tr>
-                <td className="label-cell">Ano</td>
-                <td className="value-cell">{ano}</td>
-                <td className="label-cell">Semestre</td>
-                <td className="value-cell">{semestre}</td>
-              </tr>
-              <tr>
-                <td className="label-cell">Período Avaliado</td>
-                <td className="value-cell">{periodoAvaliado}</td>
-                <td className="label-cell">Tipo de Avaliação</td>
-                <td className="value-cell">{tipoAvaliacao}</td>
-              </tr>
-              <tr>
-                <td className="label-cell">Modelo Aplicado</td>
-                <td className="value-cell">{modeloAplicado}</td>
-                <td className="label-cell">Avaliador</td>
-                <td className="value-cell">{avaliador}</td>
+                <td className="cell-label">Tipo de Avaliação:</td>
+                <td className="cell-value">{tipoAvaliacao}</td>
+                <td className="cell-label">Modelo Aplicado:</td>
+                <td className="cell-value">{modeloAplicado}</td>
+                <td className="cell-label">Período Avaliado:</td>
+                <td className="cell-value">{periodoAvaliado}</td>
               </tr>
             </tbody>
           </table>
         </section>
 
-        {/* Section III - Resumo NAF */}
-        <section className="report-section-compact">
-          <div className="section-header-line">
-            <span className="section-num">III</span>
-            <span className="section-txt">NOTA DE AVALIAÇÃO FINAL</span>
-          </div>
-          <div className="naf-summary-compact">
-            <div className="naf-box">
-              <span className="naf-label">NAF</span>
-              <span className="naf-value">{notaFinal.toFixed(2)}</span>
-            </div>
-            <div className="naf-classification-box">
-              <span className="naf-class-label">Classificação Qualitativa</span>
-              <span className="naf-class-value">{classificacaoQualitativa}</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Section IV - Histórico de Avaliações */}
-        <section className="report-section-compact">
-          <div className="section-header-line">
-            <span className="section-num">IV</span>
-            <span className="section-txt">HISTÓRICO DE AVALIAÇÕES</span>
-          </div>
-          <table className="history-table-compact">
+        {/* III. OBJECTIVOS DE DESEMPENHO */}
+        <section className="section-radfp">
+          <h2 className="section-title-radfp">III. OBJECTIVOS DE DESEMPENHO (até 60%)</h2>
+          <p className="section-subtitle-radfp">Objectivos Individuais e de Equipa (descrever metas, indicadores, planeado, realizado e pontuação).</p>
+          <table className="objectives-table-radfp">
             <thead>
               <tr>
-                <th>Ciclo</th>
-                <th>Tipo</th>
-                <th>Avaliador</th>
-                <th>Data</th>
-                <th>NAF</th>
-                <th>Classificação</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {historicoAvaliacoes.length > 0 ? historicoAvaliacoes.map((eval_item) => (
-                <tr key={eval_item.id}>
-                  <td>{eval_item.ciclo}</td>
-                  <td>{eval_item.tipo}</td>
-                  <td>{eval_item.avaliador}</td>
-                  <td>{eval_item.data}</td>
-                  <td className="naf-cell">{eval_item.naf.toFixed(2)}</td>
-                  <td>
-                    <span className={`class-tag ${eval_item.classificacao.toLowerCase().replace(' ', '-')}`}>
-                      {eval_item.classificacao}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`status-tag ${eval_item.estado}`}>
-                      {eval_item.estado === 'homologada' ? 'Homologada' : 
-                       eval_item.estado === 'submetida' ? 'Submetida' : 'Em Curso'}
-                    </span>
-                  </td>
-                </tr>
-              )) : (
-                <tr>
-                  <td colSpan={7} className="empty-cell">Sem avaliações registadas</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </section>
-
-        {/* Page 1 Footer */}
-        <footer className="page-footer-compact">
-          <span className="page-num">Página 1/3</span>
-          <span className="page-ref">SGAD - Sistema de Gestão de Avaliação de Desempenho</span>
-        </footer>
-      </div>
-
-      {/* ========== PAGE 2 - OBJECTIVOS E COMPETÊNCIAS ========== */}
-      <div className="report-page page-break">
-        {/* Continuation Header */}
-        <header className="continuation-header">
-          <div className="continuation-left">
-            <img src={tribunalLogo} alt="Emblema" className="continuation-logo" />
-            <div>
-              <span className="continuation-title">Relatório de Avaliação de Desempenho</span>
-              <span className="continuation-name">{nomeAvaliado}</span>
-            </div>
-          </div>
-          <div className="continuation-right">
-            <span>Página 2/3</span>
-          </div>
-        </header>
-
-        {/* Section IV - Objectivos */}
-        <section className="report-section">
-          <SectionHeader number="IV" title="OBJECTIVOS DE DESEMPENHO (Ponderação: 60%)" />
-          <table className="report-table">
-            <thead>
-              <tr>
-                <th className="col-desc">Objectivo</th>
-                <th className="col-center">Meta</th>
-                <th className="col-center">Indicador</th>
-                <th className="col-center">Planeado</th>
-                <th className="col-center">Realizado</th>
-                <th className="col-center col-score">Pontuação</th>
+                <th className="col-num">N.º</th>
+                <th className="col-obj">Objectivo</th>
+                <th className="col-meta">Meta</th>
+                <th className="col-ind">Indicador</th>
+                <th className="col-plan">Planeado</th>
+                <th className="col-real">Realizado</th>
+                <th className="col-pont">Pont.</th>
               </tr>
             </thead>
             <tbody>
               {objectivos.length > 0 ? objectivos.map((obj, index) => (
                 <tr key={obj.id}>
-                  <td>{index + 1}. {obj.descricao}</td>
+                  <td className="text-center">{index + 1}</td>
+                  <td>{obj.descricao}</td>
                   <td className="text-center">{obj.meta || "—"}</td>
                   <td className="text-center">{obj.indicador || "—"}</td>
                   <td className="text-center">{obj.planeado || "—"}</td>
                   <td className="text-center">{obj.realizado || "—"}</td>
-                  <td className="text-center score-cell">{obj.pontuacao?.toFixed(1) || "—"}</td>
+                  <td className="text-center font-bold">{obj.pontuacao?.toFixed(1) || "—"}</td>
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan={6} className="text-center empty-row">Sem objectivos registados</td>
+                  <td colSpan={7} className="empty-row">Sem objectivos registados</td>
                 </tr>
               )}
             </tbody>
           </table>
         </section>
 
-        {/* Section V - Competências Transversais */}
-        <section className="report-section">
-          <SectionHeader number="V" title="COMPETÊNCIAS TRANSVERSAIS (Ponderação: 20%)" />
-          <div className="competencies-grid">
-            {competenciasTransversais.map((comp) => (
-              <div key={comp.id} className="competency-item">
-                <span className="competency-name">{comp.nome}</span>
-                <span className="competency-score">{comp.pontuacao?.toFixed(1) || "—"}</span>
-              </div>
-            ))}
-          </div>
+        {/* IV. COMPETÊNCIAS TRANSVERSAIS */}
+        <section className="section-radfp">
+          <h2 className="section-title-radfp">IV. COMPETÊNCIAS TRANSVERSAIS (até 20%)</h2>
+          <p className="section-subtitle-radfp">Adaptação profissional; Relacionamento interpessoal; Trabalho em equipa; Integridade e conduta; Assiduidade e pontualidade; Uso adequado de recursos; Apresentação e postura; Responsabilidade.</p>
+          <table className="competencies-table-radfp">
+            <thead>
+              <tr>
+                <th>Competência</th>
+                <th className="col-pont">Pontuação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {competenciasTransversais.map((comp) => (
+                <tr key={comp.id}>
+                  <td>{comp.nome}</td>
+                  <td className="text-center font-bold">{comp.pontuacao?.toFixed(1) || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </section>
 
-        {/* Section VI - Competências Técnicas */}
-        <section className="report-section">
-          <SectionHeader number="VI" title="COMPETÊNCIAS ESPECÍFICAS/TÉCNICAS (Ponderação: 20%)" />
-          <div className="competencies-grid">
-            {competenciasTecnicas.map((comp) => (
-              <div key={comp.id} className="competency-item">
-                <span className="competency-name">{comp.nome}</span>
-                <span className="competency-score">{comp.pontuacao?.toFixed(1) || "—"}</span>
-              </div>
-            ))}
-          </div>
+        {/* V. COMPETÊNCIAS ESPECÍFICAS / TÉCNICAS */}
+        <section className="section-radfp">
+          <h2 className="section-title-radfp">V. COMPETÊNCIAS ESPECÍFICAS / TÉCNICAS (até 20%)</h2>
+          <p className="section-subtitle-radfp">Competências técnicas associadas à função.</p>
+          <table className="competencies-table-radfp">
+            <thead>
+              <tr>
+                <th>Competência</th>
+                <th className="col-pont">Pontuação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {competenciasTecnicas.map((comp) => (
+                <tr key={comp.id}>
+                  <td>{comp.nome}</td>
+                  <td className="text-center font-bold">{comp.pontuacao?.toFixed(1) || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </section>
 
-        {/* Section VII - Nota Final */}
-        <section className="report-section naf-section">
-          <SectionHeader number="VII" title="NOTA FINAL DE AVALIAÇÃO (NFA)" />
-          <div className="naf-grid">
-            <div className="naf-component">
-              <span className="naf-label">Objectivos</span>
-              <span className="naf-value">{notaObjectivos.toFixed(2)}</span>
-              <span className="naf-weight">60%</span>
-            </div>
-            <div className="naf-component">
-              <span className="naf-label">Comp. Transversais</span>
-              <span className="naf-value">{notaCompetenciasTransversais.toFixed(2)}</span>
-              <span className="naf-weight">20%</span>
-            </div>
-            <div className="naf-component">
-              <span className="naf-label">Comp. Técnicas</span>
-              <span className="naf-value">{notaCompetenciasTecnicas.toFixed(2)}</span>
-              <span className="naf-weight">20%</span>
-            </div>
-            <div className="naf-final">
-              <span className="naf-final-label">NOTA FINAL</span>
-              <span className="naf-final-value">{notaFinal.toFixed(2)}</span>
-            </div>
-          </div>
+        {/* VI. NOTA FINAL DE AVALIAÇÃO */}
+        <section className="section-radfp">
+          <h2 className="section-title-radfp">VI. NOTA FINAL DE AVALIAÇÃO</h2>
+          <table className="naf-table-radfp">
+            <thead>
+              <tr>
+                <th>Objectivos:</th>
+                <th>Competências Transversais:</th>
+                <th>Competências Técnicas:</th>
+                <th>Nota Final (NFA):</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="text-center">{notaObjectivos.toFixed(2)}</td>
+                <td className="text-center">{notaCompetenciasTransversais.toFixed(2)}</td>
+                <td className="text-center">{notaCompetenciasTecnicas.toFixed(2)}</td>
+                <td className="text-center naf-final-cell">{notaFinal.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
         </section>
 
-        {/* Section VIII - Classificação Qualitativa */}
-        <section className="report-section classification-section">
-          <SectionHeader number="VIII" title="CLASSIFICAÇÃO QUALITATIVA FINAL" />
-          <div className="classification-grid">
-            {classificacoes.map((c) => (
-              <div 
-                key={c} 
-                className={`classification-item ${classificacaoQualitativa === c ? 'active' : ''}`}
-              >
-                <span className="classification-checkbox">{classificacaoQualitativa === c ? '✓' : ''}</span>
-                <span className="classification-label">{c}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+        <footer className="page-footer-radfp">
+          <span>Página 1/2</span>
+        </footer>
       </div>
 
-      {/* ========== PAGE 3 - ANÁLISE E ASSINATURAS ========== */}
-      <div className="report-page page-break">
-        {/* Continuation Header */}
-        <header className="continuation-header">
-          <div className="continuation-left">
-            <img src={tribunalLogo} alt="Emblema" className="continuation-logo" />
-            <div>
-              <span className="continuation-title">Relatório de Avaliação de Desempenho</span>
-              <span className="continuation-name">{nomeAvaliado}</span>
-            </div>
-          </div>
-          <div className="continuation-right">
-            <span>Página 3/3</span>
-          </div>
-        </header>
+      {/* ========== PAGE 2 ========== */}
+      <div className="report-page-radfp page-break">
+        <OfficialHeader />
 
-        {/* Section IX - Análise Descritiva */}
-        <section className="report-section">
-          <SectionHeader number="IX" title="ANÁLISE DESCRITIVA DO AVALIADOR" />
-          <div className="descriptive-block">
-            <div className="descriptive-item">
-              <h4 className="descriptive-label">Pontos Fortes:</h4>
-              <div className="descriptive-content">
-                {pontosFortesAvaliador || "—"}
+        {/* VII. CLASSIFICAÇÃO QUALITATIVA FINAL */}
+        <section className="section-radfp">
+          <h2 className="section-title-radfp">VII. CLASSIFICAÇÃO QUALITATIVA FINAL</h2>
+          <div className="classification-row-radfp">
+            {classificacoes.map((c) => (
+              <div key={c} className={`classification-box-radfp ${classificacaoQualitativa === c ? 'active' : ''}`}>
+                <span className="checkbox-radfp">{classificacaoQualitativa === c ? '✓' : ''}</span>
+                <span className="classification-text">{c}</span>
               </div>
-            </div>
-            <div className="descriptive-item">
-              <h4 className="descriptive-label">Aspectos a Melhorar:</h4>
-              <div className="descriptive-content">
-                {aspectosMelhorarAvaliador || "—"}
-              </div>
-            </div>
-            <div className="descriptive-item">
-              <h4 className="descriptive-label">Recomendações:</h4>
-              <div className="descriptive-content">
-                {recomendacoesAvaliador || "—"}
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* Section X - Autoavaliação */}
-        <section className="report-section">
-          <SectionHeader number="X" title="AUTOAVALIAÇÃO DO AVALIADO" />
-          <div className="self-assessment-box">
-            <p className="self-assessment-text">{comentarioAvaliado || "—"}</p>
+        {/* VIII. ANÁLISE DESCRITIVA DO AVALIADOR */}
+        <section className="section-radfp">
+          <h2 className="section-title-radfp">VIII. ANÁLISE DESCRITIVA DO AVALIADOR</h2>
+          <div className="descriptive-field-radfp">
+            <label>Pontos fortes:</label>
+            <div className="field-content">{pontosFortesAvaliador || ""}</div>
+          </div>
+          <div className="descriptive-field-radfp">
+            <label>Aspectos a melhorar:</label>
+            <div className="field-content">{aspectosMelhorarAvaliador || ""}</div>
+          </div>
+          <div className="descriptive-field-radfp">
+            <label>Recomendações:</label>
+            <div className="field-content">{recomendacoesAvaliador || ""}</div>
           </div>
         </section>
 
-        {/* Section XI - Conclusão */}
-        <section className="report-section">
-          <SectionHeader number="XI" title="CONCLUSÃO E ENCAMINHAMENTOS" />
-          <div className="conclusion-box">
-            <p>{conclusaoEncaminhamentos || "—"}</p>
+        {/* IX. AUTOAVALIAÇÃO DO AVALIADO */}
+        <section className="section-radfp">
+          <h2 className="section-title-radfp">IX. AUTOAVALIAÇÃO DO AVALIADO</h2>
+          <div className="descriptive-field-radfp">
+            <label>Comentário do avaliado:</label>
+            <div className="field-content large">{comentarioAvaliado || ""}</div>
           </div>
         </section>
 
-        {/* Section XII - Assinaturas */}
-        <section className="report-section signatures-section">
-          <SectionHeader number="XII" title="ASSINATURAS E HOMOLOGAÇÃO" />
-          <div className="signatures-grid">
-            <div className="signature-block">
-              <div className="signature-line"></div>
-              <p className="signature-role">O Avaliador</p>
-              <p className="signature-name">{avaliador}</p>
-              <p className="signature-date">Data: ____/____/________</p>
-            </div>
-            <div className="signature-block">
-              <div className="signature-line"></div>
-              <p className="signature-role">O Avaliado</p>
-              <p className="signature-name">{nomeAvaliado}</p>
-              <p className="signature-date">Data: ____/____/________</p>
-            </div>
-            <div className="signature-block">
-              <div className="signature-line"></div>
-              <p className="signature-role">Homologação</p>
-              <p className="signature-name">O Dirigente Máximo</p>
-              <p className="signature-date">Data: ____/____/________</p>
-            </div>
-          </div>
-          <div className="seal-area">
-            <p className="seal-label">(Carimbo)</p>
+        {/* X. CONCLUSÃO E ENCAMINHAMENTOS */}
+        <section className="section-radfp">
+          <h2 className="section-title-radfp">X. CONCLUSÃO E ENCAMINHAMENTOS</h2>
+          <div className="descriptive-field-radfp">
+            <label>Decisões e encaminhamentos futuros:</label>
+            <div className="field-content">{conclusaoEncaminhamentos || ""}</div>
           </div>
         </section>
 
-        {/* Official Footer */}
-        <footer className="report-footer">
-          <div className="footer-line"></div>
-          <div className="footer-content">
-            <p className="footer-institution">TRIBUNAL DE CONTAS DA REPÚBLICA DE ANGOLA</p>
-            <p className="footer-system">Sistema de Gestão de Avaliação de Desempenho (SGAD)</p>
-            <p className="footer-reference">Ref: RADFP/{ano} | Gerado em: {dataAssinatura}</p>
+        {/* XI. ASSINATURAS */}
+        <section className="section-radfp signatures-section-radfp">
+          <h2 className="section-title-radfp">XI. ASSINATURAS</h2>
+          <div className="signatures-grid-radfp">
+            <div className="signature-item-radfp">
+              <p className="signature-label">Avaliador:</p>
+              <div className="signature-line-radfp"></div>
+              <p className="signature-name-radfp">{avaliador}</p>
+            </div>
+            <div className="signature-item-radfp">
+              <p className="signature-label">Avaliado:</p>
+              <div className="signature-line-radfp"></div>
+              <p className="signature-name-radfp">{nomeAvaliado}</p>
+            </div>
+            <div className="signature-item-radfp">
+              <p className="signature-label">Responsável pela Homologação:</p>
+              <div className="signature-line-radfp"></div>
+              <p className="signature-name-radfp">_________________________</p>
+            </div>
           </div>
+          <div className="date-field-radfp">
+            <p>Data: {dataAssinatura || "____/____/________"}</p>
+          </div>
+        </section>
+
+        <footer className="page-footer-radfp">
+          <span>Página 2/2</span>
         </footer>
       </div>
     </div>
