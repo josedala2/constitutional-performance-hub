@@ -616,6 +616,15 @@ export default function ConsultaAvaliacoes() {
           comentarioAvaliado="Concordo com a avaliação efectuada e comprometo-me a trabalhar nas áreas identificadas para melhoria."
           conclusaoEncaminhamentos="O avaliado atingiu os objectivos propostos de forma satisfatória. Recomenda-se a progressão na carreira conforme regulamento aplicável."
           dataAssinatura={new Date().toLocaleDateString('pt-PT')}
+          historicoAvaliacoes={userEvaluations.map(ev => ({
+            ciclo: `${new Date(ev.data_avaliacao).getFullYear()} - ${new Date(ev.data_avaliacao).getMonth() < 6 ? '1º' : '2º'} Semestre`,
+            tipo: ev.tipo || 'superior',
+            avaliador: getEvaluatorName(ev.avaliador_id),
+            data: new Date(ev.data_avaliacao).toLocaleDateString('pt-PT'),
+            naf: ev.nota_final,
+            classificacao: getQualitativeGrade(ev.nota_final).label,
+            estado: ev.estado || 'Submetida'
+          }))}
         />
       )}
     </div>

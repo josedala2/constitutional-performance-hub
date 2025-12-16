@@ -16,6 +16,16 @@ interface CompetencyData {
   pontuacao?: number;
 }
 
+interface HistoricoAvaliacaoData {
+  ciclo: string;
+  tipo: string;
+  avaliador: string;
+  data: string;
+  naf: number;
+  classificacao: string;
+  estado: string;
+}
+
 interface RelatorioAvaliacaoOficialProps {
   nomeAvaliado: string;
   avaliador: string;
@@ -33,7 +43,36 @@ interface RelatorioAvaliacaoOficialProps {
   comentarioAvaliado: string;
   conclusaoEncaminhamentos: string;
   dataAssinatura: string;
+  historicoAvaliacoes?: HistoricoAvaliacaoData[];
 }
+
+const getClassificacaoClass = (classificacao: string) => {
+  switch (classificacao.toLowerCase()) {
+    case 'muito bom':
+      return 'badge-muito-bom';
+    case 'bom':
+      return 'badge-bom';
+    case 'suficiente':
+      return 'badge-suficiente';
+    case 'insuficiente':
+      return 'badge-insuficiente';
+    default:
+      return 'badge-default';
+  }
+};
+
+const getEstadoClass = (estado: string) => {
+  switch (estado.toLowerCase()) {
+    case 'homologada':
+      return 'badge-homologada';
+    case 'submetida':
+      return 'badge-submetida';
+    case 'rascunho':
+      return 'badge-rascunho';
+    default:
+      return 'badge-default';
+  }
+};
 
 export function RelatorioAvaliacaoOficial({
   nomeAvaliado,
@@ -51,12 +90,55 @@ export function RelatorioAvaliacaoOficial({
   recomendacoesAvaliador,
   comentarioAvaliado,
   conclusaoEncaminhamentos,
-  dataAssinatura
+  dataAssinatura,
+  historicoAvaliacoes = []
 }: RelatorioAvaliacaoOficialProps) {
   const classificacoes = ["Muito Bom", "Bom", "Suficiente", "Insuficiente", "Mau"];
 
   return (
     <div className="hidden print:block print-report-radfp-continuous">
+      {/* HISTÓRICO DE AVALIAÇÕES */}
+      {historicoAvaliacoes.length > 0 && (
+        <section className="section-radfp historico-section">
+          <h2 className="section-title-radfp historico-title">Histórico de Avaliações</h2>
+          <p className="historico-subtitle">Todas as avaliações realizadas ao colaborador</p>
+          <table className="historico-table-radfp">
+            <thead>
+              <tr>
+                <th>Ciclo</th>
+                <th>Tipo</th>
+                <th>Avaliador</th>
+                <th>Data</th>
+                <th>NAF</th>
+                <th>Classificação</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {historicoAvaliacoes.map((hist, index) => (
+                <tr key={index}>
+                  <td className="historico-ciclo">{hist.ciclo}</td>
+                  <td className="historico-tipo">{hist.tipo}</td>
+                  <td className="historico-avaliador">{hist.avaliador}</td>
+                  <td className="historico-data">📅 {hist.data}</td>
+                  <td className="historico-naf">{hist.naf.toFixed(2)}</td>
+                  <td>
+                    <span className={`historico-badge ${getClassificacaoClass(hist.classificacao)}`}>
+                      {hist.classificacao}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`historico-badge ${getEstadoClass(hist.estado)}`}>
+                      ● {hist.estado}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
       {/* III. OBJECTIVOS DE DESEMPENHO */}
       <section className="section-radfp">
         <h2 className="section-title-radfp">III. OBJECTIVOS DE DESEMPENHO (até 60%)</h2>

@@ -1099,4 +1099,147 @@
     padding: 8pt 0;
     border-top: 0.5pt solid #ccc;
   }
+
+  /* ========== HISTÓRICO DE AVALIAÇÕES TABLE ========== */
+  .print-report-radfp-continuous .historico-section,
+  .print-report-radfp .historico-section {
+    margin-bottom: 16pt;
+  }
+
+  .print-report-radfp-continuous .historico-title,
+  .print-report-radfp .historico-title {
+    font-size: 12pt !important;
+    font-weight: 700 !important;
+    color: #1a365d !important;
+    border-bottom: none !important;
+    margin-bottom: 2pt !important;
+  }
+
+  .print-report-radfp-continuous .historico-subtitle,
+  .print-report-radfp .historico-subtitle {
+    font-size: 8pt !important;
+    color: #666 !important;
+    margin: 0 0 8pt 0;
+  }
+
+  .print-report-radfp-continuous .historico-table-radfp,
+  .print-report-radfp .historico-table-radfp {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 9pt !important;
+  }
+
+  .print-report-radfp-continuous .historico-table-radfp thead tr,
+  .print-report-radfp .historico-table-radfp thead tr {
+    border-bottom: 2pt solid #e2e8f0 !important;
+  }
+
+  .print-report-radfp-continuous .historico-table-radfp th,
+  .print-report-radfp .historico-table-radfp th {
+    background: transparent !important;
+    border: none !important;
+    padding: 6pt 8pt !important;
+    font-weight: 600;
+    font-size: 8pt !important;
+    text-align: left;
+    color: #64748b !important;
+    text-transform: uppercase;
+  }
+
+  .print-report-radfp-continuous .historico-table-radfp tbody tr,
+  .print-report-radfp .historico-table-radfp tbody tr {
+    border-bottom: 1pt solid #e2e8f0 !important;
+  }
+
+  .print-report-radfp-continuous .historico-table-radfp td,
+  .print-report-radfp .historico-table-radfp td {
+    border: none !important;
+    padding: 8pt !important;
+    vertical-align: middle;
+  }
+
+  .print-report-radfp-continuous .historico-ciclo,
+  .print-report-radfp .historico-ciclo {
+    font-weight: 600 !important;
+    color: #1e293b !important;
+  }
+
+  .print-report-radfp-continuous .historico-tipo,
+  .print-report-radfp .historico-tipo {
+    color: #64748b !important;
+    font-style: italic;
+  }
+
+  .print-report-radfp-continuous .historico-avaliador,
+  .print-report-radfp .historico-avaliador {
+    color: #334155 !important;
+  }
+
+  .print-report-radfp-continuous .historico-data,
+  .print-report-radfp .historico-data {
+    color: #64748b !important;
+  }
+
+  .print-report-radfp-continuous .historico-naf,
+  .print-report-radfp .historico-naf {
+    font-weight: 700 !important;
+    color: #1e40af !important;
+  }
+
+  .print-report-radfp-continuous .historico-badge,
+  .print-report-radfp .historico-badge {
+    display: inline-block;
+    padding: 2pt 8pt;
+    border-radius: 10pt;
+    font-size: 8pt !important;
+    font-weight: 600;
+  }
+
+  .print-report-radfp-continuous .badge-muito-bom,
+  .print-report-radfp .badge-muito-bom {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+  }
+
+  .print-report-radfp-continuous .badge-bom,
+  .print-report-radfp .badge-bom {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+  }
+
+  .print-report-radfp-continuous .badge-suficiente,
+  .print-report-radfp .badge-suficiente {
+    background: #fef9c3 !important;
+    color: #854d0e !important;
+  }
+
+  .print-report-radfp-continuous .badge-insuficiente,
+  .print-report-radfp .badge-insuficiente {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+  }
+
+  .print-report-radfp-continuous .badge-default,
+  .print-report-radfp .badge-default {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+  }
+
+  .print-report-radfp-continuous .badge-homologada,
+  .print-report-radfp .badge-homologada {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+  }
+
+  .print-report-radfp-continuous .badge-submetida,
+  .print-report-radfp .badge-submetida {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+  }
+
+  .print-report-radfp-continuous .badge-rascunho,
+  .print-report-radfp .badge-rascunho {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+  }
 }
