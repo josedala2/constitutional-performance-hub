@@ -584,19 +584,8 @@ export default function ConsultaAvaliacoes() {
       {/* Official Print Report - RADFP Model */}
       {selectedUser && (
         <RelatorioAvaliacaoOficial
-          ano={new Date().getFullYear().toString()}
-          semestre={new Date().getMonth() < 6 ? "1º" : "2º"}
-          orgaoServico="Tribunal de Contas"
-          areaDepartamento={selectedUser.unidade_organica}
-          categoriaCarreira={selectedUser.carreira}
           nomeAvaliado={selectedUser.nome}
-          funcaoExercida={selectedUser.cargo}
-          dataInicioFuncao="01/01/2020"
           avaliador={userEvaluations[0] ? getEvaluatorName(userEvaluations[0].avaliador_id) : "N/A"}
-          funcaoAvaliador="Dirigente"
-          tipoAvaliacao="Avaliação Ordinária"
-          modeloAplicado="Modelo RADFP"
-          periodoAvaliado={`01/01/${new Date().getFullYear()} a ${new Date().toLocaleDateString('pt-PT')}`}
           objectivos={userObjectives.map(obj => ({
             id: obj.id,
             descricao: obj.descricao,
