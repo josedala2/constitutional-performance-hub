@@ -684,4 +684,40 @@
     margin-bottom: 8pt;
     page-break-after: avoid !important;
   }
+
+  /* Official RADFP Report Styles */
+  .print-report-oficial {
+    display: block !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  .print-report-oficial h1 {
+    font-family: 'Crimson Pro', serif !important;
+    font-size: 14pt !important;
+    font-weight: 700 !important;
+  }
+
+  .print-report-oficial h2 {
+    font-family: 'Source Sans 3', sans-serif !important;
+    font-size: 10pt !important;
+    font-weight: 700 !important;
+  }
+
+  .print-report-oficial table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 8pt !important;
+  }
+
+  .print-report-oficial table th,
+  .print-report-oficial table td {
+    border: 1px solid #666 !important;
+    padding: 3pt 5pt !important;
+  }
+
+  .print-report-oficial .break-before-page {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
 }
