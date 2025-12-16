@@ -1111,9 +1111,9 @@
 
   .print-report-radfp-continuous .header-logo-radfp,
   .print-report-radfp .header-logo-radfp {
-    height: 70px !important;
+    height: 90px !important;
     width: auto !important;
-    margin-bottom: 10pt;
+    margin-bottom: 12pt;
   }
 
   .print-report-radfp-continuous .header-title-radfp,
