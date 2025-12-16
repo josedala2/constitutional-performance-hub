@@ -1,4 +1,5 @@
 import React from "react";
+import tribunalLogo from "@/assets/tribunal-logo.png";
 
 interface ObjectiveData {
   id: string;
@@ -97,6 +98,13 @@ export function RelatorioAvaliacaoOficial({
 
   return (
     <div className="hidden print:block print-report-radfp-continuous">
+      {/* CABEÇALHO OFICIAL */}
+      <header className="official-header-radfp">
+        <img src={tribunalLogo} alt="Tribunal de Contas" className="header-logo-radfp" />
+        <h1 className="header-title-radfp">RELATÓRIO GERAL DE AVALIAÇÃO DE DESEMPENHO</h1>
+        <p className="header-subtitle-radfp">(Nos termos do RADFP – Decreto Presidencial n.º 173/25)</p>
+      </header>
+
       {/* HISTÓRICO DE AVALIAÇÕES */}
       {historicoAvaliacoes.length > 0 && (
         <section className="section-radfp historico-section">
