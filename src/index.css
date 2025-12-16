@@ -1384,4 +1384,306 @@
     font-size: 8pt !important;
     color: #a0aec0 !important;
   }
+
+  /* ===== COMPACT PAGE 1 STYLES ===== */
+  
+  /* Compact Header with Logo */
+  .print-report-oficial .report-header-compact {
+    display: flex;
+    align-items: center;
+    gap: 12pt;
+    padding-bottom: 8pt;
+    margin-bottom: 10pt;
+    border-bottom: 2pt solid #1a365d;
+  }
+
+  .print-report-oficial .header-logo-main {
+    height: 50px !important;
+    width: auto !important;
+  }
+
+  .print-report-oficial .header-titles {
+    flex: 1;
+  }
+
+  .print-report-oficial .header-institution {
+    font-family: 'Crimson Pro', 'Times New Roman', serif !important;
+    font-size: 14pt !important;
+    font-weight: 700 !important;
+    color: #1a365d !important;
+    letter-spacing: 1.5pt;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .print-report-oficial .header-country {
+    font-family: 'Crimson Pro', 'Times New Roman', serif !important;
+    font-size: 10pt !important;
+    font-weight: 500 !important;
+    color: #4a5568 !important;
+    letter-spacing: 0.5pt;
+    margin: 0;
+  }
+
+  /* Compact Document Title */
+  .print-report-oficial .document-title-compact {
+    text-align: center;
+    margin-bottom: 12pt;
+    padding: 6pt 0;
+    border-bottom: 1pt solid #e2e8f0;
+  }
+
+  .print-report-oficial .doc-title {
+    font-family: 'Crimson Pro', 'Times New Roman', serif !important;
+    font-size: 12pt !important;
+    font-weight: 700 !important;
+    color: #1a365d !important;
+    margin: 0 0 2pt 0;
+    text-transform: uppercase;
+    letter-spacing: 1pt;
+  }
+
+  .print-report-oficial .doc-reference {
+    font-size: 8pt !important;
+    color: #718096 !important;
+    margin: 0;
+  }
+
+  /* Compact Section */
+  .print-report-oficial .report-section-compact {
+    margin-bottom: 10pt;
+    page-break-inside: avoid !important;
+  }
+
+  .print-report-oficial .section-header-line {
+    display: flex;
+    align-items: center;
+    gap: 6pt;
+    background: #1a365d;
+    padding: 3pt 8pt;
+    margin-bottom: 0;
+  }
+
+  .print-report-oficial .section-num {
+    font-family: 'Crimson Pro', serif !important;
+    font-size: 10pt !important;
+    font-weight: 700;
+    color: #c9a227 !important;
+  }
+
+  .print-report-oficial .section-txt {
+    font-size: 8pt !important;
+    font-weight: 600;
+    color: white !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+  }
+
+  /* Data Table */
+  .print-report-oficial .data-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 9pt !important;
+    border: 0.5pt solid #cbd5e0;
+  }
+
+  .print-report-oficial .data-table td {
+    padding: 4pt 6pt !important;
+    border: 0.5pt solid #cbd5e0 !important;
+    vertical-align: middle;
+  }
+
+  .print-report-oficial .data-table .label-cell {
+    background: #f7fafc;
+    font-size: 8pt !important;
+    font-weight: 600;
+    color: #4a5568 !important;
+    width: 20%;
+    text-transform: uppercase;
+    letter-spacing: 0.2pt;
+  }
+
+  .print-report-oficial .data-table .value-cell {
+    font-size: 9pt !important;
+    color: #1a1a1a !important;
+    font-weight: 500;
+  }
+
+  /* NAF Summary Compact */
+  .print-report-oficial .naf-summary-compact {
+    display: flex;
+    justify-content: center;
+    gap: 16pt;
+    padding: 10pt;
+    background: #f8fafc;
+    border: 0.5pt solid #cbd5e0;
+    border-top: none;
+  }
+
+  .print-report-oficial .naf-box {
+    text-align: center;
+    padding: 8pt 16pt;
+    background: #1a365d;
+    color: white !important;
+    border: 2pt solid #c9a227;
+    min-width: 80pt;
+  }
+
+  .print-report-oficial .naf-box .naf-label {
+    font-size: 7pt !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+    color: white !important;
+    display: block;
+    margin-bottom: 2pt;
+  }
+
+  .print-report-oficial .naf-box .naf-value {
+    font-size: 20pt !important;
+    font-weight: 700;
+    color: #c9a227 !important;
+    display: block;
+  }
+
+  .print-report-oficial .naf-classification-box {
+    text-align: center;
+    padding: 8pt 16pt;
+    background: white;
+    border: 1pt solid #1a365d;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .print-report-oficial .naf-class-label {
+    font-size: 7pt !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3pt;
+    color: #718096 !important;
+    display: block;
+    margin-bottom: 2pt;
+  }
+
+  .print-report-oficial .naf-class-value {
+    font-size: 12pt !important;
+    font-weight: 700;
+    color: #1a365d !important;
+    display: block;
+  }
+
+  /* History Table Compact */
+  .print-report-oficial .history-table-compact {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 8pt !important;
+    border: 0.5pt solid #cbd5e0;
+    border-top: none;
+  }
+
+  .print-report-oficial .history-table-compact th {
+    background: #2d4a6f !important;
+    color: white !important;
+    padding: 4pt 4pt !important;
+    text-align: center;
+    font-weight: 600;
+    font-size: 7pt !important;
+    text-transform: uppercase;
+    letter-spacing: 0.2pt;
+    border: 0.5pt solid #1a365d !important;
+  }
+
+  .print-report-oficial .history-table-compact td {
+    padding: 3pt 4pt !important;
+    border: 0.5pt solid #cbd5e0 !important;
+    text-align: center;
+    font-size: 8pt !important;
+  }
+
+  .print-report-oficial .history-table-compact .naf-cell {
+    font-weight: 700;
+    color: #1a365d !important;
+  }
+
+  .print-report-oficial .history-table-compact .empty-cell {
+    color: #a0aec0 !important;
+    font-style: italic;
+    padding: 8pt !important;
+  }
+
+  .print-report-oficial .class-tag {
+    display: inline-block;
+    padding: 1pt 4pt;
+    border-radius: 2pt;
+    font-size: 7pt !important;
+    font-weight: 600;
+  }
+
+  .print-report-oficial .class-tag.muito-bom {
+    background: #c6f6d5;
+    color: #22543d !important;
+  }
+
+  .print-report-oficial .class-tag.bom {
+    background: #b2f5ea;
+    color: #234e52 !important;
+  }
+
+  .print-report-oficial .class-tag.suficiente {
+    background: #fefcbf;
+    color: #744210 !important;
+  }
+
+  .print-report-oficial .class-tag.insuficiente {
+    background: #fed7aa;
+    color: #7b341e !important;
+  }
+
+  .print-report-oficial .class-tag.mau {
+    background: #fed7d7;
+    color: #822727 !important;
+  }
+
+  .print-report-oficial .status-tag {
+    display: inline-block;
+    padding: 1pt 4pt;
+    border-radius: 2pt;
+    font-size: 7pt !important;
+    font-weight: 500;
+  }
+
+  .print-report-oficial .status-tag.homologada {
+    background: #c6f6d5;
+    color: #22543d !important;
+  }
+
+  .print-report-oficial .status-tag.submetida {
+    background: #bee3f8;
+    color: #2a4365 !important;
+  }
+
+  .print-report-oficial .status-tag.em_curso {
+    background: #fefcbf;
+    color: #744210 !important;
+  }
+
+  /* Page Footer Compact */
+  .print-report-oficial .page-footer-compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16pt;
+    padding-top: 6pt;
+    border-top: 1pt solid #e2e8f0;
+  }
+
+  .print-report-oficial .page-footer-compact .page-num {
+    font-size: 8pt !important;
+    color: #718096 !important;
+    font-weight: 600;
+  }
+
+  .print-report-oficial .page-footer-compact .page-ref {
+    font-size: 7pt !important;
+    color: #a0aec0 !important;
+  }
 }
