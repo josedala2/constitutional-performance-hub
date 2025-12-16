@@ -22,16 +22,22 @@ import {
   Clock,
   AlertCircle,
   ArrowLeft,
-  Printer
+  Printer,
+  Download
 } from "lucide-react";
 import { mockUsers, mockCycles, mockObjectives, mockCompetencies, mockEvaluations, mockEmployeeSummaries } from "@/data/mockData";
 import { PrintHeader } from "@/components/print/PrintHeader";
 import { PrintFooter } from "@/components/print/PrintFooter";
 import { PrintSignatures } from "@/components/print/PrintSignatures";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { toast } from "sonner";
 
 export default function ConsultaAvaliacoes() {
   const navigate = useNavigate();
   const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [isExporting, setIsExporting] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const selectedUser = mockUsers.find(u => u.id === selectedUserId);
   
@@ -90,6 +96,50 @@ export default function ConsultaAvaliacoes() {
     window.print();
   };
 
+  const handleExportPDF = async () => {
+    if (!reportRef.current || !selectedUser) return;
+    
+    setIsExporting(true);
+    toast.info("A gerar PDF...");
+    
+    try {
+      const element = reportRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10;
+      
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      
+      const fileName = `Relatorio_Avaliacao_${selectedUser.nome.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+      
+      toast.success("PDF exportado com sucesso!");
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+      toast.error("Erro ao exportar PDF");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -106,10 +156,16 @@ export default function ConsultaAvaliacoes() {
           </div>
         </div>
         {selectedUser && (
-          <Button onClick={handlePrint} className="gap-2">
-            <Printer className="h-4 w-4" />
-            Imprimir Relatório
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handlePrint} className="gap-2">
+              <Printer className="h-4 w-4" />
+              Imprimir
+            </Button>
+            <Button onClick={handleExportPDF} disabled={isExporting} className="gap-2">
+              <Download className="h-4 w-4" />
+              {isExporting ? "A exportar..." : "Exportar PDF"}
+            </Button>
+          </div>
         )}
       </div>
 
@@ -160,9 +216,9 @@ export default function ConsultaAvaliacoes() {
         </div>
       )}
 
-      {/* User Profile & Stats */}
+      {/* User Profile & Stats - Wrapped in ref for PDF export */}
       {selectedUser && (
-        <>
+        <div ref={reportRef} className="space-y-6 bg-background p-4 print:p-0">
           <div className="grid gap-6 md:grid-cols-4">
             {/* Profile Card */}
             <Card className="md:col-span-1">
@@ -531,7 +587,7 @@ export default function ConsultaAvaliacoes() {
               </Card>
             </TabsContent>
           </Tabs>
-        </>
+        </div>
       )}
 
       {/* Empty State */}
