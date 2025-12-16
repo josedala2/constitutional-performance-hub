@@ -689,35 +689,501 @@
   .print-report-oficial {
     display: block !important;
     background: white !important;
-    color: black !important;
+    color: #1a1a1a !important;
+    font-family: 'Source Sans 3', 'Arial', sans-serif !important;
+    font-size: 9pt !important;
+    line-height: 1.4 !important;
   }
 
-  .print-report-oficial h1 {
-    font-family: 'Crimson Pro', serif !important;
+  .print-report-oficial .report-page {
+    page-break-after: always !important;
+    break-after: page !important;
+    padding: 0 !important;
+  }
+
+  .print-report-oficial .report-page:last-child {
+    page-break-after: avoid !important;
+  }
+
+  .print-report-oficial .page-break {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  /* Header Styles */
+  .print-report-oficial .report-header {
+    text-align: center;
+    margin-bottom: 16pt;
+    padding-bottom: 12pt;
+    border-bottom: 3pt double #1a365d;
+  }
+
+  .print-report-oficial .header-emblem {
+    margin-bottom: 6pt;
+  }
+
+  .print-report-oficial .emblem-img {
+    height: 60px !important;
+    width: auto !important;
+    margin: 0 auto;
+  }
+
+  .print-report-oficial .institution-name {
+    font-family: 'Crimson Pro', 'Times New Roman', serif !important;
+    font-size: 16pt !important;
+    font-weight: 700 !important;
+    color: #1a365d !important;
+    letter-spacing: 2pt;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .print-report-oficial .country-name {
+    font-family: 'Crimson Pro', 'Times New Roman', serif !important;
+    font-size: 11pt !important;
+    font-weight: 600 !important;
+    color: #2d4a6f !important;
+    letter-spacing: 1pt;
+    margin: 2pt 0 0 0;
+  }
+
+  .print-report-oficial .header-divider {
+    width: 80pt;
+    height: 2pt;
+    background: linear-gradient(90deg, transparent, #c9a227, transparent);
+    margin: 8pt auto 0;
+  }
+
+  /* Document Title */
+  .print-report-oficial .document-title-section {
+    text-align: center;
+    margin-bottom: 14pt;
+    padding: 8pt;
+    background: #f8f9fa;
+    border: 1pt solid #dee2e6;
+  }
+
+  .print-report-oficial .document-title {
+    font-family: 'Crimson Pro', 'Times New Roman', serif !important;
     font-size: 14pt !important;
     font-weight: 700 !important;
+    color: #1a365d !important;
+    margin: 0 0 2pt 0;
+    text-transform: uppercase;
+    letter-spacing: 1pt;
   }
 
-  .print-report-oficial h2 {
-    font-family: 'Source Sans 3', sans-serif !important;
+  .print-report-oficial .document-subtitle {
     font-size: 10pt !important;
-    font-weight: 700 !important;
+    color: #4a5568 !important;
+    margin: 0 0 4pt 0;
+    font-weight: 500;
   }
 
-  .print-report-oficial table {
+  .print-report-oficial .legal-reference {
+    font-size: 8pt !important;
+    color: #718096 !important;
+    font-style: italic;
+    margin: 0;
+  }
+
+  /* Section Styles */
+  .print-report-oficial .report-section {
+    margin-bottom: 10pt;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .print-report-oficial .report-section-header {
+    background: #1a365d;
+    color: white !important;
+    padding: 4pt 8pt;
+    margin-bottom: 6pt;
+    font-weight: 700;
+    font-size: 9pt;
+    display: flex;
+    align-items: center;
+    gap: 6pt;
+  }
+
+  .print-report-oficial .section-number {
+    font-family: 'Crimson Pro', serif !important;
+    font-size: 11pt !important;
+    font-weight: 700;
+    color: #c9a227 !important;
+  }
+
+  .print-report-oficial .section-title {
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+  }
+
+  /* Field Boxes */
+  .print-report-oficial .fields-grid {
+    display: grid;
+    gap: 4pt;
+    margin-bottom: 4pt;
+  }
+
+  .print-report-oficial .fields-grid.cols-1 { grid-template-columns: 1fr; }
+  .print-report-oficial .fields-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .print-report-oficial .fields-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .print-report-oficial .field-box {
+    border: 0.5pt solid #cbd5e0;
+    padding: 4pt 6pt;
+    background: white;
+  }
+
+  .print-report-oficial .field-box.highlight {
+    background: #f7fafc;
+    border-color: #1a365d;
+  }
+
+  .print-report-oficial .field-label {
+    display: block;
+    font-size: 7pt !important;
+    color: #4a5568 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3pt;
+    margin-bottom: 1pt;
+  }
+
+  .print-report-oficial .field-value {
+    display: block;
+    font-size: 9pt !important;
+    color: #1a1a1a !important;
+    font-weight: 500;
+  }
+
+  /* Tables */
+  .print-report-oficial .report-table {
     width: 100% !important;
     border-collapse: collapse !important;
     font-size: 8pt !important;
   }
 
-  .print-report-oficial table th,
-  .print-report-oficial table td {
-    border: 1px solid #666 !important;
-    padding: 3pt 5pt !important;
+  .print-report-oficial .report-table th {
+    background: #2d4a6f !important;
+    color: white !important;
+    padding: 4pt 6pt !important;
+    text-align: left;
+    font-weight: 600;
+    font-size: 7pt !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3pt;
+    border: 0.5pt solid #1a365d !important;
   }
 
-  .print-report-oficial .break-before-page {
-    page-break-before: always !important;
-    break-before: page !important;
+  .print-report-oficial .report-table th.col-center,
+  .print-report-oficial .report-table th.col-score {
+    text-align: center;
+  }
+
+  .print-report-oficial .report-table td {
+    padding: 4pt 6pt !important;
+    border: 0.5pt solid #cbd5e0 !important;
+    vertical-align: top;
+  }
+
+  .print-report-oficial .report-table td.text-center {
+    text-align: center;
+  }
+
+  .print-report-oficial .report-table td.score-cell {
+    font-weight: 700;
+    color: #1a365d !important;
+  }
+
+  .print-report-oficial .report-table .empty-row {
+    color: #a0aec0 !important;
+    font-style: italic;
+    padding: 8pt !important;
+  }
+
+  /* Competencies Grid */
+  .print-report-oficial .competencies-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3pt;
+  }
+
+  .print-report-oficial .competency-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3pt 6pt;
+    background: #f7fafc;
+    border: 0.5pt solid #e2e8f0;
+  }
+
+  .print-report-oficial .competency-name {
+    font-size: 8pt !important;
+  }
+
+  .print-report-oficial .competency-score {
+    font-weight: 700;
+    color: #1a365d !important;
+    font-size: 9pt !important;
+  }
+
+  /* NAF Section */
+  .print-report-oficial .naf-section {
+    page-break-inside: avoid !important;
+  }
+
+  .print-report-oficial .naf-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) 1.2fr;
+    gap: 4pt;
+  }
+
+  .print-report-oficial .naf-component {
+    text-align: center;
+    padding: 6pt;
+    background: #f7fafc;
+    border: 0.5pt solid #cbd5e0;
+  }
+
+  .print-report-oficial .naf-label {
+    display: block;
+    font-size: 7pt !important;
+    color: #4a5568 !important;
+    text-transform: uppercase;
+    margin-bottom: 2pt;
+  }
+
+  .print-report-oficial .naf-value {
+    display: block;
+    font-size: 14pt !important;
+    font-weight: 700;
+    color: #1a365d !important;
+  }
+
+  .print-report-oficial .naf-weight {
+    display: block;
+    font-size: 7pt !important;
+    color: #718096 !important;
+  }
+
+  .print-report-oficial .naf-final {
+    text-align: center;
+    padding: 6pt;
+    background: #1a365d;
+    color: white !important;
+    border: 2pt solid #c9a227;
+  }
+
+  .print-report-oficial .naf-final-label {
+    display: block;
+    font-size: 8pt !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+    margin-bottom: 2pt;
+  }
+
+  .print-report-oficial .naf-final-value {
+    display: block;
+    font-size: 18pt !important;
+    font-weight: 700;
+    color: #c9a227 !important;
+  }
+
+  /* Classification Section */
+  .print-report-oficial .classification-grid {
+    display: flex;
+    justify-content: center;
+    gap: 6pt;
+  }
+
+  .print-report-oficial .classification-item {
+    display: flex;
+    align-items: center;
+    gap: 4pt;
+    padding: 4pt 8pt;
+    border: 0.5pt solid #cbd5e0;
+    background: white;
+    min-width: 70pt;
+  }
+
+  .print-report-oficial .classification-item.active {
+    background: #1a365d;
+    color: white !important;
+    border-color: #1a365d;
+  }
+
+  .print-report-oficial .classification-checkbox {
+    width: 10pt;
+    height: 10pt;
+    border: 0.5pt solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8pt !important;
+    font-weight: 700;
+  }
+
+  .print-report-oficial .classification-label {
+    font-size: 8pt !important;
+    font-weight: 500;
+  }
+
+  /* Continuation Header */
+  .print-report-oficial .continuation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 6pt;
+    margin-bottom: 12pt;
+    border-bottom: 1pt solid #1a365d;
+  }
+
+  .print-report-oficial .continuation-title {
+    display: block;
+    font-size: 10pt !important;
+    font-weight: 600;
+    color: #1a365d !important;
+  }
+
+  .print-report-oficial .continuation-name {
+    display: block;
+    font-size: 8pt !important;
+    color: #4a5568 !important;
+  }
+
+  .print-report-oficial .continuation-right {
+    font-size: 8pt !important;
+    color: #718096 !important;
+  }
+
+  /* Descriptive Blocks */
+  .print-report-oficial .descriptive-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6pt;
+  }
+
+  .print-report-oficial .descriptive-item {
+    border: 0.5pt solid #cbd5e0;
+  }
+
+  .print-report-oficial .descriptive-label {
+    background: #f7fafc;
+    padding: 3pt 6pt;
+    margin: 0;
+    font-size: 8pt !important;
+    font-weight: 600;
+    color: #2d4a6f !important;
+    border-bottom: 0.5pt solid #e2e8f0;
+  }
+
+  .print-report-oficial .descriptive-content {
+    padding: 6pt;
+    min-height: 30pt;
+    font-size: 9pt !important;
+    line-height: 1.5;
+  }
+
+  /* Self Assessment & Conclusion */
+  .print-report-oficial .self-assessment-box,
+  .print-report-oficial .conclusion-box {
+    border: 0.5pt solid #cbd5e0;
+    padding: 8pt;
+    min-height: 40pt;
+    font-size: 9pt !important;
+    line-height: 1.5;
+  }
+
+  /* Signatures Section */
+  .print-report-oficial .signatures-section {
+    margin-top: 16pt !important;
+  }
+
+  .print-report-oficial .signatures-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16pt;
+    margin-top: 20pt;
+  }
+
+  .print-report-oficial .signature-block {
+    text-align: center;
+  }
+
+  .print-report-oficial .signature-line {
+    border-bottom: 1pt solid #1a365d;
+    height: 40pt;
+    margin-bottom: 4pt;
+  }
+
+  .print-report-oficial .signature-role {
+    font-size: 8pt !important;
+    font-weight: 600;
+    color: #1a365d !important;
+    margin: 0 0 2pt 0;
+  }
+
+  .print-report-oficial .signature-name {
+    font-size: 7pt !important;
+    color: #4a5568 !important;
+    margin: 0 0 2pt 0;
+  }
+
+  .print-report-oficial .signature-date {
+    font-size: 7pt !important;
+    color: #718096 !important;
+    margin: 0;
+  }
+
+  .print-report-oficial .seal-area {
+    text-align: center;
+    margin-top: 16pt;
+    padding: 12pt;
+    border: 1pt dashed #cbd5e0;
+    width: 80pt;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .print-report-oficial .seal-label {
+    font-size: 7pt !important;
+    color: #a0aec0 !important;
+    margin: 0;
+  }
+
+  /* Footer */
+  .print-report-oficial .report-footer {
+    margin-top: auto;
+    padding-top: 8pt;
+  }
+
+  .print-report-oficial .footer-line {
+    height: 2pt;
+    background: linear-gradient(90deg, #1a365d, #c9a227, #1a365d);
+    margin-bottom: 6pt;
+  }
+
+  .print-report-oficial .footer-content {
+    text-align: center;
+  }
+
+  .print-report-oficial .footer-institution {
+    font-size: 8pt !important;
+    font-weight: 600;
+    color: #1a365d !important;
+    margin: 0 0 2pt 0;
+    letter-spacing: 0.5pt;
+  }
+
+  .print-report-oficial .footer-system {
+    font-size: 7pt !important;
+    color: #4a5568 !important;
+    margin: 0 0 2pt 0;
+  }
+
+  .print-report-oficial .footer-reference {
+    font-size: 6pt !important;
+    color: #a0aec0 !important;
+    margin: 0;
   }
 }

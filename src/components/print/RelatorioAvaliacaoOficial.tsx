@@ -78,260 +78,271 @@ export function RelatorioAvaliacaoOficial({
 }: RelatorioAvaliacaoOficialProps) {
   const classificacoes = ["Muito Bom", "Bom", "Suficiente", "Insuficiente", "Mau"];
 
+  const SectionHeader = ({ number, title }: { number: string; title: string }) => (
+    <div className="report-section-header">
+      <span className="section-number">{number}.</span>
+      <span className="section-title">{title}</span>
+    </div>
+  );
+
+  const FieldBox = ({ label, value, className = "" }: { label: string; value: string; className?: string }) => (
+    <div className={`field-box ${className}`}>
+      <span className="field-label">{label}</span>
+      <span className="field-value">{value || "—"}</span>
+    </div>
+  );
+
   return (
-    <div className="hidden print:block print-report-oficial bg-white text-black p-8 text-sm">
-      {/* Header */}
-      <div className="flex items-center justify-center mb-6 border-b-2 border-black pb-4">
-        <div className="flex items-center gap-4">
-          <img src={tribunalLogo} alt="Logo" className="h-16 w-auto" />
-          <div className="text-center">
-            <p className="text-xs font-semibold">TRIBUNAL DE CONTAS</p>
-            <p className="text-xs">REPÚBLICA DE ANGOLA</p>
+    <div className="hidden print:block print-report-oficial">
+      {/* ========== PAGE 1 ========== */}
+      <div className="report-page">
+        {/* Official Header with Coat of Arms styling */}
+        <header className="report-header">
+          <div className="header-emblem">
+            <img src={tribunalLogo} alt="Emblema" className="emblem-img" />
           </div>
-        </div>
-      </div>
+          <div className="header-text">
+            <p className="institution-name">TRIBUNAL DE CONTAS</p>
+            <p className="country-name">REPÚBLICA DE ANGOLA</p>
+            <div className="header-divider"></div>
+          </div>
+        </header>
 
-      {/* Title */}
-      <h1 className="text-center text-lg font-bold mb-1">
-        FICHA / RELATÓRIO GERAL DE AVALIAÇÃO DE DESEMPENHO
-      </h1>
-      <p className="text-center text-xs mb-6 italic">
-        (Nos termos do RADFP – Decreto Presidencial n.º 173/25)
-      </p>
+        {/* Document Title */}
+        <div className="document-title-section">
+          <h1 className="document-title">FICHA DE AVALIAÇÃO DE DESEMPENHO</h1>
+          <p className="document-subtitle">Relatório Geral de Avaliação</p>
+          <p className="legal-reference">(Nos termos do RADFP – Decreto Presidencial n.º 173/25)</p>
+        </div>
 
-      {/* Section I - Identificação Geral */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">I. IDENTIFICAÇÃO GERAL</h2>
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Ano: </span>{ano}
+        {/* Section I - Identificação Geral */}
+        <section className="report-section">
+          <SectionHeader number="I" title="IDENTIFICAÇÃO GERAL" />
+          <div className="fields-grid cols-3">
+            <FieldBox label="Ano" value={ano} />
+            <FieldBox label="Semestre" value={semestre} />
+            <FieldBox label="Órgão/Serviço" value={orgaoServico} />
           </div>
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Semestre: </span>{semestre}
+          <div className="fields-grid cols-1">
+            <FieldBox label="Área/Departamento" value={areaDepartamento} />
           </div>
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Órgão/Serviço: </span>{orgaoServico}
+          <div className="fields-grid cols-2">
+            <FieldBox label="Nome do Avaliado" value={nomeAvaliado} className="highlight" />
+            <FieldBox label="Categoria/Carreira" value={categoriaCarreira} />
           </div>
-        </div>
-        <div className="grid grid-cols-1 gap-2 text-xs mt-2">
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Área/Departamento: </span>{areaDepartamento}
+          <div className="fields-grid cols-2">
+            <FieldBox label="Função Exercida" value={funcaoExercida} />
+            <FieldBox label="Data de Início na Função" value={dataInicioFuncao} />
           </div>
-        </div>
-        <div className="grid grid-cols-3 gap-2 text-xs mt-2">
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Categoria/Carreira: </span>{categoriaCarreira}
+          <div className="fields-grid cols-2">
+            <FieldBox label="Avaliador (Superior Hierárquico)" value={avaliador} />
+            <FieldBox label="Função do Avaliador" value={funcaoAvaliador} />
           </div>
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Nome do Avaliado: </span>{nomeAvaliado}
-          </div>
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Função Exercida: </span>{funcaoExercida}
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-2 text-xs mt-2">
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Data de Início na Função: </span>{dataInicioFuncao}
-          </div>
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Avaliador: </span>{avaliador}
-          </div>
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Função do Avaliador: </span>{funcaoAvaliador}
-          </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Section II - Enquadramento */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">II. ENQUADRAMENTO DA AVALIAÇÃO</h2>
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Tipo de Avaliação: </span>{tipoAvaliacao}
+        {/* Section II - Enquadramento */}
+        <section className="report-section">
+          <SectionHeader number="II" title="ENQUADRAMENTO DA AVALIAÇÃO" />
+          <div className="fields-grid cols-3">
+            <FieldBox label="Tipo de Avaliação" value={tipoAvaliacao} />
+            <FieldBox label="Modelo Aplicado" value={modeloAplicado} />
+            <FieldBox label="Período Avaliado" value={periodoAvaliado} />
           </div>
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Modelo Aplicado: </span>{modeloAplicado}
-          </div>
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Período Avaliado: </span>{periodoAvaliado}
-          </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Section III - Objectivos */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">III. OBJECTIVOS DE DESEMPENHO (até 60%)</h2>
-        <table className="w-full text-xs border-collapse">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-400 p-1 text-left">Objectivo</th>
-              <th className="border border-gray-400 p-1 text-center w-20">Meta</th>
-              <th className="border border-gray-400 p-1 text-center w-20">Indicador</th>
-              <th className="border border-gray-400 p-1 text-center w-16">Planeado</th>
-              <th className="border border-gray-400 p-1 text-center w-16">Realizado</th>
-              <th className="border border-gray-400 p-1 text-center w-16">Pontuação</th>
-            </tr>
-          </thead>
-          <tbody>
-            {objectivos.map((obj, index) => (
-              <tr key={obj.id}>
-                <td className="border border-gray-400 p-1">{index + 1}. {obj.descricao}</td>
-                <td className="border border-gray-400 p-1 text-center">{obj.meta || "-"}</td>
-                <td className="border border-gray-400 p-1 text-center">{obj.indicador || "-"}</td>
-                <td className="border border-gray-400 p-1 text-center">{obj.planeado || "-"}</td>
-                <td className="border border-gray-400 p-1 text-center">{obj.realizado || "-"}</td>
-                <td className="border border-gray-400 p-1 text-center">{obj.pontuacao?.toFixed(1) || "-"}</td>
+        {/* Section III - Objectivos */}
+        <section className="report-section">
+          <SectionHeader number="III" title="OBJECTIVOS DE DESEMPENHO (Ponderação: 60%)" />
+          <table className="report-table">
+            <thead>
+              <tr>
+                <th className="col-desc">Objectivo</th>
+                <th className="col-center">Meta</th>
+                <th className="col-center">Indicador</th>
+                <th className="col-center">Planeado</th>
+                <th className="col-center">Realizado</th>
+                <th className="col-center col-score">Pontuação</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {objectivos.length > 0 ? objectivos.map((obj, index) => (
+                <tr key={obj.id}>
+                  <td>{index + 1}. {obj.descricao}</td>
+                  <td className="text-center">{obj.meta || "—"}</td>
+                  <td className="text-center">{obj.indicador || "—"}</td>
+                  <td className="text-center">{obj.planeado || "—"}</td>
+                  <td className="text-center">{obj.realizado || "—"}</td>
+                  <td className="text-center score-cell">{obj.pontuacao?.toFixed(1) || "—"}</td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={6} className="text-center empty-row">Sem objectivos registados</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
 
-      {/* Section IV - Competências Transversais */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">IV. COMPETÊNCIAS TRANSVERSAIS (até 20%)</h2>
-        <table className="w-full text-xs border-collapse">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-400 p-1 text-left">Competência</th>
-              <th className="border border-gray-400 p-1 text-center w-20">Pontuação</th>
-            </tr>
-          </thead>
-          <tbody>
+        {/* Section IV - Competências Transversais */}
+        <section className="report-section">
+          <SectionHeader number="IV" title="COMPETÊNCIAS TRANSVERSAIS (Ponderação: 20%)" />
+          <div className="competencies-grid">
             {competenciasTransversais.map((comp) => (
-              <tr key={comp.id}>
-                <td className="border border-gray-400 p-1">{comp.nome}</td>
-                <td className="border border-gray-400 p-1 text-center">{comp.pontuacao?.toFixed(1) || "-"}</td>
-              </tr>
+              <div key={comp.id} className="competency-item">
+                <span className="competency-name">{comp.nome}</span>
+                <span className="competency-score">{comp.pontuacao?.toFixed(1) || "—"}</span>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </section>
 
-      {/* Section V - Competências Técnicas */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">V. COMPETÊNCIAS ESPECÍFICAS / TÉCNICAS (até 20%)</h2>
-        <table className="w-full text-xs border-collapse">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-400 p-1 text-left">Competência</th>
-              <th className="border border-gray-400 p-1 text-center w-20">Pontuação</th>
-            </tr>
-          </thead>
-          <tbody>
+        {/* Section V - Competências Técnicas */}
+        <section className="report-section">
+          <SectionHeader number="V" title="COMPETÊNCIAS ESPECÍFICAS/TÉCNICAS (Ponderação: 20%)" />
+          <div className="competencies-grid">
             {competenciasTecnicas.map((comp) => (
-              <tr key={comp.id}>
-                <td className="border border-gray-400 p-1">{comp.nome}</td>
-                <td className="border border-gray-400 p-1 text-center">{comp.pontuacao?.toFixed(1) || "-"}</td>
-              </tr>
+              <div key={comp.id} className="competency-item">
+                <span className="competency-name">{comp.nome}</span>
+                <span className="competency-score">{comp.pontuacao?.toFixed(1) || "—"}</span>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </section>
 
-      {/* Section VI - Nota Final */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">VI. NOTA FINAL DE AVALIAÇÃO</h2>
-        <div className="grid grid-cols-4 gap-2 text-xs">
-          <div className="border border-gray-400 p-2 text-center">
-            <span className="font-semibold block">Objectivos</span>
-            <span className="text-lg font-bold">{notaObjectivos.toFixed(1)}</span>
-          </div>
-          <div className="border border-gray-400 p-2 text-center">
-            <span className="font-semibold block">Comp. Transversais</span>
-            <span className="text-lg font-bold">{notaCompetenciasTransversais.toFixed(1)}</span>
-          </div>
-          <div className="border border-gray-400 p-2 text-center">
-            <span className="font-semibold block">Comp. Técnicas</span>
-            <span className="text-lg font-bold">{notaCompetenciasTecnicas.toFixed(1)}</span>
-          </div>
-          <div className="border border-gray-400 p-2 text-center bg-gray-100">
-            <span className="font-semibold block">Nota Final (NFA)</span>
-            <span className="text-xl font-bold">{notaFinal.toFixed(2)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Section VII - Classificação Qualitativa */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">VII. CLASSIFICAÇÃO QUALITATIVA FINAL</h2>
-        <div className="flex justify-center gap-4 text-xs">
-          {classificacoes.map((c) => (
-            <div 
-              key={c} 
-              className={`border border-gray-400 px-3 py-2 ${classificacaoQualitativa === c ? 'bg-gray-300 font-bold' : ''}`}
-            >
-              {c}
+        {/* Section VI - Nota Final */}
+        <section className="report-section naf-section">
+          <SectionHeader number="VI" title="NOTA FINAL DE AVALIAÇÃO (NFA)" />
+          <div className="naf-grid">
+            <div className="naf-component">
+              <span className="naf-label">Objectivos</span>
+              <span className="naf-value">{notaObjectivos.toFixed(2)}</span>
+              <span className="naf-weight">60%</span>
             </div>
-          ))}
-        </div>
+            <div className="naf-component">
+              <span className="naf-label">Comp. Transversais</span>
+              <span className="naf-value">{notaCompetenciasTransversais.toFixed(2)}</span>
+              <span className="naf-weight">20%</span>
+            </div>
+            <div className="naf-component">
+              <span className="naf-label">Comp. Técnicas</span>
+              <span className="naf-value">{notaCompetenciasTecnicas.toFixed(2)}</span>
+              <span className="naf-weight">20%</span>
+            </div>
+            <div className="naf-final">
+              <span className="naf-final-label">NOTA FINAL</span>
+              <span className="naf-final-value">{notaFinal.toFixed(2)}</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Section VII - Classificação Qualitativa */}
+        <section className="report-section classification-section">
+          <SectionHeader number="VII" title="CLASSIFICAÇÃO QUALITATIVA FINAL" />
+          <div className="classification-grid">
+            {classificacoes.map((c) => (
+              <div 
+                key={c} 
+                className={`classification-item ${classificacaoQualitativa === c ? 'active' : ''}`}
+              >
+                <span className="classification-checkbox">{classificacaoQualitativa === c ? '✓' : ''}</span>
+                <span className="classification-label">{c}</span>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
 
-      {/* Page break for second page */}
-      <div className="break-before-page"></div>
+      {/* ========== PAGE 2 ========== */}
+      <div className="report-page page-break">
+        {/* Continuation Header */}
+        <header className="continuation-header">
+          <div className="continuation-left">
+            <span className="continuation-title">Ficha de Avaliação de Desempenho</span>
+            <span className="continuation-name">{nomeAvaliado}</span>
+          </div>
+          <div className="continuation-right">
+            <span>Página 2/2</span>
+          </div>
+        </header>
 
-      {/* Section VIII - Análise Descritiva */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">VIII. ANÁLISE DESCRITIVA DO AVALIADOR</h2>
-        <div className="space-y-2 text-xs">
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Pontos fortes: </span>
-            <p className="mt-1">{pontosFortesAvaliador || "—"}</p>
+        {/* Section VIII - Análise Descritiva */}
+        <section className="report-section">
+          <SectionHeader number="VIII" title="ANÁLISE DESCRITIVA DO AVALIADOR" />
+          <div className="descriptive-block">
+            <div className="descriptive-item">
+              <h4 className="descriptive-label">Pontos Fortes:</h4>
+              <div className="descriptive-content">
+                {pontosFortesAvaliador || "—"}
+              </div>
+            </div>
+            <div className="descriptive-item">
+              <h4 className="descriptive-label">Aspectos a Melhorar:</h4>
+              <div className="descriptive-content">
+                {aspectosMelhorarAvaliador || "—"}
+              </div>
+            </div>
+            <div className="descriptive-item">
+              <h4 className="descriptive-label">Recomendações:</h4>
+              <div className="descriptive-content">
+                {recomendacoesAvaliador || "—"}
+              </div>
+            </div>
           </div>
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Aspectos a melhorar: </span>
-            <p className="mt-1">{aspectosMelhorarAvaliador || "—"}</p>
-          </div>
-          <div className="border border-gray-400 p-2">
-            <span className="font-semibold">Recomendações: </span>
-            <p className="mt-1">{recomendacoesAvaliador || "—"}</p>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Section IX - Autoavaliação */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">IX. AUTOAVALIAÇÃO DO AVALIADO</h2>
-        <div className="border border-gray-400 p-2 text-xs min-h-[60px]">
-          <span className="font-semibold">Comentário do avaliado: </span>
-          <p className="mt-1">{comentarioAvaliado || "—"}</p>
-        </div>
-      </div>
-
-      {/* Section X - Conclusão */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">X. CONCLUSÃO E ENCAMINHAMENTOS</h2>
-        <div className="border border-gray-400 p-2 text-xs min-h-[60px]">
-          <p>{conclusaoEncaminhamentos || "—"}</p>
-        </div>
-      </div>
-
-      {/* Section XI - Assinaturas */}
-      <div className="mb-4">
-        <h2 className="font-bold text-sm bg-gray-200 px-2 py-1 mb-2">XI. ASSINATURAS</h2>
-        <div className="grid grid-cols-3 gap-4 text-xs mt-4">
-          <div className="text-center">
-            <div className="border-b border-black mb-1 h-12"></div>
-            <p className="font-semibold">Avaliador</p>
+        {/* Section IX - Autoavaliação */}
+        <section className="report-section">
+          <SectionHeader number="IX" title="AUTOAVALIAÇÃO DO AVALIADO" />
+          <div className="self-assessment-box">
+            <p className="self-assessment-text">{comentarioAvaliado || "—"}</p>
           </div>
-          <div className="text-center">
-            <div className="border-b border-black mb-1 h-12"></div>
-            <p className="font-semibold">Avaliado</p>
-          </div>
-          <div className="text-center">
-            <div className="border-b border-black mb-1 h-12"></div>
-            <p className="font-semibold">Responsável pela Homologação</p>
-          </div>
-        </div>
-        <div className="text-center mt-4 text-xs">
-          <span className="font-semibold">Data: </span>{dataAssinatura}
-        </div>
-      </div>
+        </section>
 
-      {/* Footer */}
-      <div className="mt-8 pt-4 border-t border-gray-400 text-center text-xs">
-        <p>Tribunal de Contas de Angola - Sistema de Gestão de Avaliação de Desempenho</p>
-        <p className="text-gray-600">Documento gerado automaticamente pelo SGAD - Ref: RADFP/2025</p>
+        {/* Section X - Conclusão */}
+        <section className="report-section">
+          <SectionHeader number="X" title="CONCLUSÃO E ENCAMINHAMENTOS" />
+          <div className="conclusion-box">
+            <p>{conclusaoEncaminhamentos || "—"}</p>
+          </div>
+        </section>
+
+        {/* Section XI - Assinaturas */}
+        <section className="report-section signatures-section">
+          <SectionHeader number="XI" title="ASSINATURAS E HOMOLOGAÇÃO" />
+          <div className="signatures-grid">
+            <div className="signature-block">
+              <div className="signature-line"></div>
+              <p className="signature-role">O Avaliador</p>
+              <p className="signature-name">{avaliador}</p>
+              <p className="signature-date">Data: ____/____/________</p>
+            </div>
+            <div className="signature-block">
+              <div className="signature-line"></div>
+              <p className="signature-role">O Avaliado</p>
+              <p className="signature-name">{nomeAvaliado}</p>
+              <p className="signature-date">Data: ____/____/________</p>
+            </div>
+            <div className="signature-block">
+              <div className="signature-line"></div>
+              <p className="signature-role">Homologação</p>
+              <p className="signature-name">O Dirigente Máximo</p>
+              <p className="signature-date">Data: ____/____/________</p>
+            </div>
+          </div>
+          <div className="seal-area">
+            <p className="seal-label">(Carimbo)</p>
+          </div>
+        </section>
+
+        {/* Official Footer */}
+        <footer className="report-footer">
+          <div className="footer-line"></div>
+          <div className="footer-content">
+            <p className="footer-institution">TRIBUNAL DE CONTAS DA REPÚBLICA DE ANGOLA</p>
+            <p className="footer-system">Sistema de Gestão de Avaliação de Desempenho (SGAD)</p>
+            <p className="footer-reference">Ref: RADFP/{ano} | Gerado em: {dataAssinatura}</p>
+          </div>
+        </footer>
       </div>
     </div>
   );
