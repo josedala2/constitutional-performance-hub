@@ -197,7 +197,7 @@ export default function ConsultaAvaliacoes() {
       {/* User Profile & Stats - Wrapped in ref for PDF export */}
       {selectedUser && (
         <div ref={reportRef} className="space-y-6 bg-background p-4 print:p-0">
-          <div className="grid gap-6 md:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-4 print:hidden">
             {/* Profile Card */}
             <Card className="md:col-span-1">
               <CardContent className="pt-6">
@@ -279,7 +279,7 @@ export default function ConsultaAvaliacoes() {
           </div>
 
           {/* Detailed Tabs */}
-          <Tabs defaultValue="avaliacoes" className="space-y-4">
+          <Tabs defaultValue="avaliacoes" className="space-y-4 print:hidden">
             <TabsList className="grid w-full grid-cols-4 max-w-2xl">
               <TabsTrigger value="avaliacoes" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
