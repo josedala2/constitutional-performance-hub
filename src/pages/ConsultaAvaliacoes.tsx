@@ -26,9 +26,7 @@ import {
   Download
 } from "lucide-react";
 import { mockUsers, mockCycles, mockObjectives, mockCompetencies, mockEvaluations, mockEmployeeSummaries } from "@/data/mockData";
-import { PrintHeader } from "@/components/print/PrintHeader";
-import { PrintFooter } from "@/components/print/PrintFooter";
-import { PrintSignatures } from "@/components/print/PrintSignatures";
+import { RelatorioAvaliacaoOficial } from "@/components/print/RelatorioAvaliacaoOficial";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
@@ -169,11 +167,6 @@ export default function ConsultaAvaliacoes() {
         )}
       </div>
 
-      {/* Print Header - only visible when printing */}
-      <div className="hidden print:block">
-        <PrintHeader title="RELATÓRIO DE AVALIAÇÃO DE DESEMPENHO" />
-      </div>
-
       {/* Selector - hidden when printing */}
       <Card className="print:hidden">
         <CardHeader>
@@ -200,21 +193,6 @@ export default function ConsultaAvaliacoes() {
           </Select>
         </CardContent>
       </Card>
-
-      {/* Print-only: Collaborator Info Section */}
-      {selectedUser && (
-        <div className="hidden print:block border rounded-lg p-6 mb-6">
-          <h2 className="font-serif text-xl font-bold mb-4 border-b pb-2">DADOS DO COLABORADOR</h2>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div><strong>Nome:</strong> {selectedUser.nome}</div>
-            <div><strong>Cargo:</strong> {selectedUser.cargo}</div>
-            <div><strong>Carreira:</strong> {selectedUser.carreira}</div>
-            <div><strong>Unidade Orgânica:</strong> {selectedUser.unidade_organica}</div>
-            <div><strong>Email:</strong> {selectedUser.email}</div>
-            <div><strong>NAF Médio:</strong> {averageNAF.toFixed(2)} - {getQualitativeGrade(averageNAF).label}</div>
-          </div>
-        </div>
-      )}
 
       {/* User Profile & Stats - Wrapped in ref for PDF export */}
       {selectedUser && (
@@ -603,18 +581,53 @@ export default function ConsultaAvaliacoes() {
         </Card>
       )}
 
-      {/* Print Footer */}
+      {/* Official Print Report - RADFP Model */}
       {selectedUser && (
-        <div className="hidden print:block mt-8">
-          <PrintSignatures 
-            signatures={[
-              { name: selectedUser.nome, label: "Avaliado(a)" },
-              { name: "________________________", label: "Avaliador(a)" },
-              { name: "________________________", label: "Dirigente" }
-            ]}
-          />
-          <PrintFooter documentCode="SGAD-RAD-001" />
-        </div>
+        <RelatorioAvaliacaoOficial
+          ano={new Date().getFullYear().toString()}
+          semestre={new Date().getMonth() < 6 ? "1º" : "2º"}
+          orgaoServico="Tribunal de Contas"
+          areaDepartamento={selectedUser.unidade_organica}
+          categoriaCarreira={selectedUser.carreira}
+          nomeAvaliado={selectedUser.nome}
+          funcaoExercida={selectedUser.cargo}
+          dataInicioFuncao="01/01/2020"
+          avaliador={userEvaluations[0] ? getEvaluatorName(userEvaluations[0].avaliador_id) : "N/A"}
+          funcaoAvaliador="Dirigente"
+          tipoAvaliacao="Avaliação Ordinária"
+          modeloAplicado="Modelo RADFP"
+          periodoAvaliado={`01/01/${new Date().getFullYear()} a ${new Date().toLocaleDateString('pt-PT')}`}
+          objectivos={userObjectives.map(obj => ({
+            id: obj.id,
+            descricao: obj.descricao,
+            meta: obj.meta_planeada?.toString(),
+            indicador: "Unidades",
+            planeado: obj.meta_planeada?.toString(),
+            realizado: obj.meta_realizada?.toString(),
+            pontuacao: obj.pontuacao
+          }))}
+          competenciasTransversais={mockCompetencies.filter(c => c.tipo === 'transversal').map(c => ({
+            id: c.id,
+            nome: c.nome,
+            pontuacao: userSummary?.competencias_transversais_media || 4.0
+          }))}
+          competenciasTecnicas={mockCompetencies.filter(c => c.tipo === 'tecnica').map(c => ({
+            id: c.id,
+            nome: c.nome,
+            pontuacao: userSummary?.competencias_tecnicas_media || 4.0
+          }))}
+          notaObjectivos={userSummary ? (userSummary.objetivos_individuais_media * 0.4 + userSummary.objetivos_equipa_media * 0.2) : 0}
+          notaCompetenciasTransversais={userSummary?.competencias_transversais_media || 0}
+          notaCompetenciasTecnicas={userSummary?.competencias_tecnicas_media || 0}
+          notaFinal={averageNAF}
+          classificacaoQualitativa={getQualitativeGrade(averageNAF).label}
+          pontosFortesAvaliador="Demonstra elevada dedicação e empenho nas tarefas atribuídas. Excelente capacidade de organização e gestão do tempo. Boa colaboração com os colegas."
+          aspectosMelhorarAvaliador="Desenvolver competências de comunicação escrita. Aprofundar conhecimentos técnicos específicos da área."
+          recomendacoesAvaliador="Frequentar formação em comunicação institucional. Participar em projectos transversais para ampliar experiência."
+          comentarioAvaliado="Concordo com a avaliação efectuada e comprometo-me a trabalhar nas áreas identificadas para melhoria."
+          conclusaoEncaminhamentos="O avaliado atingiu os objectivos propostos de forma satisfatória. Recomenda-se a progressão na carreira conforme regulamento aplicável."
+          dataAssinatura={new Date().toLocaleDateString('pt-PT')}
+        />
       )}
     </div>
   );
