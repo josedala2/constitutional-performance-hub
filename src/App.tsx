@@ -26,6 +26,7 @@ import RelatorioEntrePares from "./pages/relatorios/RelatorioEntrePares";
 import RelatorioUtentesInternos from "./pages/relatorios/RelatorioUtentesInternos";
 import RelatorioUtentesExternos from "./pages/relatorios/RelatorioUtentesExternos";
 import ProcessoAvaliacao from "./pages/ProcessoAvaliacao";
+import FluxogramaAvaliacao from "./pages/FluxogramaAvaliacao";
 import Auth from "./pages/Auth";
 import MeuPerfil from "./pages/MeuPerfil";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/relatorios/utentes-internos" element={<ProtectedRoute><RelatorioUtentesInternos /></ProtectedRoute>} />
             <Route path="/relatorios/utentes-externos" element={<ProtectedRoute><RelatorioUtentesExternos /></ProtectedRoute>} />
             <Route path="/processo" element={<ProtectedRoute><ProcessoAvaliacao /></ProtectedRoute>} />
+            <Route path="/fluxograma" element={<ProtectedRoute><FluxogramaAvaliacao /></ProtectedRoute>} />
             <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
             <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
             <Route path="/meu-perfil" element={<ProtectedRoute><MeuPerfil /></ProtectedRoute>} />
