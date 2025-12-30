@@ -18,6 +18,7 @@ import {
   Globe,
   ClipboardList,
   Workflow,
+  GitBranch,
   PanelLeftClose,
   PanelLeft,
   Shield,
@@ -105,6 +106,7 @@ const relatoriosSubmenu = [
 const navigation = [
   { name: "Painel Principal", href: "/", icon: LayoutDashboard },
   { name: "Processo de Avaliação", href: "/processo", icon: Workflow },
+  { name: "Fluxograma RADFP", href: "/fluxograma", icon: GitBranch },
   { name: "Ciclos de Avaliação", href: "/ciclos", icon: Calendar },
   { name: "Colaboradores", href: "/colaboradores", icon: Users },
   { name: "Consulta de Avaliações", href: "/consulta-avaliacoes", icon: Search },
