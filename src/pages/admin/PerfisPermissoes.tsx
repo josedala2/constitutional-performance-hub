@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,8 @@ import {
   Building2,
   ScrollText,
   Target,
-  Award
+  Award,
+  GripVertical
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -56,6 +57,13 @@ const MODULE_CONFIG: Record<string, { label: string; icon: React.ElementType }> 
   employees: { label: "Colaboradores", icon: Users },
   user_roles: { label: "Atribuição de Perfis", icon: UserCheck },
 };
+
+// Default module order
+const DEFAULT_MODULE_ORDER = [
+  "users", "roles", "permissions", "user_roles", "audit",
+  "evaluations", "objectives", "competencies", "cycles",
+  "reports", "documents", "org_units", "employees"
+];
 
 // Permission action columns
 const PERMISSION_ACTIONS = [
@@ -97,6 +105,10 @@ export default function PerfisPermissoes() {
   const [formData, setFormData] = useState({ name: "", description: "" });
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
+
+  const [moduleOrder, setModuleOrder] = useState<string[]>(DEFAULT_MODULE_ORDER);
+  const [draggedModule, setDraggedModule] = useState<string | null>(null);
+  const [dragOverModule, setDragOverModule] = useState<string | null>(null);
 
   const { data: roles, isLoading: isLoadingRoles } = useRoles();
   const createRole = useCreateRole();
@@ -198,6 +210,19 @@ export default function PerfisPermissoes() {
     return acc;
   }, {} as Record<string, Record<string, typeof permissions[0]>>);
 
+  // Get sorted modules based on moduleOrder
+  const sortedModules = groupedPermissions 
+    ? Object.keys(groupedPermissions).sort((a, b) => {
+        const indexA = moduleOrder.indexOf(a);
+        const indexB = moduleOrder.indexOf(b);
+        // If not in order array, put at the end
+        if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+      })
+    : [];
+
   const togglePermission = (permissionId: string) => {
     setSelectedPermissions(prev => {
       if (prev.includes(permissionId)) {
@@ -211,6 +236,66 @@ export default function PerfisPermissoes() {
   const isPermissionSelected = (permissionId: string) => {
     return selectedPermissions.includes(permissionId);
   };
+
+  // Drag and drop handlers
+  const handleDragStart = useCallback((e: React.DragEvent, module: string) => {
+    setDraggedModule(module);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", module);
+    // Add a custom drag image
+    const dragElement = e.currentTarget as HTMLElement;
+    if (dragElement) {
+      e.dataTransfer.setDragImage(dragElement, 20, 20);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, module: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (draggedModule && module !== draggedModule) {
+      setDragOverModule(module);
+    }
+  }, [draggedModule]);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverModule(null);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, targetModule: string) => {
+    e.preventDefault();
+    if (!draggedModule || draggedModule === targetModule) {
+      setDraggedModule(null);
+      setDragOverModule(null);
+      return;
+    }
+
+    setModuleOrder(prevOrder => {
+      const newOrder = [...prevOrder];
+      const draggedIndex = newOrder.indexOf(draggedModule);
+      const targetIndex = newOrder.indexOf(targetModule);
+
+      // If draggedModule is not in the order, add it
+      if (draggedIndex === -1) {
+        newOrder.splice(targetIndex, 0, draggedModule);
+      } else {
+        // Remove from old position and insert at new position
+        newOrder.splice(draggedIndex, 1);
+        const newTargetIndex = newOrder.indexOf(targetModule);
+        newOrder.splice(newTargetIndex, 0, draggedModule);
+      }
+
+      return newOrder;
+    });
+
+    setDraggedModule(null);
+    setDragOverModule(null);
+    toast.success("Ordem dos módulos atualizada");
+  }, [draggedModule]);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedModule(null);
+    setDragOverModule(null);
+  }, []);
 
   return (
     <AppLayout>
@@ -349,8 +434,9 @@ export default function PerfisPermissoes() {
                       {/* Permissions Matrix */}
                       <div className="border rounded-lg overflow-hidden">
                         {/* Matrix Header */}
-                        <div className="grid grid-cols-[1fr_repeat(5,80px)] bg-muted/50 border-b">
-                          <div className="p-3 font-medium text-sm"></div>
+                        <div className="grid grid-cols-[auto_1fr_repeat(5,80px)] bg-muted/50 border-b">
+                          <div className="p-3 w-8"></div>
+                          <div className="p-3 font-medium text-sm text-muted-foreground">Módulo</div>
                           {PERMISSION_ACTIONS.map((action) => {
                             const Icon = action.icon;
                             return (
@@ -372,44 +458,62 @@ export default function PerfisPermissoes() {
                             </div>
                           ) : (
                             <div>
-                              {groupedPermissions && Object.entries(groupedPermissions)
-                                .sort(([a], [b]) => (MODULE_CONFIG[a]?.label || a).localeCompare(MODULE_CONFIG[b]?.label || b))
-                                .map(([module, actions]) => {
-                                  const config = MODULE_CONFIG[module] || { label: module, icon: FileText };
-                                  const ModuleIcon = config.icon;
-                                  
-                                  return (
-                                    <div key={module} className="grid grid-cols-[1fr_repeat(5,80px)] border-b last:border-0 hover:bg-muted/30 transition-colors">
-                                      <div className="p-3 flex items-center gap-3">
-                                        <div className="p-1.5 rounded bg-muted">
-                                          <ModuleIcon className="h-4 w-4 text-muted-foreground" />
-                                        </div>
-                                        <span className="font-medium text-sm">{config.label}</span>
-                                      </div>
-                                      {PERMISSION_ACTIONS.map((action) => {
-                                        const permission = actions[action.key];
-                                        const hasPermission = permission && isPermissionSelected(permission.id);
-                                        
-                                        return (
-                                          <div key={action.key} className="p-3 flex items-center justify-center">
-                                            {permission ? (
-                                              <Checkbox
-                                                checked={hasPermission}
-                                                onCheckedChange={() => togglePermission(permission.id)}
-                                                className={cn(
-                                                  "h-5 w-5",
-                                                  hasPermission && "bg-primary border-primary text-primary-foreground"
-                                                )}
-                                              />
-                                            ) : (
-                                              <span className="text-muted-foreground">—</span>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
+                              {groupedPermissions && sortedModules.map((module) => {
+                                const actions = groupedPermissions[module];
+                                const config = MODULE_CONFIG[module] || { label: module, icon: FileText };
+                                const ModuleIcon = config.icon;
+                                const isDragging = draggedModule === module;
+                                const isDragOver = dragOverModule === module;
+                                
+                                return (
+                                  <div 
+                                    key={module} 
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, module)}
+                                    onDragOver={(e) => handleDragOver(e, module)}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => handleDrop(e, module)}
+                                    onDragEnd={handleDragEnd}
+                                    className={cn(
+                                      "grid grid-cols-[auto_1fr_repeat(5,80px)] border-b last:border-0 transition-all",
+                                      isDragging && "opacity-50 bg-muted",
+                                      isDragOver && "bg-primary/10 border-primary border-2",
+                                      !isDragging && !isDragOver && "hover:bg-muted/30"
+                                    )}
+                                  >
+                                    <div className="p-3 flex items-center cursor-grab active:cursor-grabbing">
+                                      <GripVertical className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground transition-colors" />
                                     </div>
-                                  );
-                                })}
+                                    <div className="p-3 flex items-center gap-3">
+                                      <div className="p-1.5 rounded bg-muted">
+                                        <ModuleIcon className="h-4 w-4 text-muted-foreground" />
+                                      </div>
+                                      <span className="font-medium text-sm">{config.label}</span>
+                                    </div>
+                                    {PERMISSION_ACTIONS.map((action) => {
+                                      const permission = actions[action.key];
+                                      const hasPermission = permission && isPermissionSelected(permission.id);
+                                      
+                                      return (
+                                        <div key={action.key} className="p-3 flex items-center justify-center">
+                                          {permission ? (
+                                            <Checkbox
+                                              checked={hasPermission}
+                                              onCheckedChange={() => togglePermission(permission.id)}
+                                              className={cn(
+                                                "h-5 w-5",
+                                                hasPermission && "bg-primary border-primary text-primary-foreground"
+                                              )}
+                                            />
+                                          ) : (
+                                            <span className="text-muted-foreground">—</span>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
                         </ScrollArea>
