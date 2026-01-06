@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,11 +18,9 @@ import {
   Pencil,
   Trash2,
   UserCheck,
-  Star,
   Download,
   Copy,
   AlertCircle,
-  Lock,
   Settings,
   ClipboardList,
   BarChart3,
@@ -30,7 +28,15 @@ import {
   ScrollText,
   Target,
   Award,
-  GripVertical
+  GripVertical,
+  Key,
+  User,
+  Bell,
+  Folder,
+  Calculator,
+  CheckCircle,
+  UserPlus,
+  Sparkles
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,38 +46,60 @@ import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { MODULES, ROLE_PERMISSIONS, type AppRole, type ModuleCode } from "@/config/permissions";
 
-// Module configuration with icons
-const MODULE_CONFIG: Record<string, { label: string; icon: React.ElementType }> = {
-  users: { label: "Utilizadores", icon: Users },
-  roles: { label: "Perfis", icon: Shield },
-  permissions: { label: "Permissões", icon: Settings },
-  audit: { label: "Auditoria", icon: ScrollText },
-  evaluations: { label: "Avaliações", icon: ClipboardList },
-  objectives: { label: "Objectivos", icon: Target },
-  competencies: { label: "Competências", icon: Award },
-  cycles: { label: "Ciclos", icon: BarChart3 },
-  reports: { label: "Relatórios", icon: FileText },
-  documents: { label: "Documentos", icon: FileText },
-  org_units: { label: "Unidades Orgânicas", icon: Building2 },
-  employees: { label: "Colaboradores", icon: Users },
-  user_roles: { label: "Atribuição de Perfis", icon: UserCheck },
+// Module configuration with icons based on MODULES from permissions.ts
+const MODULE_CONFIG: Record<string, { label: string; icon: React.ElementType; code: ModuleCode }> = {
+  M01: { label: "Autenticação e Conta", icon: Key, code: "M01" },
+  M02: { label: "Administração do Sistema", icon: Settings, code: "M02" },
+  M03: { label: "Estrutura Organizacional", icon: Building2, code: "M03" },
+  M04: { label: "Gestão de Utilizadores", icon: Users, code: "M04" },
+  M05: { label: "Ciclos de Avaliação", icon: BarChart3, code: "M05" },
+  M06: { label: "Catálogo de Competências", icon: Award, code: "M06" },
+  M07: { label: "Objectivos e Metas", icon: Target, code: "M07" },
+  M08: { label: "Acompanhamento Intermédio", icon: ClipboardList, code: "M08" },
+  M09: { label: "Avaliação Superior", icon: UserCheck, code: "M09" },
+  M10: { label: "Avaliação entre Pares", icon: Users, code: "M10" },
+  M11: { label: "Avaliação Utente Interno", icon: UserPlus, code: "M11" },
+  M12: { label: "Avaliação Utente Externo", icon: User, code: "M12" },
+  M13: { label: "Cálculo NAF e Classificação", icon: Calculator, code: "M13" },
+  M14: { label: "Homologação e Fecho", icon: CheckCircle, code: "M14" },
+  M15: { label: "Relatórios e Estatísticas", icon: FileText, code: "M15" },
+  M16: { label: "Auditoria e Logs", icon: ScrollText, code: "M16" },
+  M17: { label: "Gestão Documental", icon: Folder, code: "M17" },
+  M18: { label: "Notificações", icon: Bell, code: "M18" },
 };
 
-// Default module order
-const DEFAULT_MODULE_ORDER = [
-  "users", "roles", "permissions", "user_roles", "audit",
-  "evaluations", "objectives", "competencies", "cycles",
-  "reports", "documents", "org_units", "employees"
+// Default module order based on MODULES
+const DEFAULT_MODULE_ORDER: ModuleCode[] = [
+  "M01", "M02", "M03", "M04", "M05", "M06", 
+  "M07", "M08", "M09", "M10", "M11", "M12",
+  "M13", "M14", "M15", "M16", "M17", "M18"
 ];
 
-// Permission action columns
+// Role name to AppRole mapping
+const ROLE_NAME_MAP: Record<string, AppRole> = {
+  "ADMIN": "admin",
+  "DIRIGENTE": "dirigente", 
+  "AVALIADOR": "avaliador",
+  "AVALIADO": "avaliado",
+  "UTENTE_INTERNO": "utente_interno",
+  "UTENTE_EXTERNO": "utente_externo",
+  // Lowercase variants
+  "admin": "admin",
+  "dirigente": "dirigente",
+  "avaliador": "avaliador",
+  "avaliado": "avaliado",
+  "utente_interno": "utente_interno",
+  "utente_externo": "utente_externo",
+};
+
+// Permission action columns - mapped to permissions.ts actions
 const PERMISSION_ACTIONS = [
-  { key: "read", label: "VER", icon: Eye },
+  { key: "view", label: "VER", icon: Eye },
   { key: "create", label: "CRIAR", icon: Plus },
   { key: "update", label: "EDITAR", icon: Pencil },
   { key: "delete", label: "ELIMINAR", icon: Trash2 },
-  { key: "assign", label: "ATRIBUIR", icon: UserCheck },
 ];
 
 function RoleUsersCount({ roleId }: { roleId: string }) {
@@ -106,9 +134,9 @@ export default function PerfisPermissoes() {
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const [moduleOrder, setModuleOrder] = useState<string[]>(DEFAULT_MODULE_ORDER);
-  const [draggedModule, setDraggedModule] = useState<string | null>(null);
-  const [dragOverModule, setDragOverModule] = useState<string | null>(null);
+  const [moduleOrder, setModuleOrder] = useState<ModuleCode[]>(DEFAULT_MODULE_ORDER);
+  const [draggedModule, setDraggedModule] = useState<ModuleCode | null>(null);
+  const [dragOverModule, setDragOverModule] = useState<ModuleCode | null>(null);
 
   const { data: roles, isLoading: isLoadingRoles } = useRoles();
   const createRole = useCreateRole();
@@ -118,6 +146,32 @@ export default function PerfisPermissoes() {
   const updateRolePermissions = useUpdateRolePermissions();
 
   const selectedRole = roles?.find(r => r.id === selectedRoleId);
+
+  // Get permissions matrix based on role configuration from permissions.ts
+  const getPermissionsForRole = useCallback((roleName: string): Record<ModuleCode, string[]> => {
+    const normalizedName = roleName.toUpperCase().replace(/\s+/g, '_');
+    const appRole = ROLE_NAME_MAP[normalizedName] || ROLE_NAME_MAP[roleName.toLowerCase()];
+    
+    if (appRole && ROLE_PERMISSIONS[appRole]) {
+      return ROLE_PERMISSIONS[appRole].modules as Record<ModuleCode, string[]>;
+    }
+    
+    // Return empty permissions for unknown roles
+    return {} as Record<ModuleCode, string[]>;
+  }, []);
+
+  // Get configured permissions for selected role
+  const configuredPermissions = useMemo(() => {
+    if (!selectedRole) return {};
+    return getPermissionsForRole(selectedRole.name);
+  }, [selectedRole, getPermissionsForRole]);
+
+  // Check if a module has a specific action based on config
+  const hasConfiguredPermission = useCallback((moduleCode: ModuleCode, action: string): boolean => {
+    const modulePerms = configuredPermissions[moduleCode];
+    if (!modulePerms) return false;
+    return modulePerms.includes(action);
+  }, [configuredPermissions]);
 
   // Select first role by default
   useEffect(() => {
@@ -201,27 +255,10 @@ export default function PerfisPermissoes() {
     }
   };
 
-  // Group permissions by module for the matrix
-  const groupedPermissions = permissions?.reduce((acc, permission) => {
-    const module = permission.code.split(".")[0];
-    if (!acc[module]) acc[module] = {};
-    const action = permission.code.split(".")[1];
-    acc[module][action] = permission;
-    return acc;
-  }, {} as Record<string, Record<string, typeof permissions[0]>>);
-
-  // Get sorted modules based on moduleOrder
-  const sortedModules = groupedPermissions 
-    ? Object.keys(groupedPermissions).sort((a, b) => {
-        const indexA = moduleOrder.indexOf(a);
-        const indexB = moduleOrder.indexOf(b);
-        // If not in order array, put at the end
-        if (indexA === -1 && indexB === -1) return a.localeCompare(b);
-        if (indexA === -1) return 1;
-        if (indexB === -1) return -1;
-        return indexA - indexB;
-      })
-    : [];
+  // Get sorted modules based on moduleOrder - always show all modules from config
+  const sortedModules = useMemo(() => {
+    return [...moduleOrder];
+  }, [moduleOrder]);
 
   const togglePermission = (permissionId: string) => {
     setSelectedPermissions(prev => {
@@ -238,7 +275,7 @@ export default function PerfisPermissoes() {
   };
 
   // Drag and drop handlers
-  const handleDragStart = useCallback((e: React.DragEvent, module: string) => {
+  const handleDragStart = useCallback((e: React.DragEvent, module: ModuleCode) => {
     setDraggedModule(module);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", module);
@@ -249,7 +286,7 @@ export default function PerfisPermissoes() {
     }
   }, []);
 
-  const handleDragOver = useCallback((e: React.DragEvent, module: string) => {
+  const handleDragOver = useCallback((e: React.DragEvent, module: ModuleCode) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
     if (draggedModule && module !== draggedModule) {
@@ -261,7 +298,7 @@ export default function PerfisPermissoes() {
     setDragOverModule(null);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent, targetModule: string) => {
+  const handleDrop = useCallback((e: React.DragEvent, targetModule: ModuleCode) => {
     e.preventDefault();
     if (!draggedModule || draggedModule === targetModule) {
       setDraggedModule(null);
@@ -434,7 +471,7 @@ export default function PerfisPermissoes() {
                       {/* Permissions Matrix */}
                       <div className="border rounded-lg overflow-hidden">
                         {/* Matrix Header */}
-                        <div className="grid grid-cols-[auto_1fr_repeat(5,80px)] bg-muted/50 border-b">
+                        <div className="grid grid-cols-[auto_1fr_repeat(4,80px)] bg-muted/50 border-b">
                           <div className="p-3 w-8"></div>
                           <div className="p-3 font-medium text-sm text-muted-foreground">Módulo</div>
                           {PERMISSION_ACTIONS.map((action) => {
@@ -452,70 +489,73 @@ export default function PerfisPermissoes() {
 
                         {/* Matrix Rows */}
                         <ScrollArea className="h-[calc(100vh-480px)]">
-                          {isLoadingRolePermissions ? (
-                            <div className="text-center py-8 text-muted-foreground">
-                              A carregar permissões...
-                            </div>
-                          ) : (
-                            <div>
-                              {groupedPermissions && sortedModules.map((module) => {
-                                const actions = groupedPermissions[module];
-                                const config = MODULE_CONFIG[module] || { label: module, icon: FileText };
-                                const ModuleIcon = config.icon;
-                                const isDragging = draggedModule === module;
-                                const isDragOver = dragOverModule === module;
-                                
-                                return (
-                                  <div 
-                                    key={module} 
-                                    draggable
-                                    onDragStart={(e) => handleDragStart(e, module)}
-                                    onDragOver={(e) => handleDragOver(e, module)}
-                                    onDragLeave={handleDragLeave}
-                                    onDrop={(e) => handleDrop(e, module)}
-                                    onDragEnd={handleDragEnd}
-                                    className={cn(
-                                      "grid grid-cols-[auto_1fr_repeat(5,80px)] border-b last:border-0 transition-all",
-                                      isDragging && "opacity-50 bg-muted",
-                                      isDragOver && "bg-primary/10 border-primary border-2",
-                                      !isDragging && !isDragOver && "hover:bg-muted/30"
-                                    )}
-                                  >
-                                    <div className="p-3 flex items-center cursor-grab active:cursor-grabbing">
-                                      <GripVertical className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground transition-colors" />
-                                    </div>
-                                    <div className="p-3 flex items-center gap-3">
-                                      <div className="p-1.5 rounded bg-muted">
-                                        <ModuleIcon className="h-4 w-4 text-muted-foreground" />
-                                      </div>
-                                      <span className="font-medium text-sm">{config.label}</span>
-                                    </div>
-                                    {PERMISSION_ACTIONS.map((action) => {
-                                      const permission = actions[action.key];
-                                      const hasPermission = permission && isPermissionSelected(permission.id);
-                                      
-                                      return (
-                                        <div key={action.key} className="p-3 flex items-center justify-center">
-                                          {permission ? (
-                                            <Checkbox
-                                              checked={hasPermission}
-                                              onCheckedChange={() => togglePermission(permission.id)}
-                                              className={cn(
-                                                "h-5 w-5",
-                                                hasPermission && "bg-primary border-primary text-primary-foreground"
-                                              )}
-                                            />
-                                          ) : (
-                                            <span className="text-muted-foreground">—</span>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
+                          <div>
+                            {sortedModules.map((moduleCode) => {
+                              const config = MODULE_CONFIG[moduleCode];
+                              if (!config) return null;
+                              
+                              const ModuleIcon = config.icon;
+                              const isDragging = draggedModule === moduleCode;
+                              const isDragOver = dragOverModule === moduleCode;
+                              const hasAnyPermission = PERMISSION_ACTIONS.some(action => 
+                                hasConfiguredPermission(moduleCode, action.key)
+                              );
+                              
+                              return (
+                                <div 
+                                  key={moduleCode} 
+                                  draggable
+                                  onDragStart={(e) => handleDragStart(e, moduleCode)}
+                                  onDragOver={(e) => handleDragOver(e, moduleCode)}
+                                  onDragLeave={handleDragLeave}
+                                  onDrop={(e) => handleDrop(e, moduleCode)}
+                                  onDragEnd={handleDragEnd}
+                                  className={cn(
+                                    "grid grid-cols-[auto_1fr_repeat(4,80px)] border-b last:border-0 transition-all",
+                                    isDragging && "opacity-50 bg-muted",
+                                    isDragOver && "bg-primary/10 border-primary border-2",
+                                    !isDragging && !isDragOver && "hover:bg-muted/30",
+                                    !hasAnyPermission && "opacity-50"
+                                  )}
+                                >
+                                  <div className="p-3 flex items-center cursor-grab active:cursor-grabbing">
+                                    <GripVertical className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground transition-colors" />
                                   </div>
-                                );
-                              })}
-                            </div>
-                          )}
+                                  <div className="p-3 flex items-center gap-3">
+                                    <div className={cn(
+                                      "p-1.5 rounded",
+                                      hasAnyPermission ? "bg-primary/10" : "bg-muted"
+                                    )}>
+                                      <ModuleIcon className={cn(
+                                        "h-4 w-4",
+                                        hasAnyPermission ? "text-primary" : "text-muted-foreground"
+                                      )} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                      <span className="font-medium text-sm">{config.label}</span>
+                                      <span className="text-[10px] text-muted-foreground">{moduleCode}</span>
+                                    </div>
+                                  </div>
+                                  {PERMISSION_ACTIONS.map((action) => {
+                                    const hasPerm = hasConfiguredPermission(moduleCode, action.key);
+                                    
+                                    return (
+                                      <div key={action.key} className="p-3 flex items-center justify-center">
+                                        <Checkbox
+                                          checked={hasPerm}
+                                          disabled
+                                          className={cn(
+                                            "h-5 w-5",
+                                            hasPerm && "bg-primary border-primary text-primary-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                          )}
+                                        />
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </ScrollArea>
                       </div>
 
