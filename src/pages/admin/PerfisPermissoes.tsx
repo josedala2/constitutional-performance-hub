@@ -1,60 +1,70 @@
 import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRoles, useCreateRole, useUpdateRole, useRolePermissions, usePermissions, useUpdateRolePermissions, useRoleStats } from "@/hooks/useRoles";
-import { Plus, Edit, Shield, Search, CheckSquare, Square, Key, Users, Lock, Unlock, Trash2, Info } from "lucide-react";
+import { useRoles, useCreateRole, useUpdateRole, useRolePermissions, usePermissions, useUpdateRolePermissions } from "@/hooks/useRoles";
+import { 
+  Plus, 
+  Edit, 
+  Shield, 
+  Search, 
+  Users, 
+  FileText,
+  Eye,
+  Pencil,
+  Trash2,
+  UserCheck,
+  Star,
+  Download,
+  Copy,
+  AlertCircle,
+  Lock,
+  Settings,
+  ClipboardList,
+  BarChart3,
+  Building2,
+  ScrollText,
+  Target,
+  Award
+} from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
-const MODULE_LABELS: Record<string, string> = {
-  audit: "Auditoria",
-  competencies: "Competências",
-  cycles: "Ciclos de Avaliação",
-  documents: "Documentos",
-  employees: "Colaboradores",
-  evaluations: "Avaliações",
-  objectives: "Objectivos",
-  org_units: "Unidades Orgânicas",
-  permissions: "Permissões",
-  reports: "Relatórios",
-  roles: "Perfis",
-  user_roles: "Atribuição de Perfis",
-  users: "Utilizadores",
+// Module configuration with icons
+const MODULE_CONFIG: Record<string, { label: string; icon: React.ElementType }> = {
+  users: { label: "Utilizadores", icon: Users },
+  roles: { label: "Perfis", icon: Shield },
+  permissions: { label: "Permissões", icon: Settings },
+  audit: { label: "Auditoria", icon: ScrollText },
+  evaluations: { label: "Avaliações", icon: ClipboardList },
+  objectives: { label: "Objectivos", icon: Target },
+  competencies: { label: "Competências", icon: Award },
+  cycles: { label: "Ciclos", icon: BarChart3 },
+  reports: { label: "Relatórios", icon: FileText },
+  documents: { label: "Documentos", icon: FileText },
+  org_units: { label: "Unidades Orgânicas", icon: Building2 },
+  employees: { label: "Colaboradores", icon: Users },
+  user_roles: { label: "Atribuição de Perfis", icon: UserCheck },
 };
 
-const ACTION_LABELS: Record<string, { label: string; color: string }> = {
-  create: { label: "Criar", color: "bg-green-500/10 text-green-700 border-green-500/20" },
-  read: { label: "Visualizar", color: "bg-blue-500/10 text-blue-700 border-blue-500/20" },
-  update: { label: "Atualizar", color: "bg-amber-500/10 text-amber-700 border-amber-500/20" },
-  delete: { label: "Eliminar", color: "bg-red-500/10 text-red-700 border-red-500/20" },
-  disable: { label: "Desativar", color: "bg-orange-500/10 text-orange-700 border-orange-500/20" },
-  assign: { label: "Atribuir", color: "bg-purple-500/10 text-purple-700 border-purple-500/20" },
-};
-
-function RolePermissionCount({ roleId }: { roleId: string }) {
-  const { data: rolePermissions, isLoading } = useRolePermissions(roleId);
-  
-  if (isLoading) return <span className="text-muted-foreground text-sm">...</span>;
-  
-  const count = rolePermissions?.length || 0;
-  return (
-    <Badge variant="outline" className="font-mono">
-      {count}
-    </Badge>
-  );
-}
+// Permission action columns
+const PERMISSION_ACTIONS = [
+  { key: "read", label: "VER", icon: Eye },
+  { key: "create", label: "CRIAR", icon: Plus },
+  { key: "update", label: "EDITAR", icon: Pencil },
+  { key: "delete", label: "ELIMINAR", icon: Trash2 },
+  { key: "assign", label: "ATRIBUIR", icon: UserCheck },
+];
 
 function RoleUsersCount({ roleId }: { roleId: string }) {
   const { data, isLoading } = useQuery({
@@ -69,38 +79,46 @@ function RoleUsersCount({ roleId }: { roleId: string }) {
     },
   });
   
-  if (isLoading) return <span className="text-muted-foreground text-sm">...</span>;
-  
-  return (
-    <Badge variant="secondary" className="font-mono">
-      <Users className="h-3 w-3 mr-1" />
-      {data}
-    </Badge>
-  );
+  if (isLoading) return <span>...</span>;
+  return <>{data}</>;
+}
+
+function RolePermissionCount({ roleId }: { roleId: string }) {
+  const { data: rolePermissions, isLoading } = useRolePermissions(roleId);
+  if (isLoading) return <span>...</span>;
+  return <>{rolePermissions?.length || 0}</>;
 }
 
 export default function PerfisPermissoes() {
-  const [activeTab, setActiveTab] = useState("perfis");
   const [search, setSearch] = useState("");
-  const [permissionSearch, setPermissionSearch] = useState("");
+  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isPermissionsOpen, setIsPermissionsOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<any>(null);
   const [formData, setFormData] = useState({ name: "", description: "" });
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const { data: roles, isLoading: isLoadingRoles } = useRoles();
-  const { data: roleStats } = useRoleStats();
   const createRole = useCreateRole();
   const updateRole = useUpdateRole();
-  const { data: permissions, isLoading: isLoadingPermissions } = usePermissions();
-  const { data: rolePermissions, isLoading: isLoadingRolePermissions } = useRolePermissions(selectedRole?.id || "");
+  const { data: permissions } = usePermissions();
+  const { data: rolePermissions, isLoading: isLoadingRolePermissions } = useRolePermissions(selectedRoleId || "");
   const updateRolePermissions = useUpdateRolePermissions();
 
+  const selectedRole = roles?.find(r => r.id === selectedRoleId);
+
+  // Select first role by default
+  useEffect(() => {
+    if (roles?.length && !selectedRoleId) {
+      setSelectedRoleId(roles[0].id);
+    }
+  }, [roles, selectedRoleId]);
+
+  // Update selected permissions when role changes
   useEffect(() => {
     if (rolePermissions) {
       setSelectedPermissions(rolePermissions.map((p) => p.id));
+      setHasChanges(false);
     }
   }, [rolePermissions]);
 
@@ -110,17 +128,11 @@ export default function PerfisPermissoes() {
       role.description?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const filteredPermissions = permissions?.filter(
-    (permission) =>
-      permission.code.toLowerCase().includes(permissionSearch.toLowerCase()) ||
-      permission.description?.toLowerCase().includes(permissionSearch.toLowerCase())
-  );
-
   const handleCreate = async () => {
     try {
       await createRole.mutateAsync(formData);
       setIsCreateOpen(false);
-      resetForm();
+      setFormData({ name: "", description: "" });
     } catch (error: any) {
       // Error handled by hook
     }
@@ -131,83 +143,73 @@ export default function PerfisPermissoes() {
     try {
       await updateRole.mutateAsync({ id: selectedRole.id, data: formData });
       setIsEditOpen(false);
-      resetForm();
+      setFormData({ name: "", description: "" });
     } catch (error: any) {
       // Error handled by hook
     }
   };
 
   const handleSavePermissions = async () => {
-    if (!selectedRole) return;
+    if (!selectedRoleId) return;
     try {
       await updateRolePermissions.mutateAsync({
-        roleId: selectedRole.id,
+        roleId: selectedRoleId,
         permissionIds: selectedPermissions,
       });
-      setIsPermissionsOpen(false);
+      setHasChanges(false);
+      toast.success("Permissões guardadas com sucesso");
     } catch (error: any) {
       // Error handled by hook
     }
   };
 
-  const resetForm = () => {
-    setFormData({ name: "", description: "" });
-    setSelectedRole(null);
-  };
-
-  const openEdit = (role: any) => {
-    setSelectedRole(role);
-    setFormData({ name: role.name, description: role.description || "" });
+  const openEdit = () => {
+    if (!selectedRole) return;
+    setFormData({ name: selectedRole.name, description: selectedRole.description || "" });
     setIsEditOpen(true);
   };
 
-  const openPermissions = (role: any) => {
-    setSelectedRole(role);
-    setSelectedPermissions([]);
-    setIsPermissionsOpen(true);
+  const handleDuplicate = async () => {
+    if (!selectedRole) return;
+    try {
+      const newRole = await createRole.mutateAsync({
+        name: `${selectedRole.name} (Cópia)`,
+        description: selectedRole.description || "",
+      });
+      // Copy permissions
+      if (newRole && rolePermissions) {
+        await updateRolePermissions.mutateAsync({
+          roleId: newRole.id,
+          permissionIds: rolePermissions.map(p => p.id),
+        });
+      }
+      toast.success("Perfil duplicado com sucesso");
+    } catch (error) {
+      toast.error("Erro ao duplicar perfil");
+    }
   };
 
-  // Group permissions by module
+  // Group permissions by module for the matrix
   const groupedPermissions = permissions?.reduce((acc, permission) => {
     const module = permission.code.split(".")[0];
-    if (!acc[module]) acc[module] = [];
-    acc[module].push(permission);
+    if (!acc[module]) acc[module] = {};
+    const action = permission.code.split(".")[1];
+    acc[module][action] = permission;
     return acc;
-  }, {} as Record<string, typeof permissions>);
+  }, {} as Record<string, Record<string, typeof permissions[0]>>);
 
-  const groupedFilteredPermissions = filteredPermissions?.reduce((acc, permission) => {
-    const module = permission.code.split(".")[0];
-    if (!acc[module]) acc[module] = [];
-    acc[module].push(permission);
-    return acc;
-  }, {} as Record<string, typeof permissions>);
-
-  const selectAllInModule = (modulePermissions: typeof permissions) => {
-    const moduleIds = modulePermissions?.map(p => p.id) || [];
-    setSelectedPermissions(prev => [...new Set([...prev, ...moduleIds])]);
+  const togglePermission = (permissionId: string) => {
+    setSelectedPermissions(prev => {
+      if (prev.includes(permissionId)) {
+        return prev.filter(id => id !== permissionId);
+      }
+      return [...prev, permissionId];
+    });
+    setHasChanges(true);
   };
 
-  const deselectAllInModule = (modulePermissions: typeof permissions) => {
-    const moduleIds = modulePermissions?.map(p => p.id) || [];
-    setSelectedPermissions(prev => prev.filter(id => !moduleIds.includes(id)));
-  };
-
-  const selectAll = () => {
-    setSelectedPermissions(permissions?.map(p => p.id) || []);
-  };
-
-  const deselectAll = () => {
-    setSelectedPermissions([]);
-  };
-
-  const isModuleFullySelected = (modulePermissions: typeof permissions) => {
-    return modulePermissions?.every(p => selectedPermissions.includes(p.id)) || false;
-  };
-
-  const getActionInfo = (code: string) => {
-    const parts = code.split(".");
-    const action = parts[parts.length - 1];
-    return ACTION_LABELS[action] || { label: action, color: "bg-muted text-muted-foreground" };
+  const isPermissionSelected = (permissionId: string) => {
+    return selectedPermissions.includes(permissionId);
   };
 
   return (
@@ -215,293 +217,269 @@ export default function PerfisPermissoes() {
       <TooltipProvider>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold font-serif text-foreground">Perfis e Permissões</h1>
-              <p className="text-muted-foreground mt-1">
-                Configurar perfis de acesso e permissões do sistema
-              </p>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold font-serif text-foreground">Perfis e Permissões</h1>
+            <p className="text-muted-foreground mt-1">
+              Configurar perfis de acesso e permissões do sistema
+            </p>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-lg bg-primary/10">
-                    <Shield className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{roleStats?.totalRoles || 0}</p>
-                    <p className="text-sm text-muted-foreground">Perfis</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-lg bg-blue-500/10">
-                    <Key className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{roleStats?.totalPermissions || 0}</p>
-                    <p className="text-sm text-muted-foreground">Permissões</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-lg bg-amber-500/10">
-                    <Lock className="h-6 w-6 text-amber-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{roles?.filter(r => r.is_system).length || 0}</p>
-                    <p className="text-sm text-muted-foreground">Perfis de Sistema</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-lg bg-green-500/10">
-                    <Unlock className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{roles?.filter(r => !r.is_system).length || 0}</p>
-                    <p className="text-sm text-muted-foreground">Perfis Personalizados</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content with Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="perfis" className="gap-2">
-                <Shield className="h-4 w-4" />
-                Perfis de Acesso
-              </TabsTrigger>
-              <TabsTrigger value="permissoes" className="gap-2">
-                <Key className="h-4 w-4" />
-                Catálogo de Permissões
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Perfis Tab */}
-            <TabsContent value="perfis" className="mt-6">
-              <Card>
-                <CardHeader>
+          {/* Main Content - Split Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left Panel - Profiles List */}
+            <div className="lg:col-span-4">
+              <Card className="h-full">
+                <CardContent className="p-4 space-y-4">
+                  {/* Header with title and buttons */}
                   <div className="flex items-center justify-between">
-                    <div className="relative max-w-md">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Pesquisar perfis..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                    <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                      <DialogTrigger asChild>
-                        <Button>
-                          <Plus className="h-4 w-4 mr-2" />
-                          Novo Perfil
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Criar Perfil</DialogTitle>
-                          <DialogDescription>
-                            Crie um novo perfil de acesso com permissões personalizadas.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4 mt-4">
-                          <div className="space-y-2">
-                            <Label>Nome *</Label>
-                            <Input
-                              value={formData.name}
-                              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                              placeholder="Ex: GESTOR"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Descrição</Label>
-                            <Textarea
-                              value={formData.description}
-                              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                              placeholder="Descrição do perfil"
-                            />
-                          </div>
-                          <Button onClick={handleCreate} className="w-full" disabled={createRole.isPending || !formData.name}>
-                            {createRole.isPending ? "A criar..." : "Criar Perfil"}
+                    <h2 className="text-lg font-semibold">Perfis</h2>
+                    <div className="flex gap-2">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="outline" size="icon" className="h-9 w-9">
+                            <Download className="h-4 w-4" />
                           </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                        </TooltipTrigger>
+                        <TooltipContent>Exportar</TooltipContent>
+                      </Tooltip>
+                      <Button onClick={() => setIsCreateOpen(true)} className="h-9">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Novo
+                      </Button>
+                    </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingRoles ? (
-                    <div className="text-center py-8 text-muted-foreground">A carregar...</div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Perfil</TableHead>
-                          <TableHead>Descrição</TableHead>
-                          <TableHead>Utilizadores</TableHead>
-                          <TableHead>Permissões</TableHead>
-                          <TableHead>Tipo</TableHead>
-                          <TableHead className="w-[120px]">Ações</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredRoles?.map((role) => (
-                          <TableRow key={role.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <div className={`p-1.5 rounded ${role.is_system ? 'bg-amber-500/10' : 'bg-primary/10'}`}>
-                                  {role.is_system ? (
-                                    <Lock className="h-4 w-4 text-amber-600" />
-                                  ) : (
-                                    <Shield className="h-4 w-4 text-primary" />
+
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Pesquisar perfis..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+
+                  {/* Profiles List */}
+                  <ScrollArea className="h-[calc(100vh-380px)]">
+                    <div className="space-y-2 pr-4">
+                      {isLoadingRoles ? (
+                        <div className="text-center py-8 text-muted-foreground">A carregar...</div>
+                      ) : (
+                        filteredRoles?.map((role) => (
+                          <div
+                            key={role.id}
+                            onClick={() => setSelectedRoleId(role.id)}
+                            className={cn(
+                              "p-3 rounded-lg border cursor-pointer transition-all",
+                              selectedRoleId === role.id
+                                ? "bg-primary/5 border-primary shadow-sm"
+                                : "hover:bg-muted/50 border-transparent"
+                            )}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={cn(
+                                "p-2 rounded-lg",
+                                role.is_system ? "bg-blue-500/10" : "bg-primary/10"
+                              )}>
+                                <Shield className={cn(
+                                  "h-5 w-5",
+                                  role.is_system ? "text-blue-600" : "text-primary"
+                                )} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium truncate">{role.name}</span>
+                                  {role.is_system && (
+                                    <Badge variant="secondary" className="text-[10px] shrink-0">
+                                      Sistema
+                                    </Badge>
                                   )}
                                 </div>
-                                <span className="font-medium">{role.name}</span>
+                                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                                  {role.description || "Sem descrição"}
+                                </p>
+                                <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <Users className="h-3 w-3" />
+                                    <RoleUsersCount roleId={role.id} />
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <FileText className="h-3 w-3" />
+                                    <RolePermissionCount roleId={role.id} />
+                                  </span>
+                                </div>
                               </div>
-                            </TableCell>
-                            <TableCell className="text-muted-foreground max-w-[200px] truncate">
-                              {role.description || "-"}
-                            </TableCell>
-                            <TableCell>
-                              <RoleUsersCount roleId={role.id} />
-                            </TableCell>
-                            <TableCell>
-                              <RolePermissionCount roleId={role.id} />
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={role.is_system ? "secondary" : "outline"}>
-                                {role.is_system ? "Sistema" : "Personalizado"}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-1">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" onClick={() => openEdit(role)}>
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Editar perfil</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" onClick={() => openPermissions(role)}>
-                                      <Key className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Gerir permissões</TooltipContent>
-                                </Tooltip>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                  {filteredRoles?.length === 0 && !isLoadingRoles && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Nenhum perfil encontrado
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
-                  )}
+                  </ScrollArea>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
 
-            {/* Permissões Tab */}
-            <TabsContent value="permissoes" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Catálogo de Permissões</CardTitle>
-                      <CardDescription>
-                        Lista de todas as permissões disponíveis no sistema, organizadas por módulo.
-                      </CardDescription>
-                    </div>
-                    <div className="relative max-w-md">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Pesquisar permissões..."
-                        value={permissionSearch}
-                        onChange={(e) => setPermissionSearch(e.target.value)}
-                        className="pl-10 w-[300px]"
-                      />
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingPermissions ? (
-                    <div className="text-center py-8 text-muted-foreground">A carregar...</div>
-                  ) : (
-                    <div className="space-y-8">
-                      {groupedFilteredPermissions &&
-                        Object.entries(groupedFilteredPermissions)
-                          .sort(([a], [b]) => (MODULE_LABELS[a] || a).localeCompare(MODULE_LABELS[b] || b))
-                          .map(([module, perms]) => (
-                            <div key={module}>
-                              <div className="flex items-center gap-2 mb-4">
-                                <div className="p-2 rounded-lg bg-primary/10">
-                                  <Key className="h-5 w-5 text-primary" />
-                                </div>
-                                <h3 className="text-lg font-semibold">{MODULE_LABELS[module] || module}</h3>
-                                <Badge variant="secondary">{perms?.length}</Badge>
+            {/* Right Panel - Permissions Matrix */}
+            <div className="lg:col-span-8">
+              <Card className="h-full">
+                <CardContent className="p-6">
+                  {selectedRole ? (
+                    <div className="space-y-6">
+                      {/* Role Header */}
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h2 className="text-xl font-semibold">{selectedRole.name}</h2>
+                          <p className="text-sm text-muted-foreground mt-0.5">
+                            {selectedRole.description || "Acesso ao sistema"}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" onClick={handleDuplicate} disabled={createRole.isPending}>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Duplicar
+                          </Button>
+                          <Button onClick={openEdit}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Editar
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Permissions Matrix */}
+                      <div className="border rounded-lg overflow-hidden">
+                        {/* Matrix Header */}
+                        <div className="grid grid-cols-[1fr_repeat(5,80px)] bg-muted/50 border-b">
+                          <div className="p-3 font-medium text-sm"></div>
+                          {PERMISSION_ACTIONS.map((action) => {
+                            const Icon = action.icon;
+                            return (
+                              <div key={action.key} className="p-3 text-center">
+                                <Icon className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
+                                <span className="text-[10px] font-medium text-muted-foreground uppercase">
+                                  {action.label}
+                                </span>
                               </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {perms?.map((permission) => {
-                                  const actionInfo = getActionInfo(permission.code);
+                            );
+                          })}
+                        </div>
+
+                        {/* Matrix Rows */}
+                        <ScrollArea className="h-[calc(100vh-480px)]">
+                          {isLoadingRolePermissions ? (
+                            <div className="text-center py-8 text-muted-foreground">
+                              A carregar permissões...
+                            </div>
+                          ) : (
+                            <div>
+                              {groupedPermissions && Object.entries(groupedPermissions)
+                                .sort(([a], [b]) => (MODULE_CONFIG[a]?.label || a).localeCompare(MODULE_CONFIG[b]?.label || b))
+                                .map(([module, actions]) => {
+                                  const config = MODULE_CONFIG[module] || { label: module, icon: FileText };
+                                  const ModuleIcon = config.icon;
+                                  
                                   return (
-                                    <div
-                                      key={permission.id}
-                                      className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                                    >
-                                      <div className="flex items-start justify-between gap-2">
-                                        <code className="text-xs font-mono text-primary bg-primary/5 px-2 py-1 rounded">
-                                          {permission.code}
-                                        </code>
-                                        <Badge className={`${actionInfo.color} text-xs`} variant="outline">
-                                          {actionInfo.label}
-                                        </Badge>
+                                    <div key={module} className="grid grid-cols-[1fr_repeat(5,80px)] border-b last:border-0 hover:bg-muted/30 transition-colors">
+                                      <div className="p-3 flex items-center gap-3">
+                                        <div className="p-1.5 rounded bg-muted">
+                                          <ModuleIcon className="h-4 w-4 text-muted-foreground" />
+                                        </div>
+                                        <span className="font-medium text-sm">{config.label}</span>
                                       </div>
-                                      {permission.description && (
-                                        <p className="text-sm text-muted-foreground mt-2">
-                                          {permission.description}
-                                        </p>
-                                      )}
+                                      {PERMISSION_ACTIONS.map((action) => {
+                                        const permission = actions[action.key];
+                                        const hasPermission = permission && isPermissionSelected(permission.id);
+                                        
+                                        return (
+                                          <div key={action.key} className="p-3 flex items-center justify-center">
+                                            {permission ? (
+                                              <Checkbox
+                                                checked={hasPermission}
+                                                onCheckedChange={() => togglePermission(permission.id)}
+                                                className={cn(
+                                                  "h-5 w-5",
+                                                  hasPermission && "bg-primary border-primary text-primary-foreground"
+                                                )}
+                                              />
+                                            ) : (
+                                              <span className="text-muted-foreground">—</span>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
                                     </div>
                                   );
                                 })}
-                              </div>
-                              <Separator className="mt-6" />
                             </div>
-                          ))}
+                          )}
+                        </ScrollArea>
+                      </div>
+
+                      {/* Warning for system profiles */}
+                      {selectedRole.is_system && (
+                        <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                          <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
+                          <p className="text-sm text-amber-700">
+                            Este é um perfil de sistema. As alterações afetarão todos os utilizadores com este perfil.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Save Button */}
+                      {hasChanges && (
+                        <div className="flex justify-end">
+                          <Button 
+                            onClick={handleSavePermissions} 
+                            disabled={updateRolePermissions.isPending}
+                          >
+                            {updateRolePermissions.isPending ? "A guardar..." : "Guardar Alterações"}
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {filteredPermissions?.length === 0 && !isLoadingPermissions && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Nenhuma permissão encontrada
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-[400px] text-muted-foreground">
+                      <Shield className="h-12 w-12 mb-4 opacity-50" />
+                      <p>Selecione um perfil para ver as permissões</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
+
+          {/* Create Dialog */}
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Criar Perfil</DialogTitle>
+                <DialogDescription>
+                  Crie um novo perfil de acesso com permissões personalizadas.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label>Nome *</Label>
+                  <Input
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Ex: GESTOR"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Descrição</Label>
+                  <Textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Descrição do perfil"
+                  />
+                </div>
+                <Button onClick={handleCreate} className="w-full" disabled={createRole.isPending || !formData.name}>
+                  {createRole.isPending ? "A criar..." : "Criar Perfil"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           {/* Edit Dialog */}
           <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -531,156 +509,6 @@ export default function PerfisPermissoes() {
                   {updateRole.isPending ? "A guardar..." : "Guardar Alterações"}
                 </Button>
               </div>
-            </DialogContent>
-          </Dialog>
-
-          {/* Permissions Dialog */}
-          <Dialog open={isPermissionsOpen} onOpenChange={setIsPermissionsOpen}>
-            <DialogContent className="max-w-4xl max-h-[90vh]">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Key className="h-5 w-5" />
-                  Permissões - {selectedRole?.name}
-                </DialogTitle>
-                <DialogDescription>
-                  Selecione as permissões que este perfil deve ter acesso.
-                </DialogDescription>
-              </DialogHeader>
-              
-              {isLoadingRolePermissions ? (
-                <div className="text-center py-8 text-muted-foreground">A carregar permissões...</div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Actions bar */}
-                  <div className="flex items-center justify-between border-b pb-3">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="font-mono">
-                        {selectedPermissions.length}/{permissions?.length || 0}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">permissões selecionadas</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={selectAll}>
-                        <CheckSquare className="h-4 w-4 mr-1" />
-                        Selecionar Todas
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={deselectAll}>
-                        <Square className="h-4 w-4 mr-1" />
-                        Limpar Seleção
-                      </Button>
-                    </div>
-                  </div>
-
-                  <ScrollArea className="h-[55vh] pr-4">
-                    <div className="space-y-6">
-                      {groupedPermissions &&
-                        Object.entries(groupedPermissions)
-                          .sort(([a], [b]) => (MODULE_LABELS[a] || a).localeCompare(MODULE_LABELS[b] || b))
-                          .map(([module, perms]) => {
-                            const selectedCount = perms?.filter(p => selectedPermissions.includes(p.id)).length || 0;
-                            const totalCount = perms?.length || 0;
-                            const isFullySelected = isModuleFullySelected(perms);
-                            
-                            return (
-                              <div key={module} className="space-y-3">
-                                <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
-                                  <div className="flex items-center gap-3">
-                                    <Checkbox
-                                      checked={isFullySelected}
-                                      onCheckedChange={() => 
-                                        isFullySelected 
-                                          ? deselectAllInModule(perms) 
-                                          : selectAllInModule(perms)
-                                      }
-                                    />
-                                    <h3 className="font-semibold">
-                                      {MODULE_LABELS[module] || module}
-                                    </h3>
-                                    <Badge 
-                                      variant={selectedCount === totalCount ? "default" : "secondary"} 
-                                      className="text-xs"
-                                    >
-                                      {selectedCount}/{totalCount}
-                                    </Badge>
-                                  </div>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-4">
-                                  {perms?.map((permission) => {
-                                    const isSelected = selectedPermissions.includes(permission.id);
-                                    const actionInfo = getActionInfo(permission.code);
-                                    
-                                    return (
-                                      <div 
-                                        key={permission.id} 
-                                        className={`flex items-start gap-3 p-3 rounded-lg border transition-all cursor-pointer ${
-                                          isSelected 
-                                            ? "bg-primary/5 border-primary/30" 
-                                            : "hover:bg-muted/50 border-transparent"
-                                        }`}
-                                        onClick={() => {
-                                          if (isSelected) {
-                                            setSelectedPermissions(selectedPermissions.filter((id) => id !== permission.id));
-                                          } else {
-                                            setSelectedPermissions([...selectedPermissions, permission.id]);
-                                          }
-                                        }}
-                                      >
-                                        <Checkbox
-                                          checked={isSelected}
-                                          onCheckedChange={(checked) => {
-                                            if (checked) {
-                                              setSelectedPermissions([...selectedPermissions, permission.id]);
-                                            } else {
-                                              setSelectedPermissions(
-                                                selectedPermissions.filter((id) => id !== permission.id)
-                                              );
-                                            }
-                                          }}
-                                          className="mt-0.5"
-                                        />
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-center gap-2 flex-wrap">
-                                            <code className="text-xs font-mono text-primary">
-                                              {permission.code}
-                                            </code>
-                                            <Badge className={`${actionInfo.color} text-[10px]`} variant="outline">
-                                              {actionInfo.label}
-                                            </Badge>
-                                          </div>
-                                          {permission.description && (
-                                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                              {permission.description}
-                                            </p>
-                                          )}
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            );
-                          })}
-                    </div>
-                  </ScrollArea>
-
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => setIsPermissionsOpen(false)}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      onClick={handleSavePermissions}
-                      className="flex-1"
-                      disabled={updateRolePermissions.isPending}
-                    >
-                      {updateRolePermissions.isPending ? "A guardar..." : "Guardar Permissões"}
-                    </Button>
-                  </div>
-                </div>
-              )}
             </DialogContent>
           </Dialog>
         </div>
