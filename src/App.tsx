@@ -33,6 +33,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import Utilizadores from "./pages/admin/Utilizadores";
 import PerfisPermissoes from "./pages/admin/PerfisPermissoes";
 import AcessosModulos from "./pages/admin/AcessosModulos";
+import TemplatesPermissoes from "./pages/admin/TemplatesPermissoes";
 import Auditoria from "./pages/admin/Auditoria";
 import UnidadesOrganicas from "./pages/admin/UnidadesOrganicas";
 import ComissaoAvaliacao from "./pages/admin/ComissaoAvaliacao";
@@ -90,6 +91,7 @@ const App = () => (
             <Route path="/admin/utilizadores" element={<AdminGuard><Utilizadores /></AdminGuard>} />
             <Route path="/admin/perfis-permissoes" element={<AdminGuard><PerfisPermissoes /></AdminGuard>} />
             <Route path="/admin/acessos-modulos" element={<AdminGuard><AcessosModulos /></AdminGuard>} />
+            <Route path="/admin/templates-permissoes" element={<AdminGuard><TemplatesPermissoes /></AdminGuard>} />
             <Route path="/admin/auditoria" element={<AdminGuard><Auditoria /></AdminGuard>} />
             <Route path="/admin/unidades" element={<AdminGuard><UnidadesOrganicas /></AdminGuard>} />
             <Route path="/admin/comissao" element={<AdminGuard><ComissaoAvaliacao /></AdminGuard>} />

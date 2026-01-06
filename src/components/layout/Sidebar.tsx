@@ -27,6 +27,7 @@ import {
   ScrollText,
   Scale,
   Activity,
+  FileStack,
 } from "lucide-react";
 import tribunalLogo from "@/assets/tribunal-logo.png";
 import { useState } from "react";
@@ -124,6 +125,7 @@ const adminSubmenu = [
   { name: "Painel Admin", href: "/admin", icon: LayoutDashboard, shortName: "Painel" },
   { name: "Utilizadores", href: "/admin/utilizadores", icon: Users, shortName: "Utilizadores" },
   { name: "Perfis e Permissões", href: "/admin/perfis-permissoes", icon: Shield, shortName: "Perfis" },
+  { name: "Templates de Permissões", href: "/admin/templates-permissoes", icon: FileStack, shortName: "Templates" },
   { name: "Acessos por Módulo", href: "/admin/acessos-modulos", icon: Key, shortName: "Acessos" },
   { name: "Comissão de Avaliação", href: "/admin/comissao", icon: UsersRound, shortName: "Comissão" },
   { name: "Reclamações e Recursos", href: "/admin/reclamacoes", icon: Scale, shortName: "Reclamações" },
