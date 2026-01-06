@@ -3,6 +3,7 @@ import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { SidebarProvider, useSidebarContext } from "@/contexts/SidebarContext";
 import { cn } from "@/lib/utils";
+import { OnboardingTour, useOnboarding } from "@/components/onboarding/OnboardingTour";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -10,6 +11,7 @@ interface AppLayoutProps {
 
 function AppLayoutContent({ children }: AppLayoutProps) {
   const { collapsed } = useSidebarContext();
+  const { isOpen, startTour, closeTour, completeTour } = useOnboarding();
   
   return (
     <div className="min-h-screen bg-background">
@@ -18,9 +20,16 @@ function AppLayoutContent({ children }: AppLayoutProps) {
         "transition-all duration-300",
         collapsed ? "pl-16" : "pl-64"
       )}>
-        <Header />
+        <Header onStartOnboarding={startTour} />
         <main className="p-6">{children}</main>
       </div>
+      
+      {/* Onboarding Tour */}
+      <OnboardingTour
+        isOpen={isOpen}
+        onClose={closeTour}
+        onComplete={completeTour}
+      />
     </div>
   );
 }
