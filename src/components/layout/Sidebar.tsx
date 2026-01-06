@@ -123,12 +123,11 @@ const navigationAfterRelatorios = [
 const adminSubmenu = [
   { name: "Painel Admin", href: "/admin", icon: LayoutDashboard, shortName: "Painel" },
   { name: "Utilizadores", href: "/admin/utilizadores", icon: Users, shortName: "Utilizadores" },
+  { name: "Perfis e Permissões", href: "/admin/perfis-permissoes", icon: Shield, shortName: "Perfis" },
   { name: "Comissão de Avaliação", href: "/admin/comissao", icon: UsersRound, shortName: "Comissão" },
   { name: "Reclamações e Recursos", href: "/admin/reclamacoes", icon: Scale, shortName: "Reclamações" },
   { name: "Configuração Workflow", href: "/admin/workflow", icon: Workflow, shortName: "Workflow" },
   { name: "Estado Workflow", href: "/admin/estado-workflow", icon: Activity, shortName: "Estado" },
-  { name: "Perfis", href: "/admin/perfis", icon: Shield, shortName: "Perfis" },
-  { name: "Permissões", href: "/admin/permissoes", icon: Key, shortName: "Permissões" },
   { name: "Unidades Orgânicas", href: "/admin/unidades", icon: Building2, shortName: "Unidades" },
   { name: "Auditoria", href: "/admin/auditoria", icon: ScrollText, shortName: "Auditoria" },
 ];
