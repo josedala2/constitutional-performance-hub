@@ -31,8 +31,7 @@ import Auth from "./pages/Auth";
 import MeuPerfil from "./pages/MeuPerfil";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Utilizadores from "./pages/admin/Utilizadores";
-import Perfis from "./pages/admin/Perfis";
-import Permissoes from "./pages/admin/Permissoes";
+import PerfisPermissoes from "./pages/admin/PerfisPermissoes";
 import Auditoria from "./pages/admin/Auditoria";
 import UnidadesOrganicas from "./pages/admin/UnidadesOrganicas";
 import ComissaoAvaliacao from "./pages/admin/ComissaoAvaliacao";
@@ -88,8 +87,7 @@ const App = () => (
             {/* Rotas de Administração - apenas ADMIN e RH */}
             <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
             <Route path="/admin/utilizadores" element={<AdminGuard><Utilizadores /></AdminGuard>} />
-            <Route path="/admin/perfis" element={<AdminGuard><Perfis /></AdminGuard>} />
-            <Route path="/admin/permissoes" element={<AdminGuard><Permissoes /></AdminGuard>} />
+            <Route path="/admin/perfis-permissoes" element={<AdminGuard><PerfisPermissoes /></AdminGuard>} />
             <Route path="/admin/auditoria" element={<AdminGuard><Auditoria /></AdminGuard>} />
             <Route path="/admin/unidades" element={<AdminGuard><UnidadesOrganicas /></AdminGuard>} />
             <Route path="/admin/comissao" element={<AdminGuard><ComissaoAvaliacao /></AdminGuard>} />
