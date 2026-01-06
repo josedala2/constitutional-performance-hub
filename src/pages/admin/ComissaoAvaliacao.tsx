@@ -14,11 +14,12 @@ import {
   useMembrosComissao, 
   useAddMembro, 
   useRemoveMembro,
+  useSubstituirMembro,
   MembroComissao,
   MembroFormData 
 } from "@/hooks/useComissaoAvaliacao";
 import { useProfiles } from "@/hooks/useProfiles";
-import { Users, UserPlus, Crown, UserMinus, AlertCircle, CheckCircle2, Info } from "lucide-react";
+import { Users, UserPlus, Crown, UserMinus, AlertCircle, CheckCircle2, Info, ArrowRightLeft } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const LIMITE_EFECTIVOS = 5;
@@ -27,7 +28,9 @@ const LIMITE_SUPLENTES = 2;
 export default function ComissaoAvaliacao() {
   const [selectedCicloId, setSelectedCicloId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubstituirModalOpen, setIsSubstituirModalOpen] = useState(false);
   const [membroToRemove, setMembroToRemove] = useState<MembroComissao | null>(null);
+  const [membroToSubstituir, setMembroToSubstituir] = useState<MembroComissao | null>(null);
   const [tipoMembroAdd, setTipoMembroAdd] = useState<"efectivo" | "suplente">("efectivo");
   
   const [formData, setFormData] = useState<Partial<MembroFormData>>({
@@ -36,21 +39,33 @@ export default function ComissaoAvaliacao() {
     observacoes: "",
   });
 
+  const [substituicaoData, setSubstituicaoData] = useState({
+    suplenteId: "",
+    motivo: "",
+  });
+
   const { data: ciclos, isLoading: loadingCiclos } = useCiclosAvaliacao();
   const { data: membros, isLoading: loadingMembros } = useMembrosComissao(selectedCicloId);
   const { data: profiles } = useProfiles();
   const addMembro = useAddMembro();
   const removeMembro = useRemoveMembro();
+  const substituirMembro = useSubstituirMembro();
 
-  // Separar membros por tipo
+  // Separar membros por tipo (apenas activos - sem data_cessacao)
   const membrosEfectivos = useMemo(() => 
-    membros?.filter(m => m.tipo_membro === "efectivo") || [], 
+    membros?.filter(m => m.tipo_membro === "efectivo" && !m.data_cessacao) || [], 
     [membros]
   );
   
   const membrosSuplentes = useMemo(() => 
-    membros?.filter(m => m.tipo_membro === "suplente") || [], 
+    membros?.filter(m => m.tipo_membro === "suplente" && !m.data_cessacao) || [], 
     [membros]
+  );
+
+  // Suplentes disponíveis para substituição
+  const suplentesDisponiveis = useMemo(() => 
+    membrosSuplentes.filter(m => !m.data_cessacao),
+    [membrosSuplentes]
   );
 
   // Verificar se há presidente
@@ -107,7 +122,25 @@ export default function ComissaoAvaliacao() {
     setMembroToRemove(null);
   };
 
-  const cicloSelecionado = ciclos?.find(c => c.id === selectedCicloId);
+  const handleOpenSubstituirModal = (membro: MembroComissao) => {
+    setMembroToSubstituir(membro);
+    setSubstituicaoData({ suplenteId: "", motivo: "" });
+    setIsSubstituirModalOpen(true);
+  };
+
+  const handleSubstituir = async () => {
+    if (!membroToSubstituir || !substituicaoData.suplenteId || !selectedCicloId) return;
+    
+    await substituirMembro.mutateAsync({
+      membroEfectivoId: membroToSubstituir.id,
+      membroSuplenteId: substituicaoData.suplenteId,
+      cicloId: selectedCicloId,
+      motivo: substituicaoData.motivo,
+    });
+    
+    setIsSubstituirModalOpen(false);
+    setMembroToSubstituir(null);
+  };
 
   const formatCicloLabel = (ciclo: typeof ciclos extends (infer T)[] | undefined ? T : never) => {
     if (!ciclo) return "";
@@ -260,13 +293,25 @@ export default function ComissaoAvaliacao() {
                             )}
                           </TableCell>
                           <TableCell>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => setMembroToRemove(membro)}
-                            >
-                              <UserMinus className="h-4 w-4 text-destructive" />
-                            </Button>
+                            <div className="flex gap-1">
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => handleOpenSubstituirModal(membro)}
+                                disabled={suplentesDisponiveis.length === 0}
+                                title="Substituir por suplente"
+                              >
+                                <ArrowRightLeft className="h-4 w-4 text-primary" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => setMembroToRemove(membro)}
+                                title="Remover membro"
+                              >
+                                <UserMinus className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -435,6 +480,73 @@ export default function ComissaoAvaliacao() {
           description={`Tem a certeza que deseja remover ${membroToRemove?.profile?.full_name} da Comissão de Avaliação?`}
           onConfirm={handleRemoveMembro}
         />
+
+        {/* Substituir Modal */}
+        <Dialog open={isSubstituirModalOpen} onOpenChange={setIsSubstituirModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <ArrowRightLeft className="h-5 w-5" />
+                Substituir Membro Efectivo
+              </DialogTitle>
+              <DialogDescription>
+                Substituir <strong>{membroToSubstituir?.profile?.full_name}</strong> por um membro suplente.
+                O membro efectivo será cessado e o suplente assumirá a sua posição.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Membro Suplente *</Label>
+                <Select 
+                  value={substituicaoData.suplenteId} 
+                  onValueChange={(value) => setSubstituicaoData(prev => ({ ...prev, suplenteId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecionar suplente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {suplentesDisponiveis.map((suplente) => (
+                      <SelectItem key={suplente.id} value={suplente.id}>
+                        {suplente.profile?.full_name} {suplente.profile?.job_title && `- ${suplente.profile.job_title}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Motivo da Substituição</Label>
+                <Textarea
+                  value={substituicaoData.motivo}
+                  onChange={(e) => setSubstituicaoData(prev => ({ ...prev, motivo: e.target.value }))}
+                  placeholder="Ex: Ausência prolongada, impedimento legal, etc."
+                  rows={3}
+                />
+              </div>
+
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  O membro suplente assumirá o cargo de <strong>{membroToSubstituir?.cargo_comissao === "presidente" ? "Presidente" : "Vogal"}</strong> e 
+                  a posição #{membroToSubstituir?.ordem} na comissão.
+                </AlertDescription>
+              </Alert>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsSubstituirModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleSubstituir} 
+                disabled={!substituicaoData.suplenteId || substituirMembro.isPending}
+              >
+                {substituirMembro.isPending ? "A substituir..." : "Confirmar Substituição"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );
