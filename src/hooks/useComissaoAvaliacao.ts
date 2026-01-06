@@ -193,6 +193,82 @@ export function useRemoveMembro() {
   });
 }
 
+// Hook para substituir membro efectivo por suplente
+export function useSubstituirMembro() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      membroEfectivoId, 
+      membroSuplenteId, 
+      cicloId,
+      motivo 
+    }: { 
+      membroEfectivoId: string; 
+      membroSuplenteId: string; 
+      cicloId: string;
+      motivo?: string;
+    }) => {
+      // Buscar dados dos membros
+      const { data: membroEfectivo, error: errEfectivo } = await supabase
+        .from("comissao_avaliacao")
+        .select("*")
+        .eq("id", membroEfectivoId)
+        .single();
+
+      if (errEfectivo) throw errEfectivo;
+
+      const { data: membroSuplente, error: errSuplente } = await supabase
+        .from("comissao_avaliacao")
+        .select("*")
+        .eq("id", membroSuplenteId)
+        .single();
+
+      if (errSuplente) throw errSuplente;
+
+      // Cessar membro efectivo
+      const { error: errCessar } = await supabase
+        .from("comissao_avaliacao")
+        .update({
+          data_cessacao: new Date().toISOString().split("T")[0],
+          observacoes: motivo ? `Cessado por substituição: ${motivo}` : "Cessado por substituição",
+        })
+        .eq("id", membroEfectivoId);
+
+      if (errCessar) throw errCessar;
+
+      // Promover suplente a efectivo
+      const { error: errPromover } = await supabase
+        .from("comissao_avaliacao")
+        .update({
+          tipo_membro: "efectivo",
+          cargo_comissao: membroEfectivo.cargo_comissao,
+          ordem: membroEfectivo.ordem,
+          observacoes: `Promovido de suplente. ${motivo ? `Motivo: ${motivo}` : ""}`.trim(),
+        })
+        .eq("id", membroSuplenteId);
+
+      if (errPromover) throw errPromover;
+
+      return cicloId;
+    },
+    onSuccess: (cicloId) => {
+      queryClient.invalidateQueries({ queryKey: ["comissao-avaliacao", cicloId] });
+      toast({
+        title: "Substituição realizada",
+        description: "O membro suplente foi promovido a efectivo com sucesso.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro na substituição",
+        description: error.message || "Ocorreu um erro ao realizar a substituição.",
+        variant: "destructive",
+      });
+    },
+  });
+}
+
 // Hook para criar ciclo de avaliação
 export function useCreateCiclo() {
   const queryClient = useQueryClient();
