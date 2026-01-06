@@ -37,6 +37,7 @@ import Auditoria from "./pages/admin/Auditoria";
 import UnidadesOrganicas from "./pages/admin/UnidadesOrganicas";
 import ComissaoAvaliacao from "./pages/admin/ComissaoAvaliacao";
 import ReclamacoesRecursos from "./pages/admin/ReclamacoesRecursos";
+import ConfiguracaoWorkflow from "./pages/admin/ConfiguracaoWorkflow";
 import ConsultaAvaliacoes from "./pages/ConsultaAvaliacoes";
 import Instalar from "./pages/Instalar";
 
@@ -92,6 +93,7 @@ const App = () => (
             <Route path="/admin/unidades" element={<AdminGuard><UnidadesOrganicas /></AdminGuard>} />
             <Route path="/admin/comissao" element={<AdminGuard><ComissaoAvaliacao /></AdminGuard>} />
             <Route path="/admin/reclamacoes" element={<AdminGuard><ReclamacoesRecursos /></AdminGuard>} />
+            <Route path="/admin/workflow" element={<AdminGuard><ConfiguracaoWorkflow /></AdminGuard>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
