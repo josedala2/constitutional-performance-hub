@@ -1,4 +1,4 @@
-import { Bell, Search, User, LogOut, Settings } from "lucide-react";
+import { Bell, Search, User, LogOut, Settings, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,6 +13,16 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+interface HeaderProps {
+  onStartOnboarding?: () => void;
+}
 
 const ROLE_LABELS: Record<string, string> = {
   ADMIN: "Administrador",
@@ -25,7 +35,7 @@ const ROLE_LABELS: Record<string, string> = {
   UTENTE_EXTERNO: "Utente Externo",
 };
 
-export function Header() {
+export function Header({ onStartOnboarding }: HeaderProps) {
   const { profile, userRoles, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -57,6 +67,26 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-3 ml-auto">
+        {/* Onboarding Help */}
+        {onStartOnboarding && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onStartOnboarding}
+                >
+                  <HelpCircle className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ver tour de apresentação</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
