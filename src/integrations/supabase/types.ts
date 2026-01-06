@@ -58,6 +58,99 @@ export type Database = {
           },
         ]
       }
+      ciclos_avaliacao: {
+        Row: {
+          ano: number
+          created_at: string
+          data_fim: string
+          data_inicio: string
+          estado: string
+          id: string
+          semestre: number | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          ano: number
+          created_at?: string
+          data_fim: string
+          data_inicio: string
+          estado?: string
+          id?: string
+          semestre?: number | null
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          ano?: number
+          created_at?: string
+          data_fim?: string
+          data_inicio?: string
+          estado?: string
+          id?: string
+          semestre?: number | null
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      comissao_avaliacao: {
+        Row: {
+          cargo_comissao: string
+          ciclo_id: string
+          created_at: string
+          data_cessacao: string | null
+          data_nomeacao: string
+          id: string
+          observacoes: string | null
+          ordem: number
+          tipo_membro: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cargo_comissao: string
+          ciclo_id: string
+          created_at?: string
+          data_cessacao?: string | null
+          data_nomeacao?: string
+          id?: string
+          observacoes?: string | null
+          ordem: number
+          tipo_membro: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cargo_comissao?: string
+          ciclo_id?: string
+          created_at?: string
+          data_cessacao?: string | null
+          data_nomeacao?: string
+          id?: string
+          observacoes?: string | null
+          ordem?: number
+          tipo_membro?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comissao_avaliacao_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_comissao_ciclo"
+            columns: ["ciclo_id"]
+            isOneToOne: false
+            referencedRelation: "ciclos_avaliacao"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_units: {
         Row: {
           created_at: string

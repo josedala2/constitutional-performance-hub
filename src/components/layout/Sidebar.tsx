@@ -121,6 +121,7 @@ const navigationAfterRelatorios = [
 const adminSubmenu = [
   { name: "Painel Admin", href: "/admin", icon: LayoutDashboard, shortName: "Painel" },
   { name: "Utilizadores", href: "/admin/utilizadores", icon: Users, shortName: "Utilizadores" },
+  { name: "Comissão de Avaliação", href: "/admin/comissao", icon: UsersRound, shortName: "Comissão" },
   { name: "Perfis", href: "/admin/perfis", icon: Shield, shortName: "Perfis" },
   { name: "Permissões", href: "/admin/permissoes", icon: Key, shortName: "Permissões" },
   { name: "Unidades Orgânicas", href: "/admin/unidades", icon: Building2, shortName: "Unidades" },
