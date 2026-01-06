@@ -278,6 +278,174 @@ export type Database = {
         }
         Relationships: []
       }
+      reclamacoes: {
+        Row: {
+          avaliacao_id: string
+          avaliador_id: string
+          ciclo_id: string
+          created_at: string
+          data_limite_resposta: string | null
+          data_resposta: string | null
+          data_submissao: string
+          decisao_avaliador: string | null
+          documentos_anexos: string[] | null
+          estado: string
+          fundamentacao: string
+          id: string
+          motivo: string
+          reclamante_id: string
+          resposta_avaliador: string | null
+          updated_at: string
+        }
+        Insert: {
+          avaliacao_id: string
+          avaliador_id: string
+          ciclo_id: string
+          created_at?: string
+          data_limite_resposta?: string | null
+          data_resposta?: string | null
+          data_submissao?: string
+          decisao_avaliador?: string | null
+          documentos_anexos?: string[] | null
+          estado?: string
+          fundamentacao: string
+          id?: string
+          motivo: string
+          reclamante_id: string
+          resposta_avaliador?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avaliacao_id?: string
+          avaliador_id?: string
+          ciclo_id?: string
+          created_at?: string
+          data_limite_resposta?: string | null
+          data_resposta?: string | null
+          data_submissao?: string
+          decisao_avaliador?: string | null
+          documentos_anexos?: string[] | null
+          estado?: string
+          fundamentacao?: string
+          id?: string
+          motivo?: string
+          reclamante_id?: string
+          resposta_avaliador?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reclamacoes_avaliador_id_fkey"
+            columns: ["avaliador_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reclamacoes_ciclo_id_fkey"
+            columns: ["ciclo_id"]
+            isOneToOne: false
+            referencedRelation: "ciclos_avaliacao"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reclamacoes_reclamante_id_fkey"
+            columns: ["reclamante_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recursos: {
+        Row: {
+          ciclo_id: string
+          created_at: string
+          data_decisao: string | null
+          data_limite_decisao: string | null
+          data_submissao: string
+          decisao: string | null
+          documentos_anexos: string[] | null
+          estado: string
+          fundamentacao: string
+          fundamentacao_decisao: string | null
+          id: string
+          membro_relator_id: string | null
+          motivo: string
+          reclamacao_id: string | null
+          recorrente_id: string
+          updated_at: string
+          votos: Json | null
+        }
+        Insert: {
+          ciclo_id: string
+          created_at?: string
+          data_decisao?: string | null
+          data_limite_decisao?: string | null
+          data_submissao?: string
+          decisao?: string | null
+          documentos_anexos?: string[] | null
+          estado?: string
+          fundamentacao: string
+          fundamentacao_decisao?: string | null
+          id?: string
+          membro_relator_id?: string | null
+          motivo: string
+          reclamacao_id?: string | null
+          recorrente_id: string
+          updated_at?: string
+          votos?: Json | null
+        }
+        Update: {
+          ciclo_id?: string
+          created_at?: string
+          data_decisao?: string | null
+          data_limite_decisao?: string | null
+          data_submissao?: string
+          decisao?: string | null
+          documentos_anexos?: string[] | null
+          estado?: string
+          fundamentacao?: string
+          fundamentacao_decisao?: string | null
+          id?: string
+          membro_relator_id?: string | null
+          motivo?: string
+          reclamacao_id?: string | null
+          recorrente_id?: string
+          updated_at?: string
+          votos?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recursos_ciclo_id_fkey"
+            columns: ["ciclo_id"]
+            isOneToOne: false
+            referencedRelation: "ciclos_avaliacao"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recursos_membro_relator_id_fkey"
+            columns: ["membro_relator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recursos_reclamacao_id_fkey"
+            columns: ["reclamacao_id"]
+            isOneToOne: false
+            referencedRelation: "reclamacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recursos_recorrente_id_fkey"
+            columns: ["recorrente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           permission_id: string
