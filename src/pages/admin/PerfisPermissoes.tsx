@@ -125,6 +125,9 @@ function RolePermissionCount({ roleId }: { roleId: string }) {
   return <>{rolePermissions?.length || 0}</>;
 }
 
+// Type for custom permissions state
+type CustomPermissions = Record<string, Record<string, boolean>>;
+
 export default function PerfisPermissoes() {
   const [search, setSearch] = useState("");
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
@@ -137,6 +140,9 @@ export default function PerfisPermissoes() {
   const [moduleOrder, setModuleOrder] = useState<ModuleCode[]>(DEFAULT_MODULE_ORDER);
   const [draggedModule, setDraggedModule] = useState<ModuleCode | null>(null);
   const [dragOverModule, setDragOverModule] = useState<ModuleCode | null>(null);
+  
+  // State for custom permissions per role
+  const [customPermissions, setCustomPermissions] = useState<Record<string, CustomPermissions>>({});
 
   const { data: roles, isLoading: isLoadingRoles } = useRoles();
   const createRole = useCreateRole();
@@ -160,18 +166,136 @@ export default function PerfisPermissoes() {
     return {} as Record<ModuleCode, string[]>;
   }, []);
 
-  // Get configured permissions for selected role
+  // Get configured permissions for selected role (from config file)
   const configuredPermissions = useMemo(() => {
     if (!selectedRole) return {};
     return getPermissionsForRole(selectedRole.name);
   }, [selectedRole, getPermissionsForRole]);
 
-  // Check if a module has a specific action based on config
-  const hasConfiguredPermission = useCallback((moduleCode: ModuleCode, action: string): boolean => {
+  // Initialize custom permissions for a role based on config when role is selected
+  useEffect(() => {
+    if (selectedRoleId && selectedRole && !customPermissions[selectedRoleId]) {
+      const initialPerms: CustomPermissions = {};
+      DEFAULT_MODULE_ORDER.forEach(moduleCode => {
+        initialPerms[moduleCode] = {};
+        PERMISSION_ACTIONS.forEach(action => {
+          const modulePerms = configuredPermissions[moduleCode];
+          initialPerms[moduleCode][action.key] = modulePerms ? modulePerms.includes(action.key) : false;
+        });
+      });
+      setCustomPermissions(prev => ({
+        ...prev,
+        [selectedRoleId]: initialPerms
+      }));
+    }
+  }, [selectedRoleId, selectedRole, configuredPermissions]);
+
+  // Check if a module has a specific action (using custom permissions)
+  const hasPermission = useCallback((moduleCode: ModuleCode, action: string): boolean => {
+    if (!selectedRoleId) return false;
+    
+    const rolePerms = customPermissions[selectedRoleId];
+    if (rolePerms && rolePerms[moduleCode] !== undefined) {
+      return rolePerms[moduleCode][action] ?? false;
+    }
+    
+    // Fallback to config permissions
     const modulePerms = configuredPermissions[moduleCode];
     if (!modulePerms) return false;
     return modulePerms.includes(action);
-  }, [configuredPermissions]);
+  }, [selectedRoleId, customPermissions, configuredPermissions]);
+
+  // Toggle a permission
+  const toggleModulePermission = useCallback((moduleCode: ModuleCode, action: string) => {
+    if (!selectedRoleId) return;
+    
+    setCustomPermissions(prev => {
+      const rolePerms = prev[selectedRoleId] || {};
+      const modulePerms = rolePerms[moduleCode] || {};
+      
+      return {
+        ...prev,
+        [selectedRoleId]: {
+          ...rolePerms,
+          [moduleCode]: {
+            ...modulePerms,
+            [action]: !modulePerms[action]
+          }
+        }
+      };
+    });
+    setHasChanges(true);
+  }, [selectedRoleId]);
+
+  // Toggle all permissions for a module (row)
+  const toggleAllModulePermissions = useCallback((moduleCode: ModuleCode) => {
+    if (!selectedRoleId) return;
+    
+    const allChecked = PERMISSION_ACTIONS.every(action => hasPermission(moduleCode, action.key));
+    
+    setCustomPermissions(prev => {
+      const rolePerms = prev[selectedRoleId] || {};
+      const newModulePerms: Record<string, boolean> = {};
+      PERMISSION_ACTIONS.forEach(action => {
+        newModulePerms[action.key] = !allChecked;
+      });
+      
+      return {
+        ...prev,
+        [selectedRoleId]: {
+          ...rolePerms,
+          [moduleCode]: newModulePerms
+        }
+      };
+    });
+    setHasChanges(true);
+  }, [selectedRoleId, hasPermission]);
+
+  // Toggle all permissions for an action (column)
+  const toggleAllActionPermissions = useCallback((action: string) => {
+    if (!selectedRoleId) return;
+    
+    const allChecked = sortedModules.every(moduleCode => hasPermission(moduleCode, action));
+    
+    setCustomPermissions(prev => {
+      const rolePerms = prev[selectedRoleId] || {};
+      const newRolePerms = { ...rolePerms };
+      
+      sortedModules.forEach(moduleCode => {
+        newRolePerms[moduleCode] = {
+          ...(newRolePerms[moduleCode] || {}),
+          [action]: !allChecked
+        };
+      });
+      
+      return {
+        ...prev,
+        [selectedRoleId]: newRolePerms
+      };
+    });
+    setHasChanges(true);
+  }, [selectedRoleId, hasPermission]);
+
+  // Reset permissions to default config
+  const resetToDefaults = useCallback(() => {
+    if (!selectedRoleId || !selectedRole) return;
+    
+    const initialPerms: CustomPermissions = {};
+    DEFAULT_MODULE_ORDER.forEach(moduleCode => {
+      initialPerms[moduleCode] = {};
+      PERMISSION_ACTIONS.forEach(action => {
+        const modulePerms = configuredPermissions[moduleCode];
+        initialPerms[moduleCode][action.key] = modulePerms ? modulePerms.includes(action.key) : false;
+      });
+    });
+    
+    setCustomPermissions(prev => ({
+      ...prev,
+      [selectedRoleId]: initialPerms
+    }));
+    setHasChanges(false);
+    toast.success("Permissões repostas para os valores padrão");
+  }, [selectedRoleId, selectedRole, configuredPermissions]);
 
   // Select first role by default
   useEffect(() => {
@@ -457,6 +581,11 @@ export default function PerfisPermissoes() {
                           </p>
                         </div>
                         <div className="flex gap-2">
+                          {hasChanges && (
+                            <Button variant="ghost" onClick={resetToDefaults} size="sm">
+                              Repor Padrão
+                            </Button>
+                          )}
                           <Button variant="outline" onClick={handleDuplicate} disabled={createRole.isPending}>
                             <Copy className="h-4 w-4 mr-2" />
                             Duplicar
@@ -476,10 +605,22 @@ export default function PerfisPermissoes() {
                           <div className="p-3 font-medium text-sm text-muted-foreground">Módulo</div>
                           {PERMISSION_ACTIONS.map((action) => {
                             const Icon = action.icon;
+                            const allChecked = sortedModules.every(m => hasPermission(m, action.key));
                             return (
-                              <div key={action.key} className="p-3 text-center">
-                                <Icon className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
-                                <span className="text-[10px] font-medium text-muted-foreground uppercase">
+                              <div 
+                                key={action.key} 
+                                className="p-3 text-center cursor-pointer hover:bg-muted transition-colors rounded"
+                                onClick={() => toggleAllActionPermissions(action.key)}
+                                title={`Clique para ${allChecked ? 'desmarcar' : 'marcar'} todos`}
+                              >
+                                <Icon className={cn(
+                                  "h-4 w-4 mx-auto mb-1 transition-colors",
+                                  allChecked ? "text-primary" : "text-muted-foreground"
+                                )} />
+                                <span className={cn(
+                                  "text-[10px] font-medium uppercase transition-colors",
+                                  allChecked ? "text-primary" : "text-muted-foreground"
+                                )}>
                                   {action.label}
                                 </span>
                               </div>
@@ -498,7 +639,10 @@ export default function PerfisPermissoes() {
                               const isDragging = draggedModule === moduleCode;
                               const isDragOver = dragOverModule === moduleCode;
                               const hasAnyPermission = PERMISSION_ACTIONS.some(action => 
-                                hasConfiguredPermission(moduleCode, action.key)
+                                hasPermission(moduleCode, action.key)
+                              );
+                              const allModulePermissions = PERMISSION_ACTIONS.every(action => 
+                                hasPermission(moduleCode, action.key)
                               );
                               
                               return (
@@ -514,14 +658,17 @@ export default function PerfisPermissoes() {
                                     "grid grid-cols-[auto_1fr_repeat(4,80px)] border-b last:border-0 transition-all",
                                     isDragging && "opacity-50 bg-muted",
                                     isDragOver && "bg-primary/10 border-primary border-2",
-                                    !isDragging && !isDragOver && "hover:bg-muted/30",
-                                    !hasAnyPermission && "opacity-50"
+                                    !isDragging && !isDragOver && "hover:bg-muted/30"
                                   )}
                                 >
                                   <div className="p-3 flex items-center cursor-grab active:cursor-grabbing">
                                     <GripVertical className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground transition-colors" />
                                   </div>
-                                  <div className="p-3 flex items-center gap-3">
+                                  <div 
+                                    className="p-3 flex items-center gap-3 cursor-pointer hover:bg-muted/50 rounded transition-colors"
+                                    onClick={() => toggleAllModulePermissions(moduleCode)}
+                                    title="Clique para alternar todas as permissões deste módulo"
+                                  >
                                     <div className={cn(
                                       "p-1.5 rounded",
                                       hasAnyPermission ? "bg-primary/10" : "bg-muted"
@@ -535,17 +682,22 @@ export default function PerfisPermissoes() {
                                       <span className="font-medium text-sm">{config.label}</span>
                                       <span className="text-[10px] text-muted-foreground">{moduleCode}</span>
                                     </div>
+                                    {allModulePermissions && (
+                                      <Badge variant="secondary" className="text-[9px] ml-auto">
+                                        Acesso Total
+                                      </Badge>
+                                    )}
                                   </div>
                                   {PERMISSION_ACTIONS.map((action) => {
-                                    const hasPerm = hasConfiguredPermission(moduleCode, action.key);
+                                    const hasPerm = hasPermission(moduleCode, action.key);
                                     
                                     return (
                                       <div key={action.key} className="p-3 flex items-center justify-center">
                                         <Checkbox
                                           checked={hasPerm}
-                                          disabled
+                                          onCheckedChange={() => toggleModulePermission(moduleCode, action.key)}
                                           className={cn(
-                                            "h-5 w-5",
+                                            "h-5 w-5 cursor-pointer transition-all hover:scale-110",
                                             hasPerm && "bg-primary border-primary text-primary-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                           )}
                                         />
