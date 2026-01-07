@@ -13,6 +13,7 @@ import {
   Scale,
   XCircle,
 } from "lucide-react";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -274,6 +275,7 @@ export default function ReclamacoesRecursos() {
   };
 
   return (
+    <AppLayout>
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
@@ -599,5 +601,6 @@ export default function ReclamacoesRecursos() {
         </DialogContent>
       </Dialog>
     </div>
+    </AppLayout>
   );
 }
