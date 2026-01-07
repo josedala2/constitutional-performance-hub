@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { format, differenceInDays, isPast } from "date-fns";
 import { pt } from "date-fns/locale";
@@ -10,6 +13,7 @@ import {
   FileText,
   Gavel,
   MessageSquare,
+  Plus,
   Scale,
   XCircle,
 } from "lucide-react";
@@ -55,11 +59,32 @@ import {
   useRespondReclamacao,
   useUpdateRecurso,
   useReclamacoesRecursosStats,
+  useCreateReclamacao,
   type Reclamacao,
   type Recurso,
 } from "@/hooks/useReclamacoesRecursos";
 import { useMembrosComissao } from "@/hooks/useComissaoAvaliacao";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useProfiles } from "@/hooks/useProfiles";
 
+// Form schema for creating reclamação
+const reclamacaoFormSchema = z.object({
+  motivo: z.string().min(5, "O motivo deve ter pelo menos 5 caracteres").max(200, "O motivo deve ter no máximo 200 caracteres"),
+  fundamentacao: z.string().min(20, "A fundamentação deve ter pelo menos 20 caracteres").max(2000, "A fundamentação deve ter no máximo 2000 caracteres"),
+  avaliacao_id: z.string().min(1, "Selecione uma avaliação"),
+  avaliador_id: z.string().min(1, "Selecione o avaliador"),
+});
+
+type ReclamacaoFormData = z.infer<typeof reclamacaoFormSchema>;
 // Fetch ciclos
 function useCiclos() {
   return useQuery({
@@ -222,21 +247,55 @@ function RecursoRow({
 }
 
 export default function ReclamacoesRecursos() {
+  const { user } = useAuth();
   const [selectedCiclo, setSelectedCiclo] = useState<string>("");
   const [selectedReclamacao, setSelectedReclamacao] = useState<Reclamacao | null>(null);
   const [selectedRecurso, setSelectedRecurso] = useState<Recurso | null>(null);
   const [resposta, setResposta] = useState("");
   const [decisao, setDecisao] = useState<"deferido" | "indeferido" | "parcialmente_deferido" | "">("");
   const [fundamentacao, setFundamentacao] = useState("");
+  const [showCreateReclamacao, setShowCreateReclamacao] = useState(false);
 
   const { data: ciclos, isLoading: loadingCiclos } = useCiclos();
   const { data: reclamacoes, isLoading: loadingReclamacoes } = useReclamacoes(selectedCiclo || undefined);
   const { data: recursos, isLoading: loadingRecursos } = useRecursos(selectedCiclo || undefined);
   const { data: membrosComissao } = useMembrosComissao(selectedCiclo || null);
+  const { data: profiles } = useProfiles();
   const stats = useReclamacoesRecursosStats(selectedCiclo || undefined);
 
   const respondMutation = useRespondReclamacao();
   const updateRecursoMutation = useUpdateRecurso();
+  const createReclamacaoMutation = useCreateReclamacao();
+
+  const reclamacaoForm = useForm<ReclamacaoFormData>({
+    resolver: zodResolver(reclamacaoFormSchema),
+    defaultValues: {
+      motivo: "",
+      fundamentacao: "",
+      avaliacao_id: "",
+      avaliador_id: "",
+    },
+  });
+
+  const handleCreateReclamacao = (data: ReclamacaoFormData) => {
+    if (!selectedCiclo || !user) return;
+    createReclamacaoMutation.mutate(
+      {
+        avaliacao_id: data.avaliacao_id,
+        ciclo_id: selectedCiclo,
+        reclamante_id: user.id,
+        avaliador_id: data.avaliador_id,
+        motivo: data.motivo,
+        fundamentacao: data.fundamentacao,
+      },
+      {
+        onSuccess: () => {
+          setShowCreateReclamacao(false);
+          reclamacaoForm.reset();
+        },
+      }
+    );
+  };
 
   const handleRespondReclamacao = () => {
     if (!selectedReclamacao || !decisao) return;
@@ -368,12 +427,22 @@ export default function ReclamacoesRecursos() {
 
         <TabsContent value="reclamacoes" className="mt-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Reclamações (Art. 32.º)</CardTitle>
-              <CardDescription>
-                Prazo de 10 dias úteis para submissão após notificação da avaliação.
-                Prazo de 15 dias úteis para resposta do avaliador.
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Reclamações (Art. 32.º)</CardTitle>
+                <CardDescription>
+                  Prazo de 10 dias úteis para submissão após notificação da avaliação.
+                  Prazo de 15 dias úteis para resposta do avaliador.
+                </CardDescription>
+              </div>
+              <Button 
+                onClick={() => setShowCreateReclamacao(true)} 
+                disabled={!selectedCiclo}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Nova Reclamação
+              </Button>
             </CardHeader>
             <CardContent>
               {loadingReclamacoes ? (
@@ -598,6 +667,113 @@ export default function ReclamacoesRecursos() {
               </Button>
             )}
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Reclamação Dialog */}
+      <Dialog open={showCreateReclamacao} onOpenChange={setShowCreateReclamacao}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Nova Reclamação</DialogTitle>
+            <DialogDescription>
+              Submeta uma reclamação sobre a sua avaliação de desempenho (Art. 32.º do RADFP).
+              Prazo de submissão: 10 dias úteis após notificação da avaliação.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...reclamacaoForm}>
+            <form onSubmit={reclamacaoForm.handleSubmit(handleCreateReclamacao)} className="space-y-4">
+              <FormField
+                control={reclamacaoForm.control}
+                name="avaliacao_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ID da Avaliação</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Identificador da avaliação..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={reclamacaoForm.control}
+                name="avaliador_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Avaliador</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o avaliador..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {profiles?.map((profile) => (
+                          <SelectItem key={profile.id} value={profile.id}>
+                            {profile.full_name} ({profile.email})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={reclamacaoForm.control}
+                name="motivo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Motivo da Reclamação</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Descreva brevemente o motivo..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={reclamacaoForm.control}
+                name="fundamentacao"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fundamentação</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Apresente a fundamentação detalhada da sua reclamação, incluindo factos, argumentos e eventuais elementos probatórios..."
+                        rows={6}
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowCreateReclamacao(false);
+                    reclamacaoForm.reset();
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createReclamacaoMutation.isPending}
+                >
+                  {createReclamacaoMutation.isPending ? "A submeter..." : "Submeter Reclamação"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
