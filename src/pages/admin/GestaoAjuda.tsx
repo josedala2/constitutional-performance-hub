@@ -80,6 +80,18 @@ export default function GestaoAjuda() {
   const [dragOverSectionIndex, setDragOverSectionIndex] = useState<number | null>(null);
   const dragSectionRef = useRef<HTMLDivElement | null>(null);
   
+  // Drag and drop state for tips
+  const [draggedTipIndex, setDraggedTipIndex] = useState<number | null>(null);
+  const [dragOverTipIndex, setDragOverTipIndex] = useState<number | null>(null);
+  
+  // Drag and drop state for related links
+  const [draggedLinkIndex, setDraggedLinkIndex] = useState<number | null>(null);
+  const [dragOverLinkIndex, setDragOverLinkIndex] = useState<number | null>(null);
+  
+  // Drag and drop state for legal references
+  const [draggedLegalRefIndex, setDraggedLegalRefIndex] = useState<number | null>(null);
+  const [dragOverLegalRefIndex, setDragOverLegalRefIndex] = useState<number | null>(null);
+  
   // Temporary inputs for arrays
   const [newSection, setNewSection] = useState({ title: "", content: "" });
   const [newTip, setNewTip] = useState("");
@@ -294,6 +306,48 @@ export default function GestaoAjuda() {
     }));
   };
 
+  // Drag and drop handlers for tips
+  const handleTipDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    setDraggedTipIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
+
+  const handleTipDragEnd = () => {
+    setDraggedTipIndex(null);
+    setDragOverTipIndex(null);
+  };
+
+  const handleTipDragOver = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (draggedTipIndex !== null && draggedTipIndex !== index) {
+      setDragOverTipIndex(index);
+    }
+  };
+
+  const handleTipDragLeave = () => {
+    setDragOverTipIndex(null);
+  };
+
+  const handleTipDrop = (e: React.DragEvent<HTMLDivElement>, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedTipIndex === null || draggedTipIndex === targetIndex) {
+      setDragOverTipIndex(null);
+      return;
+    }
+
+    setFormData(prev => {
+      const newTips = [...prev.tips];
+      const [draggedItem] = newTips.splice(draggedTipIndex, 1);
+      newTips.splice(targetIndex, 0, draggedItem);
+      return { ...prev, tips: newTips };
+    });
+
+    setDraggedTipIndex(null);
+    setDragOverTipIndex(null);
+  };
+
   const addLink = () => {
     if (newLink.label && newLink.href) {
       setFormData(prev => ({
@@ -311,6 +365,48 @@ export default function GestaoAjuda() {
     }));
   };
 
+  // Drag and drop handlers for related links
+  const handleLinkDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    setDraggedLinkIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
+
+  const handleLinkDragEnd = () => {
+    setDraggedLinkIndex(null);
+    setDragOverLinkIndex(null);
+  };
+
+  const handleLinkDragOver = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (draggedLinkIndex !== null && draggedLinkIndex !== index) {
+      setDragOverLinkIndex(index);
+    }
+  };
+
+  const handleLinkDragLeave = () => {
+    setDragOverLinkIndex(null);
+  };
+
+  const handleLinkDrop = (e: React.DragEvent<HTMLDivElement>, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedLinkIndex === null || draggedLinkIndex === targetIndex) {
+      setDragOverLinkIndex(null);
+      return;
+    }
+
+    setFormData(prev => {
+      const newLinks = [...prev.related_links];
+      const [draggedItem] = newLinks.splice(draggedLinkIndex, 1);
+      newLinks.splice(targetIndex, 0, draggedItem);
+      return { ...prev, related_links: newLinks };
+    });
+
+    setDraggedLinkIndex(null);
+    setDragOverLinkIndex(null);
+  };
+
   const addLegalRef = () => {
     if (newLegalRef.trim()) {
       setFormData(prev => ({
@@ -326,6 +422,48 @@ export default function GestaoAjuda() {
       ...prev,
       legal_references: prev.legal_references.filter((_, i) => i !== index),
     }));
+  };
+
+  // Drag and drop handlers for legal references
+  const handleLegalRefDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    setDraggedLegalRefIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
+
+  const handleLegalRefDragEnd = () => {
+    setDraggedLegalRefIndex(null);
+    setDragOverLegalRefIndex(null);
+  };
+
+  const handleLegalRefDragOver = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (draggedLegalRefIndex !== null && draggedLegalRefIndex !== index) {
+      setDragOverLegalRefIndex(index);
+    }
+  };
+
+  const handleLegalRefDragLeave = () => {
+    setDragOverLegalRefIndex(null);
+  };
+
+  const handleLegalRefDrop = (e: React.DragEvent<HTMLDivElement>, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedLegalRefIndex === null || draggedLegalRefIndex === targetIndex) {
+      setDragOverLegalRefIndex(null);
+      return;
+    }
+
+    setFormData(prev => {
+      const newRefs = [...prev.legal_references];
+      const [draggedItem] = newRefs.splice(draggedLegalRefIndex, 1);
+      newRefs.splice(targetIndex, 0, draggedItem);
+      return { ...prev, legal_references: newRefs };
+    });
+
+    setDraggedLegalRefIndex(null);
+    setDragOverLegalRefIndex(null);
   };
 
   const addKeyword = () => {
@@ -597,15 +735,42 @@ export default function GestaoAjuda() {
 
               {/* Tips */}
               <div className="space-y-3">
-                <Label>Dicas</Label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex items-center justify-between">
+                  <Label>Dicas</Label>
+                  {formData.tips.length > 1 && (
+                    <span className="text-xs text-muted-foreground">
+                      Arraste para reordenar
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-2">
                   {formData.tips.map((tip, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1 pr-1">
-                      <span className="max-w-[200px] truncate">{tip}</span>
-                      <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => removeTip(index)}>
+                    <div
+                      key={index}
+                      draggable
+                      onDragStart={(e) => handleTipDragStart(e, index)}
+                      onDragEnd={handleTipDragEnd}
+                      onDragOver={(e) => handleTipDragOver(e, index)}
+                      onDragLeave={handleTipDragLeave}
+                      onDrop={(e) => handleTipDrop(e, index)}
+                      className={`flex items-center gap-2 p-2 rounded-lg border bg-muted/30 cursor-move transition-all ${
+                        dragOverTipIndex === index
+                          ? "border-primary border-2 bg-primary/5"
+                          : ""
+                      } ${
+                        draggedTipIndex === index
+                          ? "opacity-50"
+                          : ""
+                      }`}
+                    >
+                      <div className="text-muted-foreground hover:text-foreground">
+                        <GripVertical className="h-4 w-4" />
+                      </div>
+                      <span className="flex-1 text-sm truncate">{tip}</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeTip(index)}>
                         <X className="h-3 w-3" />
                       </Button>
-                    </Badge>
+                    </div>
                   ))}
                 </div>
                 <div className="flex gap-2">
@@ -625,13 +790,40 @@ export default function GestaoAjuda() {
 
               {/* Related Links */}
               <div className="space-y-3">
-                <Label>Links Relacionados</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Links Relacionados</Label>
+                  {formData.related_links.length > 1 && (
+                    <span className="text-xs text-muted-foreground">
+                      Arraste para reordenar
+                    </span>
+                  )}
+                </div>
                 <div className="space-y-2">
                   {formData.related_links.map((link, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 rounded border bg-muted/30">
+                    <div
+                      key={index}
+                      draggable
+                      onDragStart={(e) => handleLinkDragStart(e, index)}
+                      onDragEnd={handleLinkDragEnd}
+                      onDragOver={(e) => handleLinkDragOver(e, index)}
+                      onDragLeave={handleLinkDragLeave}
+                      onDrop={(e) => handleLinkDrop(e, index)}
+                      className={`flex items-center gap-2 p-2 rounded-lg border bg-muted/30 cursor-move transition-all ${
+                        dragOverLinkIndex === index
+                          ? "border-primary border-2 bg-primary/5"
+                          : ""
+                      } ${
+                        draggedLinkIndex === index
+                          ? "opacity-50"
+                          : ""
+                      }`}
+                    >
+                      <div className="text-muted-foreground hover:text-foreground">
+                        <GripVertical className="h-4 w-4" />
+                      </div>
                       <span className="text-sm font-medium">{link.label}</span>
-                      <span className="text-xs text-muted-foreground">→ {link.href}</span>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => removeLink(index)}>
+                      <span className="text-xs text-muted-foreground flex-1">→ {link.href}</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeLink(index)}>
                         <X className="h-3 w-3" />
                       </Button>
                     </div>
@@ -658,15 +850,42 @@ export default function GestaoAjuda() {
 
               {/* Legal References */}
               <div className="space-y-3">
-                <Label>Referências Legais</Label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex items-center justify-between">
+                  <Label>Referências Legais</Label>
+                  {formData.legal_references.length > 1 && (
+                    <span className="text-xs text-muted-foreground">
+                      Arraste para reordenar
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-2">
                   {formData.legal_references.map((ref, index) => (
-                    <Badge key={index} variant="outline" className="gap-1 pr-1">
-                      <span className="max-w-[200px] truncate">{ref}</span>
-                      <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => removeLegalRef(index)}>
+                    <div
+                      key={index}
+                      draggable
+                      onDragStart={(e) => handleLegalRefDragStart(e, index)}
+                      onDragEnd={handleLegalRefDragEnd}
+                      onDragOver={(e) => handleLegalRefDragOver(e, index)}
+                      onDragLeave={handleLegalRefDragLeave}
+                      onDrop={(e) => handleLegalRefDrop(e, index)}
+                      className={`flex items-center gap-2 p-2 rounded-lg border bg-muted/30 cursor-move transition-all ${
+                        dragOverLegalRefIndex === index
+                          ? "border-primary border-2 bg-primary/5"
+                          : ""
+                      } ${
+                        draggedLegalRefIndex === index
+                          ? "opacity-50"
+                          : ""
+                      }`}
+                    >
+                      <div className="text-muted-foreground hover:text-foreground">
+                        <GripVertical className="h-4 w-4" />
+                      </div>
+                      <span className="flex-1 text-sm truncate">{ref}</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeLegalRef(index)}>
                         <X className="h-3 w-3" />
                       </Button>
-                    </Badge>
+                    </div>
                   ))}
                 </div>
                 <div className="flex gap-2">
