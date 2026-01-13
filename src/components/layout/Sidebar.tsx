@@ -28,6 +28,7 @@ import {
   Scale,
   Activity,
   FileStack,
+  HelpCircle,
 } from "lucide-react";
 import tribunalLogo from "@/assets/tribunal-logo.png";
 import { useState } from "react";
@@ -133,6 +134,7 @@ const adminSubmenu = [
   { name: "Configuração Workflow", href: "/admin/workflow", icon: Workflow, shortName: "Workflow" },
   { name: "Estado Workflow", href: "/admin/estado-workflow", icon: Activity, shortName: "Estado" },
   { name: "Unidades Orgânicas", href: "/admin/unidades", icon: Building2, shortName: "Unidades" },
+  { name: "Gestão de Ajuda", href: "/admin/ajuda", icon: HelpCircle, shortName: "Ajuda" },
   { name: "Auditoria", href: "/admin/auditoria", icon: ScrollText, shortName: "Auditoria" },
 ];
 
