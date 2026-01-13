@@ -4,6 +4,8 @@ import { Header } from "./Header";
 import { SidebarProvider, useSidebarContext } from "@/contexts/SidebarContext";
 import { cn } from "@/lib/utils";
 import { OnboardingTour, useOnboarding } from "@/components/onboarding/OnboardingTour";
+import { HelpPanel } from "@/components/help/HelpPanel";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -30,6 +32,9 @@ function AppLayoutContent({ children }: AppLayoutProps) {
         onClose={closeTour}
         onComplete={completeTour}
       />
+      
+      {/* Contextual Help Panel */}
+      <HelpPanel />
     </div>
   );
 }
@@ -37,7 +42,9 @@ function AppLayoutContent({ children }: AppLayoutProps) {
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <SidebarProvider>
-      <AppLayoutContent>{children}</AppLayoutContent>
+      <TooltipProvider>
+        <AppLayoutContent>{children}</AppLayoutContent>
+      </TooltipProvider>
     </SidebarProvider>
   );
 }
