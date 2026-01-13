@@ -142,11 +142,11 @@ export function HelpPanel({ className }: HelpPanelProps) {
               variant="outline"
               size="icon"
               className={cn(
-                "fixed bottom-6 right-6 h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-0",
+                "fixed bottom-4 right-4 md:bottom-6 md:right-6 h-10 w-10 md:h-12 md:w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-0",
                 className
               )}
             >
-              <HelpCircle className="h-6 w-6" />
+              <HelpCircle className="h-5 w-5 md:h-6 md:w-6" />
             </Button>
           </SheetTrigger>
         </TooltipTrigger>
@@ -155,17 +155,17 @@ export function HelpPanel({ className }: HelpPanelProps) {
         </TooltipContent>
       </Tooltip>
 
-      <SheetContent className="w-full sm:max-w-md p-0 flex flex-col">
-        <SheetHeader className="p-6 pb-4 bg-muted/30 border-b space-y-4">
+      <SheetContent className="w-full sm:max-w-md p-0 flex flex-col" side="right">
+        <SheetHeader className="p-4 md:p-6 pb-4 bg-muted/30 border-b space-y-3 md:space-y-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <IconComponent className="h-6 w-6 text-primary" />
+            <div className="p-1.5 md:p-2 rounded-lg bg-primary/10">
+              <IconComponent className="h-5 w-5 md:h-6 md:w-6 text-primary" />
             </div>
-            <div className="flex-1">
-              <SheetTitle className="text-lg font-serif">
+            <div className="flex-1 min-w-0">
+              <SheetTitle className="text-base md:text-lg font-serif truncate">
                 {isLoadingContent ? "A carregar..." : helpContent?.title || "Ajuda"}
               </SheetTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs md:text-sm text-muted-foreground mt-1 line-clamp-2">
                 {helpContent?.description || "Informações de ajuda para esta página"}
               </p>
             </div>
