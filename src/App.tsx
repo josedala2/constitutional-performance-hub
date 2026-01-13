@@ -42,6 +42,7 @@ import ConfiguracaoWorkflow from "./pages/admin/ConfiguracaoWorkflow";
 import EstadoWorkflow from "./pages/admin/EstadoWorkflow";
 import ConsultaAvaliacoes from "./pages/ConsultaAvaliacoes";
 import Instalar from "./pages/Instalar";
+import ReclamacoesRecursosUser from "./pages/ReclamacoesRecursosUser";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const App = () => (
             <Route path="/relatorios/utentes-externos" element={<ProtectedRoute><RelatorioUtentesExternos /></ProtectedRoute>} />
             <Route path="/processo" element={<ProtectedRoute><ProcessoAvaliacao /></ProtectedRoute>} />
             <Route path="/fluxograma" element={<ProtectedRoute><FluxogramaAvaliacao /></ProtectedRoute>} />
+            <Route path="/reclamacoes" element={<ProtectedRoute><ReclamacoesRecursosUser /></ProtectedRoute>} />
             <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
             <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
             <Route path="/meu-perfil" element={<ProtectedRoute><MeuPerfil /></ProtectedRoute>} />

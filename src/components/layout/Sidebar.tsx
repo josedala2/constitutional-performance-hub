@@ -118,6 +118,7 @@ const navigation = [
 ];
 
 const navigationAfterRelatorios = [
+  { name: "Reclamações e Recursos", href: "/reclamacoes", icon: Scale },
   { name: "Documentos", href: "/documentos", icon: FileText },
 ];
 
