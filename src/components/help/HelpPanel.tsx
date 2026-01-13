@@ -1,6 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { HelpCircle, BookOpen, Lightbulb, Link as LinkIcon, Scale, Search, ArrowRight, X } from "lucide-react";
+import { 
+  HelpCircle, BookOpen, Lightbulb, Link as LinkIcon, Scale, Search, ArrowRight, X,
+  LayoutDashboard, Users, ClipboardCheck, Target, Brain, Calendar, FileText, UserCog,
+  Shield, Building2, ScrollText, Loader2
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -10,106 +14,32 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getHelpContent, helpContentByRoute, HelpContent } from "@/config/helpContent";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useHelpContent, useSearchHelpContent, HelpContent } from "@/hooks/useHelpContent";
 
 interface HelpPanelProps {
   className?: string;
 }
 
-interface SearchResult {
-  route: string;
-  title: string;
-  description: string;
-  matchedIn: string;
-  matchedText: string;
-  icon: React.ElementType;
-}
+const iconMap: Record<string, React.ElementType> = {
+  HelpCircle,
+  LayoutDashboard,
+  Users,
+  ClipboardCheck,
+  Target,
+  Brain,
+  Calendar,
+  FileText,
+  UserCog,
+  Shield,
+  Building2,
+  ScrollText,
+  Scale,
+};
 
-function searchHelpContent(query: string): SearchResult[] {
-  if (!query || query.length < 2) return [];
-  
-  const normalizedQuery = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  const results: SearchResult[] = [];
-  
-  Object.entries(helpContentByRoute).forEach(([route, content]) => {
-    const normalizeText = (text: string) => 
-      text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    
-    // Search in title
-    if (normalizeText(content.title).includes(normalizedQuery)) {
-      results.push({
-        route,
-        title: content.title,
-        description: content.description,
-        matchedIn: "Título",
-        matchedText: content.title,
-        icon: content.icon
-      });
-      return;
-    }
-    
-    // Search in description
-    if (normalizeText(content.description).includes(normalizedQuery)) {
-      results.push({
-        route,
-        title: content.title,
-        description: content.description,
-        matchedIn: "Descrição",
-        matchedText: content.description,
-        icon: content.icon
-      });
-      return;
-    }
-    
-    // Search in sections
-    for (const section of content.sections) {
-      if (normalizeText(section.title).includes(normalizedQuery) || 
-          normalizeText(section.content).includes(normalizedQuery)) {
-        results.push({
-          route,
-          title: content.title,
-          description: content.description,
-          matchedIn: section.title,
-          matchedText: section.content.substring(0, 100) + "...",
-          icon: content.icon
-        });
-        return;
-      }
-    }
-    
-    // Search in tips
-    if (content.tips) {
-      for (const tip of content.tips) {
-        if (normalizeText(tip).includes(normalizedQuery)) {
-          results.push({
-            route,
-            title: content.title,
-            description: content.description,
-            matchedIn: "Dicas",
-            matchedText: tip,
-            icon: content.icon
-          });
-          return;
-        }
-      }
-    }
-    
-    // Search in legal reference
-    if (content.legalReference && normalizeText(content.legalReference).includes(normalizedQuery)) {
-      results.push({
-        route,
-        title: content.title,
-        description: content.description,
-        matchedIn: "Referência Legal",
-        matchedText: content.legalReference,
-        icon: content.icon
-      });
-    }
-  });
-  
-  return results;
+function getIconComponent(iconName: string): React.ElementType {
+  return iconMap[iconName] || HelpCircle;
 }
 
 function highlightMatch(text: string, query: string): React.ReactNode {
@@ -140,9 +70,9 @@ export function HelpPanel({ className }: HelpPanelProps) {
   const [activeTab, setActiveTab] = useState<"current" | "search">("current");
   const location = useLocation();
   const navigate = useNavigate();
-  const helpContent = getHelpContent(location.pathname);
-
-  const searchResults = useMemo(() => searchHelpContent(searchQuery), [searchQuery]);
+  
+  const { data: helpContent, isLoading: isLoadingContent } = useHelpContent(location.pathname);
+  const { data: searchResults = [], isLoading: isSearching } = useSearchHelpContent(searchQuery);
 
   const handleResultClick = (route: string) => {
     navigate(route);
@@ -163,11 +93,7 @@ export function HelpPanel({ className }: HelpPanelProps) {
     setActiveTab("current");
   };
 
-  if (!helpContent) {
-    return null;
-  }
-
-  const IconComponent = helpContent.icon;
+  const IconComponent = helpContent ? getIconComponent(helpContent.icon) : HelpCircle;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -198,8 +124,12 @@ export function HelpPanel({ className }: HelpPanelProps) {
               <IconComponent className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1">
-              <SheetTitle className="text-lg font-serif">{helpContent.title}</SheetTitle>
-              <p className="text-sm text-muted-foreground mt-1">{helpContent.description}</p>
+              <SheetTitle className="text-lg font-serif">
+                {isLoadingContent ? "A carregar..." : helpContent?.title || "Ajuda"}
+              </SheetTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {helpContent?.description || "Informações de ajuda para esta página"}
+              </p>
             </div>
           </div>
           
@@ -231,93 +161,110 @@ export function HelpPanel({ className }: HelpPanelProps) {
               Página Atual
             </TabsTrigger>
             <TabsTrigger value="search" className="text-xs">
-              Resultados ({searchResults.length})
+              Resultados {isSearching ? "" : `(${searchResults.length})`}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="current" className="flex-1 m-0">
             <ScrollArea className="h-[calc(100vh-320px)] p-6">
-              <div className="space-y-6">
-                {/* Main Sections */}
-                <Accordion type="multiple" defaultValue={helpContent.sections.map((_, i) => `section-${i}`)} className="w-full">
-                  {helpContent.sections.map((section, index) => (
-                    <AccordionItem key={index} value={`section-${index}`} className="border-b-0">
-                      <AccordionTrigger className="hover:no-underline py-3">
+              {isLoadingContent ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : helpContent ? (
+                <div className="space-y-6">
+                  {/* Main Sections */}
+                  {helpContent.sections.length > 0 && (
+                    <Accordion type="multiple" defaultValue={helpContent.sections.map((_, i) => `section-${i}`)} className="w-full">
+                      {helpContent.sections.map((section, index) => (
+                        <AccordionItem key={index} value={`section-${index}`} className="border-b-0">
+                          <AccordionTrigger className="hover:no-underline py-3">
+                            <div className="flex items-center gap-2">
+                              <BookOpen className="h-4 w-4 text-primary" />
+                              <span className="font-medium text-sm">{section.title}</span>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="text-sm text-muted-foreground whitespace-pre-line pl-6">
+                            {section.content}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  )}
+
+                  {/* Tips */}
+                  {helpContent.tips && helpContent.tips.length > 0 && (
+                    <>
+                      <Separator />
+                      <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <BookOpen className="h-4 w-4 text-primary" />
-                          <span className="font-medium text-sm">{section.title}</span>
+                          <Lightbulb className="h-4 w-4 text-amber-500" />
+                          <h3 className="font-medium text-sm">Dicas</h3>
                         </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="text-sm text-muted-foreground whitespace-pre-line pl-6">
-                        {section.content}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-
-                {/* Tips */}
-                {helpContent.tips && helpContent.tips.length > 0 && (
-                  <>
-                    <Separator />
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Lightbulb className="h-4 w-4 text-amber-500" />
-                        <h3 className="font-medium text-sm">Dicas</h3>
+                        <ul className="space-y-2">
+                          {helpContent.tips.map((tip, index) => (
+                            <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+                              <span className="text-amber-500 mt-0.5">•</span>
+                              {tip}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                      <ul className="space-y-2">
-                        {helpContent.tips.map((tip, index) => (
-                          <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                            <span className="text-amber-500 mt-0.5">•</span>
-                            {tip}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
 
-                {/* Legal Reference */}
-                {helpContent.legalReference && (
-                  <>
-                    <Separator />
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Scale className="h-4 w-4 text-primary" />
-                        <h3 className="font-medium text-sm">Referência Legal</h3>
-                      </div>
-                      <Badge variant="secondary" className="font-normal">
-                        {helpContent.legalReference}
-                      </Badge>
-                    </div>
-                  </>
-                )}
-
-                {/* Related Links */}
-                {helpContent.relatedLinks && helpContent.relatedLinks.length > 0 && (
-                  <>
-                    <Separator />
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <LinkIcon className="h-4 w-4 text-primary" />
-                        <h3 className="font-medium text-sm">Links Relacionados</h3>
-                      </div>
+                  {/* Legal References */}
+                  {helpContent.legal_references && helpContent.legal_references.length > 0 && (
+                    <>
+                      <Separator />
                       <div className="space-y-2">
-                        {helpContent.relatedLinks.map((link, index) => (
-                          <Link
-                            key={index}
-                            to={link.href}
-                            onClick={() => setOpen(false)}
-                            className="flex items-center gap-2 text-sm text-primary hover:underline"
-                          >
-                            <span>→</span>
-                            {link.label}
-                          </Link>
-                        ))}
+                        <div className="flex items-center gap-2">
+                          <Scale className="h-4 w-4 text-primary" />
+                          <h3 className="font-medium text-sm">Referências Legais</h3>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {helpContent.legal_references.map((ref, index) => (
+                            <Badge key={index} variant="secondary" className="font-normal text-xs">
+                              {ref}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </>
-                )}
-              </div>
+                    </>
+                  )}
+
+                  {/* Related Links */}
+                  {helpContent.related_links && helpContent.related_links.length > 0 && (
+                    <>
+                      <Separator />
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <LinkIcon className="h-4 w-4 text-primary" />
+                          <h3 className="font-medium text-sm">Links Relacionados</h3>
+                        </div>
+                        <div className="space-y-2">
+                          {helpContent.related_links.map((link, index) => (
+                            <Link
+                              key={index}
+                              to={link.href}
+                              onClick={() => setOpen(false)}
+                              className="flex items-center gap-2 text-sm text-primary hover:underline"
+                            >
+                              <span>→</span>
+                              {link.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <HelpCircle className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                  <p className="text-sm">Nenhuma ajuda disponível para esta página</p>
+                </div>
+              )}
             </ScrollArea>
           </TabsContent>
 
@@ -327,6 +274,10 @@ export function HelpPanel({ className }: HelpPanelProps) {
                 <div className="text-center py-8 text-muted-foreground">
                   <Search className="h-12 w-12 mx-auto mb-4 opacity-30" />
                   <p className="text-sm">Digite pelo menos 2 caracteres para pesquisar</p>
+                </div>
+              ) : isSearching ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
               ) : searchResults.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
@@ -339,11 +290,11 @@ export function HelpPanel({ className }: HelpPanelProps) {
                   <p className="text-xs text-muted-foreground mb-4">
                     {searchResults.length} resultado{searchResults.length !== 1 ? 's' : ''} encontrado{searchResults.length !== 1 ? 's' : ''}
                   </p>
-                  {searchResults.map((result, index) => {
-                    const ResultIcon = result.icon;
+                  {searchResults.map((result: HelpContent) => {
+                    const ResultIcon = getIconComponent(result.icon);
                     return (
                       <button
-                        key={index}
+                        key={result.id}
                         onClick={() => handleResultClick(result.route)}
                         className="w-full text-left p-4 rounded-lg border hover:bg-muted/50 transition-colors group"
                       >
@@ -362,9 +313,6 @@ export function HelpPanel({ className }: HelpPanelProps) {
                               {highlightMatch(result.description, searchQuery)}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                                {result.matchedIn}
-                              </Badge>
                               <span className="text-[10px] text-muted-foreground truncate">
                                 {result.route}
                               </span>

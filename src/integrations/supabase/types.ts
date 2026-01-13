@@ -151,6 +151,51 @@ export type Database = {
           },
         ]
       }
+      help_content: {
+        Row: {
+          created_at: string
+          description: string
+          icon: string | null
+          id: string
+          keywords: string[] | null
+          legal_references: string[] | null
+          related_links: Json | null
+          route: string
+          sections: Json | null
+          tips: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon?: string | null
+          id?: string
+          keywords?: string[] | null
+          legal_references?: string[] | null
+          related_links?: Json | null
+          route: string
+          sections?: Json | null
+          tips?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon?: string | null
+          id?: string
+          keywords?: string[] | null
+          legal_references?: string[] | null
+          related_links?: Json | null
+          route?: string
+          sections?: Json | null
+          tips?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       org_units: {
         Row: {
           created_at: string
@@ -576,6 +621,29 @@ export type Database = {
           _metadata?: Json
         }
         Returns: string
+      }
+      search_help_content: {
+        Args: { search_query: string }
+        Returns: {
+          created_at: string
+          description: string
+          icon: string | null
+          id: string
+          keywords: string[] | null
+          legal_references: string[] | null
+          related_links: Json | null
+          route: string
+          sections: Json | null
+          tips: string[] | null
+          title: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "help_content"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {
