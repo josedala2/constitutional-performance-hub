@@ -67,12 +67,46 @@ function highlightMatch(text: string, query: string): React.ReactNode {
 export function HelpPanel({ className }: HelpPanelProps) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [localSearchQuery, setLocalSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"current" | "search">("current");
   const location = useLocation();
   const navigate = useNavigate();
   
   const { data: helpContent, isLoading: isLoadingContent } = useHelpContent(location.pathname);
   const { data: searchResults = [], isLoading: isSearching } = useSearchHelpContent(searchQuery);
+
+  // Filter current page content based on local search
+  const filteredSections = helpContent?.sections.filter(section => {
+    if (!localSearchQuery || localSearchQuery.length < 2) return true;
+    const query = localSearchQuery.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const titleMatch = section.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(query);
+    const contentMatch = section.content.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(query);
+    return titleMatch || contentMatch;
+  }) || [];
+
+  const filteredTips = helpContent?.tips?.filter(tip => {
+    if (!localSearchQuery || localSearchQuery.length < 2) return true;
+    const query = localSearchQuery.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return tip.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(query);
+  }) || [];
+
+  const filteredLegalRefs = helpContent?.legal_references?.filter(ref => {
+    if (!localSearchQuery || localSearchQuery.length < 2) return true;
+    const query = localSearchQuery.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return ref.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(query);
+  }) || [];
+
+  const filteredLinks = helpContent?.related_links?.filter(link => {
+    if (!localSearchQuery || localSearchQuery.length < 2) return true;
+    const query = localSearchQuery.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return link.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(query);
+  }) || [];
+
+  const hasLocalResults = localSearchQuery.length >= 2 && 
+    (filteredSections.length > 0 || filteredTips.length > 0 || filteredLegalRefs.length > 0 || filteredLinks.length > 0);
+  
+  const noLocalResults = localSearchQuery.length >= 2 && 
+    filteredSections.length === 0 && filteredTips.length === 0 && filteredLegalRefs.length === 0 && filteredLinks.length === 0;
 
   const handleResultClick = (route: string) => {
     navigate(route);
@@ -91,6 +125,10 @@ export function HelpPanel({ className }: HelpPanelProps) {
   const clearSearch = () => {
     setSearchQuery("");
     setActiveTab("current");
+  };
+
+  const clearLocalSearch = () => {
+    setLocalSearchQuery("");
   };
 
   const IconComponent = helpContent ? getIconComponent(helpContent.icon) : HelpCircle;
@@ -166,26 +204,70 @@ export function HelpPanel({ className }: HelpPanelProps) {
           </TabsList>
 
           <TabsContent value="current" className="flex-1 m-0">
-            <ScrollArea className="h-[calc(100vh-320px)] p-6">
+            <ScrollArea className="h-[calc(100vh-380px)] p-6">
+              {/* Local Search for Current Page */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Filtrar nesta página..."
+                  value={localSearchQuery}
+                  onChange={(e) => setLocalSearchQuery(e.target.value)}
+                  className="pl-9 pr-9 h-9 text-sm"
+                />
+                {localSearchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
+                    onClick={clearLocalSearch}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+
               {isLoadingContent ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
               ) : helpContent ? (
                 <div className="space-y-6">
+                  {/* No results message */}
+                  {noLocalResults && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Search className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                      <p className="text-sm">Nenhum resultado encontrado para "{localSearchQuery}"</p>
+                      <p className="text-xs mt-1">Tente pesquisar globalmente na tab "Resultados"</p>
+                    </div>
+                  )}
+
+                  {/* Local search results summary */}
+                  {hasLocalResults && (
+                    <div className="flex items-center justify-between text-xs text-muted-foreground pb-2 border-b">
+                      <span>
+                        {filteredSections.length + filteredTips.length + filteredLegalRefs.length + filteredLinks.length} resultado(s) encontrado(s)
+                      </span>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={clearLocalSearch}>
+                        Limpar filtro
+                      </Button>
+                    </div>
+                  )}
+
                   {/* Main Sections */}
-                  {helpContent.sections.length > 0 && (
-                    <Accordion type="multiple" defaultValue={helpContent.sections.map((_, i) => `section-${i}`)} className="w-full">
-                      {helpContent.sections.map((section, index) => (
+                  {filteredSections.length > 0 && (
+                    <Accordion type="multiple" defaultValue={filteredSections.map((_, i) => `section-${i}`)} className="w-full">
+                      {filteredSections.map((section, index) => (
                         <AccordionItem key={index} value={`section-${index}`} className="border-b-0">
                           <AccordionTrigger className="hover:no-underline py-3">
                             <div className="flex items-center gap-2">
                               <BookOpen className="h-4 w-4 text-primary" />
-                              <span className="font-medium text-sm">{section.title}</span>
+                              <span className="font-medium text-sm">
+                                {highlightMatch(section.title, localSearchQuery)}
+                              </span>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="text-sm text-muted-foreground whitespace-pre-line pl-6">
-                            {section.content}
+                            {highlightMatch(section.content, localSearchQuery)}
                           </AccordionContent>
                         </AccordionItem>
                       ))}
@@ -193,7 +275,7 @@ export function HelpPanel({ className }: HelpPanelProps) {
                   )}
 
                   {/* Tips */}
-                  {helpContent.tips && helpContent.tips.length > 0 && (
+                  {filteredTips.length > 0 && (
                     <>
                       <Separator />
                       <div className="space-y-3">
@@ -202,10 +284,10 @@ export function HelpPanel({ className }: HelpPanelProps) {
                           <h3 className="font-medium text-sm">Dicas</h3>
                         </div>
                         <ul className="space-y-2">
-                          {helpContent.tips.map((tip, index) => (
+                          {filteredTips.map((tip, index) => (
                             <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
                               <span className="text-amber-500 mt-0.5">•</span>
-                              {tip}
+                              {highlightMatch(tip, localSearchQuery)}
                             </li>
                           ))}
                         </ul>
@@ -214,7 +296,7 @@ export function HelpPanel({ className }: HelpPanelProps) {
                   )}
 
                   {/* Legal References */}
-                  {helpContent.legal_references && helpContent.legal_references.length > 0 && (
+                  {filteredLegalRefs.length > 0 && (
                     <>
                       <Separator />
                       <div className="space-y-2">
@@ -223,9 +305,9 @@ export function HelpPanel({ className }: HelpPanelProps) {
                           <h3 className="font-medium text-sm">Referências Legais</h3>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {helpContent.legal_references.map((ref, index) => (
+                          {filteredLegalRefs.map((ref, index) => (
                             <Badge key={index} variant="secondary" className="font-normal text-xs">
-                              {ref}
+                              {highlightMatch(ref, localSearchQuery)}
                             </Badge>
                           ))}
                         </div>
@@ -234,7 +316,7 @@ export function HelpPanel({ className }: HelpPanelProps) {
                   )}
 
                   {/* Related Links */}
-                  {helpContent.related_links && helpContent.related_links.length > 0 && (
+                  {filteredLinks.length > 0 && (
                     <>
                       <Separator />
                       <div className="space-y-3">
@@ -243,7 +325,7 @@ export function HelpPanel({ className }: HelpPanelProps) {
                           <h3 className="font-medium text-sm">Links Relacionados</h3>
                         </div>
                         <div className="space-y-2">
-                          {helpContent.related_links.map((link, index) => (
+                          {filteredLinks.map((link, index) => (
                             <Link
                               key={index}
                               to={link.href}
@@ -251,7 +333,7 @@ export function HelpPanel({ className }: HelpPanelProps) {
                               className="flex items-center gap-2 text-sm text-primary hover:underline"
                             >
                               <span>→</span>
-                              {link.label}
+                              {highlightMatch(link.label, localSearchQuery)}
                             </Link>
                           ))}
                         </div>
