@@ -1,4 +1,4 @@
-import { Bell, Search, User, LogOut, Settings, HelpCircle } from "lucide-react";
+import { Bell, Search, User, LogOut, Settings, HelpCircle, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,6 +19,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useSidebarContext } from "@/contexts/SidebarContext";
 
 interface HeaderProps {
   onStartOnboarding?: () => void;
@@ -38,6 +39,7 @@ const ROLE_LABELS: Record<string, string> = {
 export function Header({ onStartOnboarding }: HeaderProps) {
   const { profile, userRoles, signOut } = useAuth();
   const navigate = useNavigate();
+  const { isMobile, toggleMobile } = useSidebarContext();
 
   const displayName = profile?.full_name || "Utilizador";
   const displayEmail = profile?.email || "";
@@ -56,13 +58,20 @@ export function Header({ onStartOnboarding }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-card px-6 shadow-sm">
+    <header className="sticky top-0 z-40 flex h-14 md:h-16 items-center gap-2 md:gap-4 border-b bg-card px-3 md:px-6 shadow-sm">
+      {/* Mobile Menu Button */}
+      {isMobile && (
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMobile}>
+          <Menu className="h-5 w-5" />
+        </Button>
+      )}
+
       {/* Search */}
       <div className="relative flex-1 max-w-md">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Pesquisar colaboradores, avaliações..."
-          className="pl-9 bg-secondary/50 border-0 focus-visible:ring-1"
+          placeholder={isMobile ? "Pesquisar..." : "Pesquisar colaboradores, avaliações..."}
+          className="pl-9 bg-secondary/50 border-0 focus-visible:ring-1 h-9 md:h-10 text-sm"
         />
       </div>
 
@@ -124,13 +133,13 @@ export function Header({ onStartOnboarding }: HeaderProps) {
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-3 h-auto py-2 px-3">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+            <Button variant="ghost" className="flex items-center gap-2 md:gap-3 h-auto py-1.5 md:py-2 px-2 md:px-3">
+              <Avatar className="h-7 w-7 md:h-8 md:w-8">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs md:text-sm">
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <div className="hidden md:flex flex-col items-start">
+              <div className="hidden lg:flex flex-col items-start">
                 <span className="text-sm font-medium">{displayName}</span>
                 {primaryRole && (
                   <Badge variant="secondary" className="text-[10px] px-1.5 py-0">

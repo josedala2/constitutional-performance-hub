@@ -12,7 +12,7 @@ interface AppLayoutProps {
 }
 
 function AppLayoutContent({ children }: AppLayoutProps) {
-  const { collapsed } = useSidebarContext();
+  const { collapsed, isMobile } = useSidebarContext();
   const { isOpen, startTour, closeTour, completeTour } = useOnboarding();
   
   return (
@@ -20,10 +20,10 @@ function AppLayoutContent({ children }: AppLayoutProps) {
       <Sidebar />
       <div className={cn(
         "transition-all duration-300",
-        collapsed ? "pl-16" : "pl-64"
+        isMobile ? "pl-0" : (collapsed ? "pl-16" : "pl-64")
       )}>
         <Header onStartOnboarding={startTour} />
-        <main className="p-6">{children}</main>
+        <main className="p-3 md:p-6">{children}</main>
       </div>
       
       {/* Onboarding Tour */}

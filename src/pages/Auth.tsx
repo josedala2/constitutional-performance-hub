@@ -146,10 +146,10 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <img src={tribunalLogo} alt="Tribunal de Contas" className="h-16 mx-auto mb-4" />
-          <CardTitle className="text-2xl font-serif">SGAD</CardTitle>
-          <CardDescription>Sistema de Gestão de Avaliação de Desempenho</CardDescription>
+        <CardHeader className="text-center space-y-3">
+          <img src={tribunalLogo} alt="Tribunal de Contas" className="h-12 md:h-16 mx-auto" />
+          <CardTitle className="text-xl md:text-2xl font-serif">SGAD</CardTitle>
+          <CardDescription className="text-xs md:text-sm">Sistema de Gestão de Avaliação de Desempenho</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login">

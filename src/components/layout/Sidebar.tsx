@@ -31,7 +31,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import tribunalLogo from "@/assets/tribunal-logo.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -46,6 +46,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 const avaliacoesSubmenu = [
   { 
@@ -144,7 +145,7 @@ const bottomNavigation = [
 
 export function Sidebar() {
   const location = useLocation();
-  const { collapsed, toggle } = useSidebarContext();
+  const { collapsed, toggle, mobileOpen, setMobileOpen, isMobile } = useSidebarContext();
   const { canManageUsers } = useAuth();
   const [avaliacoesOpen, setAvaliacoesOpen] = useState(
     location.pathname.startsWith("/avaliacoes")
@@ -155,6 +156,13 @@ export function Sidebar() {
   const [adminOpen, setAdminOpen] = useState(
     location.pathname.startsWith("/admin")
   );
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+  }, [location.pathname, isMobile, setMobileOpen]);
 
   const isAvaliacoesActive = location.pathname.startsWith("/avaliacoes");
   const isRelatoriosActive = location.pathname.startsWith("/relatorios");
@@ -189,34 +197,29 @@ export function Sidebar() {
     return content;
   };
 
-  return (
-    <TooltipProvider delayDuration={0}>
-      <aside
-        className={cn(
-          "fixed left-0 top-0 z-50 flex h-screen flex-col bg-sidebar text-sidebar-foreground transition-all duration-300",
-          collapsed ? "w-16" : "w-64"
+  const SidebarContent = () => (
+    <>
+      {/* Logo */}
+      <div className="flex h-14 md:h-16 items-center gap-3 border-b border-sidebar-border px-4">
+        <img 
+          src={tribunalLogo} 
+          alt="Tribunal de Contas" 
+          className={cn("h-10 md:h-12 w-auto transition-all duration-300", !isMobile && collapsed && "h-10")} 
+        />
+        {(isMobile || !collapsed) && (
+          <div className="flex flex-col">
+            <span className="text-sm font-serif font-semibold text-sidebar-foreground">
+              Tribunal de Contas
+            </span>
+            <span className="text-[10px] text-sidebar-foreground/70 uppercase tracking-wider">
+              SGAD
+            </span>
+          </div>
         )}
-      >
-        {/* Logo */}
-        <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-4">
-          <img 
-            src={tribunalLogo} 
-            alt="Tribunal de Contas" 
-            className={cn("h-12 w-auto transition-all duration-300", collapsed && "h-10")} 
-          />
-          {!collapsed && (
-            <div className="flex flex-col">
-              <span className="text-sm font-serif font-semibold text-sidebar-foreground">
-                Tribunal de Contas
-              </span>
-              <span className="text-[10px] text-sidebar-foreground/70 uppercase tracking-wider">
-                SGAD
-              </span>
-            </div>
-          )}
-        </div>
+      </div>
 
-        {/* Toggle Button */}
+      {/* Toggle Button - only on desktop */}
+      {!isMobile && (
         <div className="flex justify-end px-2 py-2 border-b border-sidebar-border">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -238,230 +241,255 @@ export function Sidebar() {
             </TooltipContent>
           </Tooltip>
         </div>
+      )}
 
-        {/* Main Navigation */}
-        <nav className="flex-1 space-y-1 px-2 py-4 overflow-y-auto">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
-            return <NavItem key={item.name} item={item} isActive={isActive} />;
-          })}
+      {/* Main Navigation */}
+      <nav className="flex-1 space-y-1 px-2 py-4 overflow-y-auto">
+        {navigation.map((item) => {
+          const isActive = location.pathname === item.href;
+          return <NavItem key={item.name} item={item} isActive={isActive} />;
+        })}
 
-          {/* Avaliações with Submenu */}
-          {collapsed ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  to="/avaliacoes/pessoal-tecnico"
-                  className={cn(
-                    "flex items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition-all duration-200",
-                    isAvaliacoesActive
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  )}
-                >
-                  <ClipboardCheck className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Avaliações</TooltipContent>
-            </Tooltip>
-          ) : (
-            <Collapsible open={avaliacoesOpen} onOpenChange={setAvaliacoesOpen}>
-              <CollapsibleTrigger asChild>
-                <button
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                    isAvaliacoesActive
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  )}
-                >
-                  <ClipboardCheck className="h-5 w-5 flex-shrink-0" />
-                  <span className="flex-1 text-left">Avaliações</span>
-                  {avaliacoesOpen ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-1 pl-4 pt-1">
-                {avaliacoesSubmenu.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={cn(
-                        "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                      )}
-                    >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">{item.name}</span>
-                    </Link>
-                  );
-                })}
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-
-          {/* Relatórios with Submenu */}
-          {collapsed ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  to="/relatorios/desempenho-superior"
-                  className={cn(
-                    "flex items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition-all duration-200",
-                    isRelatoriosActive
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  )}
-                >
-                  <BarChart3 className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Relatórios</TooltipContent>
-            </Tooltip>
-          ) : (
-            <Collapsible open={relatoriosOpen} onOpenChange={setRelatoriosOpen}>
-              <CollapsibleTrigger asChild>
-                <button
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                    isRelatoriosActive
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  )}
-                >
-                  <BarChart3 className="h-5 w-5 flex-shrink-0" />
-                  <span className="flex-1 text-left">Relatórios</span>
-                  {relatoriosOpen ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-1 pl-4 pt-1">
-                {relatoriosSubmenu.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={cn(
-                        "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                      )}
-                    >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">{item.name}</span>
-                    </Link>
-                  );
-                })}
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-
-          {navigationAfterRelatorios.map((item) => {
-            const isActive = location.pathname === item.href;
-            return <NavItem key={item.name} item={item} isActive={isActive} />;
-          })}
-
-          {/* Separator - only show if admin menu is visible */}
-          {canManageUsers && (
-            <div className="my-4 border-t border-sidebar-border" />
-          )}
-
-          {/* Administração with Submenu - only for ADMIN and RH */}
-          {canManageUsers && (
-            <>
-              {collapsed ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link
-                      to="/admin"
-                      className={cn(
-                        "flex items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition-all duration-200",
-                        isAdminActive
-                          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      )}
-                    >
-                      <Shield className="h-5 w-5" />
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">Administração</TooltipContent>
-                </Tooltip>
-              ) : (
-                <Collapsible open={adminOpen} onOpenChange={setAdminOpen}>
-                  <CollapsibleTrigger asChild>
-                    <button
-                      className={cn(
-                        "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                        isAdminActive
-                          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      )}
-                    >
-                      <Shield className="h-5 w-5 flex-shrink-0" />
-                      <span className="flex-1 text-left">Administração</span>
-                      {adminOpen ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
-                    </button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-1 pl-4 pt-1">
-                    {adminSubmenu.map((item) => {
-                      const isActive = location.pathname === item.href;
-                      return (
-                        <Link
-                          key={item.name}
-                          to={item.href}
-                          className={cn(
-                            "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200",
-                            isActive
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                          )}
-                        >
-                          <item.icon className="h-4 w-4 flex-shrink-0" />
-                          <span className="truncate">{item.name}</span>
-                        </Link>
-                      );
-                    })}
-                  </CollapsibleContent>
-                </Collapsible>
-              )}
-            </>
-          )}
-        </nav>
-
-        {/* Bottom Navigation */}
-        <div className="border-t border-sidebar-border px-2 py-4">
-          {bottomNavigation.map((item) => {
-            const isActive = location.pathname === item.href;
-            return <NavItem key={item.name} item={item} isActive={isActive} />;
-          })}
-        </div>
-
-        {/* Footer */}
-        {!collapsed && (
-          <div className="border-t border-sidebar-border px-6 py-4">
-            <p className="text-[10px] text-sidebar-foreground/50 text-center">
-              © 2025 Tribunal de Contas
-              <br />
-              Sistema de Gestão de Avaliação de Desempenho
-            </p>
-          </div>
+        {/* Avaliações with Submenu */}
+        {!isMobile && collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to="/avaliacoes/pessoal-tecnico"
+                className={cn(
+                  "flex items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition-all duration-200",
+                  isAvaliacoesActive
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <ClipboardCheck className="h-5 w-5" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">Avaliações</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Collapsible open={avaliacoesOpen} onOpenChange={setAvaliacoesOpen}>
+            <CollapsibleTrigger asChild>
+              <button
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                  isAvaliacoesActive
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <ClipboardCheck className="h-5 w-5 flex-shrink-0" />
+                <span className="flex-1 text-left">Avaliações</span>
+                {avaliacoesOpen ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-1 pl-4 pt-1">
+              {avaliacoesSubmenu.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200",
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </CollapsibleContent>
+          </Collapsible>
         )}
+
+        {/* Relatórios with Submenu */}
+        {!isMobile && collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to="/relatorios/desempenho-superior"
+                className={cn(
+                  "flex items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition-all duration-200",
+                  isRelatoriosActive
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <BarChart3 className="h-5 w-5" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">Relatórios</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Collapsible open={relatoriosOpen} onOpenChange={setRelatoriosOpen}>
+            <CollapsibleTrigger asChild>
+              <button
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                  isRelatoriosActive
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <BarChart3 className="h-5 w-5 flex-shrink-0" />
+                <span className="flex-1 text-left">Relatórios</span>
+                {relatoriosOpen ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-1 pl-4 pt-1">
+              {relatoriosSubmenu.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200",
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
+
+        {navigationAfterRelatorios.map((item) => {
+          const isActive = location.pathname === item.href;
+          return <NavItem key={item.name} item={item} isActive={isActive} />;
+        })}
+
+        {/* Separator - only show if admin menu is visible */}
+        {canManageUsers && (
+          <div className="my-4 border-t border-sidebar-border" />
+        )}
+
+        {/* Administração with Submenu - only for ADMIN and RH */}
+        {canManageUsers && (
+          <>
+            {!isMobile && collapsed ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    to="/admin"
+                    className={cn(
+                      "flex items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition-all duration-200",
+                      isAdminActive
+                        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    )}
+                  >
+                    <Shield className="h-5 w-5" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">Administração</TooltipContent>
+              </Tooltip>
+            ) : (
+              <Collapsible open={adminOpen} onOpenChange={setAdminOpen}>
+                <CollapsibleTrigger asChild>
+                  <button
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                      isAdminActive
+                        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    )}
+                  >
+                    <Shield className="h-5 w-5 flex-shrink-0" />
+                    <span className="flex-1 text-left">Administração</span>
+                    {adminOpen ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-1 pl-4 pt-1">
+                  {adminSubmenu.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className={cn(
+                          "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200",
+                          isActive
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                        )}
+                      >
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <span className="truncate">{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+          </>
+        )}
+      </nav>
+
+      {/* Bottom Navigation */}
+      <div className="border-t border-sidebar-border px-2 py-4">
+        {bottomNavigation.map((item) => {
+          const isActive = location.pathname === item.href;
+          return <NavItem key={item.name} item={item} isActive={isActive} />;
+        })}
+      </div>
+
+      {/* Footer */}
+      {(isMobile || !collapsed) && (
+        <div className="border-t border-sidebar-border px-6 py-4">
+          <p className="text-[10px] text-sidebar-foreground/50 text-center">
+            © 2025 Tribunal de Contas
+            <br />
+            Sistema de Gestão de Avaliação de Desempenho
+          </p>
+        </div>
+      )}
+    </>
+  );
+
+  // Mobile: use Sheet
+  if (isMobile) {
+    return (
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" className="w-72 p-0 bg-sidebar text-sidebar-foreground">
+          <SidebarContent />
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Desktop: fixed sidebar
+  return (
+    <TooltipProvider delayDuration={0}>
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-50 hidden md:flex h-screen flex-col bg-sidebar text-sidebar-foreground transition-all duration-300",
+          collapsed ? "w-16" : "w-64"
+        )}
+      >
+        <SidebarContent />
       </aside>
     </TooltipProvider>
   );
