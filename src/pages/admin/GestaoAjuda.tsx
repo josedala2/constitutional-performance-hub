@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { 
   Plus, Search, Edit2, Trash2, BookOpen, Save, X, Loader2,
   HelpCircle, LayoutDashboard, Users, ClipboardCheck, Target, 
-  Brain, Calendar, FileText, UserCog, Shield, Building2, ScrollText, Scale
+  Brain, Calendar, FileText, UserCog, Shield, Building2, ScrollText, Scale,
+  GripVertical
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,11 @@ export default function GestaoAjuda() {
   const [selectedContent, setSelectedContent] = useState<HelpContent | null>(null);
   const [formData, setFormData] = useState<FormData>(emptyFormData);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Drag and drop state for sections
+  const [draggedSectionIndex, setDraggedSectionIndex] = useState<number | null>(null);
+  const [dragOverSectionIndex, setDragOverSectionIndex] = useState<number | null>(null);
+  const dragSectionRef = useRef<HTMLDivElement | null>(null);
   
   // Temporary inputs for arrays
   const [newSection, setNewSection] = useState({ title: "", content: "" });
@@ -221,6 +227,54 @@ export default function GestaoAjuda() {
       ...prev,
       sections: prev.sections.filter((_, i) => i !== index),
     }));
+  };
+
+  // Drag and drop handlers for sections
+  const handleSectionDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    setDraggedSectionIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+    if (dragSectionRef.current) {
+      dragSectionRef.current.style.opacity = "0.5";
+    }
+  };
+
+  const handleSectionDragEnd = () => {
+    setDraggedSectionIndex(null);
+    setDragOverSectionIndex(null);
+    if (dragSectionRef.current) {
+      dragSectionRef.current.style.opacity = "1";
+    }
+  };
+
+  const handleSectionDragOver = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (draggedSectionIndex !== null && draggedSectionIndex !== index) {
+      setDragOverSectionIndex(index);
+    }
+  };
+
+  const handleSectionDragLeave = () => {
+    setDragOverSectionIndex(null);
+  };
+
+  const handleSectionDrop = (e: React.DragEvent<HTMLDivElement>, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedSectionIndex === null || draggedSectionIndex === targetIndex) {
+      setDragOverSectionIndex(null);
+      return;
+    }
+
+    setFormData(prev => {
+      const newSections = [...prev.sections];
+      const [draggedItem] = newSections.splice(draggedSectionIndex, 1);
+      newSections.splice(targetIndex, 0, draggedItem);
+      return { ...prev, sections: newSections };
+    });
+
+    setDraggedSectionIndex(null);
+    setDragOverSectionIndex(null);
   };
 
   const addTip = () => {
@@ -479,11 +533,39 @@ export default function GestaoAjuda() {
 
               {/* Sections */}
               <div className="space-y-3">
-                <Label>Secções</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Secções</Label>
+                  {formData.sections.length > 1 && (
+                    <span className="text-xs text-muted-foreground">
+                      Arraste para reordenar
+                    </span>
+                  )}
+                </div>
                 <div className="space-y-2">
                   {formData.sections.map((section, index) => (
-                    <div key={index} className="flex items-start gap-2 p-3 rounded-lg border bg-muted/30">
-                      <div className="flex-1">
+                    <div
+                      key={index}
+                      ref={draggedSectionIndex === index ? dragSectionRef : null}
+                      draggable
+                      onDragStart={(e) => handleSectionDragStart(e, index)}
+                      onDragEnd={handleSectionDragEnd}
+                      onDragOver={(e) => handleSectionDragOver(e, index)}
+                      onDragLeave={handleSectionDragLeave}
+                      onDrop={(e) => handleSectionDrop(e, index)}
+                      className={`flex items-start gap-2 p-3 rounded-lg border bg-muted/30 cursor-move transition-all ${
+                        dragOverSectionIndex === index
+                          ? "border-primary border-2 bg-primary/5"
+                          : ""
+                      } ${
+                        draggedSectionIndex === index
+                          ? "opacity-50"
+                          : ""
+                      }`}
+                    >
+                      <div className="flex items-center justify-center h-full pt-1 text-muted-foreground hover:text-foreground">
+                        <GripVertical className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm">{section.title}</p>
                         <p className="text-xs text-muted-foreground line-clamp-2">{section.content}</p>
                       </div>
