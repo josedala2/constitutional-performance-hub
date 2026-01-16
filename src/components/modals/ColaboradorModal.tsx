@@ -1,15 +1,18 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { ValidatedInput } from "@/components/ui/validated-input";
 import { User, translateRole } from "@/types/sgad";
-import { Users, Save, X, Eye, Mail, Phone } from "lucide-react";
-import { useState, useEffect } from "react";
+import { colaboradorFormSchema, sanitizeString, ColaboradorFormData } from "@/lib/validation";
+import { Users, Save, X, Eye, Mail } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { toast } from "@/hooks/use-toast";
+import { z } from "zod";
 
 interface ColaboradorModalProps {
   open: boolean;
@@ -25,9 +28,10 @@ export function ColaboradorModal({ open, onOpenChange, user, mode, onSave }: Col
     email: user?.email || "",
     cargo: user?.cargo || "",
     unidade_organica: user?.unidade_organica || "",
-    role: user?.role || "avaliado",
+    role: user?.role || "avaliado" as const,
     ativo: user?.ativo ?? true,
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (user) {
@@ -39,14 +43,49 @@ export function ColaboradorModal({ open, onOpenChange, user, mode, onSave }: Col
         role: user.role,
         ativo: user.ativo,
       });
+      setErrors({});
     }
   }, [user]);
 
   const isViewMode = mode === "view";
   const title = mode === "create" ? "Novo Colaborador" : mode === "edit" ? "Editar Colaborador" : "Perfil do Colaborador";
 
+  const validateForm = useCallback(() => {
+    try {
+      colaboradorFormSchema.parse(formData);
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          const field = err.path[0]?.toString();
+          if (field && !newErrors[field]) {
+            newErrors[field] = err.message;
+          }
+        });
+        setErrors(newErrors);
+        toast({
+          title: "Erro de validação",
+          description: error.errors[0]?.message || "Verifique os campos do formulário.",
+          variant: "destructive",
+        });
+      }
+      return false;
+    }
+  }, [formData]);
+
   const handleSave = () => {
-    onSave?.(formData);
+    if (!validateForm()) return;
+    
+    // Sanitize data before saving
+    const sanitizedData = {
+      ...formData,
+      nome: sanitizeString(formData.nome),
+      cargo: sanitizeString(formData.cargo),
+    };
+    
+    onSave?.(sanitizedData);
     onOpenChange(false);
   };
 
@@ -91,11 +130,22 @@ export function ColaboradorModal({ open, onOpenChange, user, mode, onSave }: Col
               {isViewMode ? (
                 <p className="text-lg font-medium">{formData.nome}</p>
               ) : (
-                <Input
+              <ValidatedInput
                   id="nome"
                   value={formData.nome}
                   onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                  onBlur={() => {
+                    if (!formData.nome.trim()) {
+                      setErrors((prev) => ({ ...prev, nome: "Nome é obrigatório" }));
+                    } else if (formData.nome.length < 2) {
+                      setErrors((prev) => ({ ...prev, nome: "Deve ter pelo menos 2 caracteres" }));
+                    } else {
+                      setErrors((prev) => ({ ...prev, nome: "" }));
+                    }
+                  }}
                   placeholder="Nome completo"
+                  error={errors.nome}
+                  maxLength={100}
                 />
               )}
             </div>
@@ -110,12 +160,24 @@ export function ColaboradorModal({ open, onOpenChange, user, mode, onSave }: Col
                   <p className="text-sm">{formData.email}</p>
                 </div>
               ) : (
-                <Input
+              <ValidatedInput
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value.toLowerCase().trim() })}
+                  onBlur={() => {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!formData.email.trim()) {
+                      setErrors((prev) => ({ ...prev, email: "Email é obrigatório" }));
+                    } else if (!emailRegex.test(formData.email)) {
+                      setErrors((prev) => ({ ...prev, email: "Email inválido" }));
+                    } else {
+                      setErrors((prev) => ({ ...prev, email: "" }));
+                    }
+                  }}
                   placeholder="email@tc.ao"
+                  error={errors.email}
+                  maxLength={255}
                 />
               )}
             </div>
@@ -124,11 +186,22 @@ export function ColaboradorModal({ open, onOpenChange, user, mode, onSave }: Col
               {isViewMode ? (
                 <p className="font-medium">{formData.cargo}</p>
               ) : (
-                <Input
+              <ValidatedInput
                   id="cargo"
                   value={formData.cargo}
                   onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
+                  onBlur={() => {
+                    if (!formData.cargo.trim()) {
+                      setErrors((prev) => ({ ...prev, cargo: "Cargo é obrigatório" }));
+                    } else if (formData.cargo.length < 2) {
+                      setErrors((prev) => ({ ...prev, cargo: "Deve ter pelo menos 2 caracteres" }));
+                    } else {
+                      setErrors((prev) => ({ ...prev, cargo: "" }));
+                    }
+                  }}
                   placeholder="Cargo"
+                  error={errors.cargo}
+                  maxLength={100}
                 />
               )}
             </div>
