@@ -1,15 +1,16 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ValidatedInput } from "@/components/ui/validated-input";
 import { EvaluationCycle, getStatusVariant, translateStatus } from "@/types/sgad";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Calendar, Save, X, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 
 interface CicloModalProps {
   open: boolean;
@@ -23,11 +24,12 @@ export function CicloModal({ open, onOpenChange, cycle, mode, onSave }: CicloMod
   const [formData, setFormData] = useState({
     ano: cycle?.ano || new Date().getFullYear(),
     semestre: cycle?.semestre || 1,
-    tipo: cycle?.tipo || "semestral",
-    estado: cycle?.estado || "aberto",
+    tipo: cycle?.tipo || "semestral" as const,
+    estado: cycle?.estado || "aberto" as const,
     data_inicio: cycle?.data_inicio || "",
     data_fim: cycle?.data_fim || "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (cycle) {
@@ -39,6 +41,7 @@ export function CicloModal({ open, onOpenChange, cycle, mode, onSave }: CicloMod
         data_inicio: cycle.data_inicio,
         data_fim: cycle.data_fim,
       });
+      setErrors({});
     }
   }, [cycle]);
 
@@ -46,6 +49,36 @@ export function CicloModal({ open, onOpenChange, cycle, mode, onSave }: CicloMod
   const title = mode === "create" ? "Novo Ciclo de Avaliação" : mode === "edit" ? "Editar Ciclo" : "Detalhes do Ciclo";
 
   const handleSave = () => {
+    let hasErrors = false;
+    const newErrors: Record<string, string> = {};
+
+    if (formData.ano < 2000 || formData.ano > 2100) {
+      newErrors.ano = "Ano deve estar entre 2000 e 2100";
+      hasErrors = true;
+    }
+    if (!formData.data_inicio) {
+      newErrors.data_inicio = "Data de início é obrigatória";
+      hasErrors = true;
+    }
+    if (!formData.data_fim) {
+      newErrors.data_fim = "Data de fim é obrigatória";
+      hasErrors = true;
+    }
+    if (formData.data_inicio && formData.data_fim && new Date(formData.data_fim) <= new Date(formData.data_inicio)) {
+      newErrors.data_fim = "Data de fim deve ser posterior à data de início";
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      setErrors(newErrors);
+      toast({
+        title: "Erro de validação",
+        description: Object.values(newErrors)[0],
+        variant: "destructive",
+      });
+      return;
+    }
+
     onSave?.(formData);
     onOpenChange(false);
   };
@@ -74,11 +107,14 @@ export function CicloModal({ open, onOpenChange, cycle, mode, onSave }: CicloMod
               {isViewMode ? (
                 <p className="text-lg font-medium">{formData.ano}</p>
               ) : (
-                <Input
+                <ValidatedInput
                   id="ano"
                   type="number"
                   value={formData.ano}
-                  onChange={(e) => setFormData({ ...formData, ano: parseInt(e.target.value) })}
+                  onChange={(e) => setFormData({ ...formData, ano: parseInt(e.target.value) || 0 })}
+                  error={errors.ano}
+                  min={2000}
+                  max={2100}
                 />
               )}
             </div>
@@ -130,7 +166,7 @@ export function CicloModal({ open, onOpenChange, cycle, mode, onSave }: CicloMod
               ) : (
                 <Select
                   value={formData.estado}
-                  onValueChange={(v) => setFormData({ ...formData, estado: v as any })}
+                  onValueChange={(v) => setFormData({ ...formData, estado: v as "aberto" | "em_acompanhamento" | "fechado" | "homologado" })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -156,11 +192,12 @@ export function CicloModal({ open, onOpenChange, cycle, mode, onSave }: CicloMod
                   {formData.data_inicio && format(new Date(formData.data_inicio), "d 'de' MMMM 'de' yyyy", { locale: pt })}
                 </p>
               ) : (
-                <Input
+                <ValidatedInput
                   id="data_inicio"
                   type="date"
                   value={formData.data_inicio}
                   onChange={(e) => setFormData({ ...formData, data_inicio: e.target.value })}
+                  error={errors.data_inicio}
                 />
               )}
             </div>
@@ -171,11 +208,12 @@ export function CicloModal({ open, onOpenChange, cycle, mode, onSave }: CicloMod
                   {formData.data_fim && format(new Date(formData.data_fim), "d 'de' MMMM 'de' yyyy", { locale: pt })}
                 </p>
               ) : (
-                <Input
+                <ValidatedInput
                   id="data_fim"
                   type="date"
                   value={formData.data_fim}
                   onChange={(e) => setFormData({ ...formData, data_fim: e.target.value })}
+                  error={errors.data_fim}
                 />
               )}
             </div>
